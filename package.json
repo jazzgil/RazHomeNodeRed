@@ -1,0 +1,12 @@
+{
+    "name": "RazHomeNodeRed",
+    "description": "A Node-RED Project",
+    "version": "0.0.1",
+    "dependencies": {},
+    "node-red": {
+        "settings": {
+            "flowFile": "flows_Home2.json",
+            "credentialsFile": "flows_Home2_cred.json"
+        }
+    }
+}
