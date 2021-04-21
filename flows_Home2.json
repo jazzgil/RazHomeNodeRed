@@ -7,16 +7,16 @@
         "info": ""
     },
     {
-        "id": "f8865110.44c59",
+        "id": "d4b1bd47.24b07",
         "type": "tab",
-        "label": "Announce",
+        "label": "Popup Master",
         "disabled": false,
         "info": ""
     },
     {
-        "id": "d4b1bd47.24b07",
+        "id": "f8865110.44c59",
         "type": "tab",
-        "label": "Light",
+        "label": "Announce / Presence",
         "disabled": false,
         "info": ""
     },
@@ -272,16 +272,6 @@
         "usernames": "",
         "chatIds": "",
         "pollInterval": "300"
-    },
-    {
-        "id": "869bb80b.3ae8f8",
-        "type": "ui_group",
-        "name": "אי",
-        "tab": "aa347550.c05b48",
-        "order": 6,
-        "disp": true,
-        "width": "2",
-        "collapse": true
     },
     {
         "id": "2bee767.051258a",
@@ -605,7 +595,7 @@
         "retain": "false",
         "broker": "b83f640b.f9b038",
         "x": 780,
-        "y": 640,
+        "y": 540,
         "wires": []
     },
     {
@@ -763,7 +753,7 @@
         "site": "default",
         "command": "20",
         "x": 250,
-        "y": 660,
+        "y": 720,
         "wires": [
             [
                 "d72256c1.618838",
@@ -964,7 +954,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 110,
-        "y": 660,
+        "y": 720,
         "wires": [
             [
                 "a5fdf3da.ca767"
@@ -1082,20 +1072,6 @@
         ]
     },
     {
-        "id": "71b528ef.23fd58",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "Save state",
-        "func": "global.set(msg.topic.substring(0, msg.topic.lastIndexOf(\"/\")), msg.payload);\nreturn null;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 410,
-        "y": 60,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "6269aa6e.4902b4",
         "type": "ui_table",
         "z": "f8865110.44c59",
@@ -1138,7 +1114,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 420,
-        "y": 700,
+        "y": 760,
         "wires": [
             []
         ]
@@ -1300,32 +1276,6 @@
         ]
     },
     {
-        "id": "a68e7546.53d6e8",
-        "type": "ui_slider",
-        "z": "d4b1bd47.24b07",
-        "name": "לבן",
-        "label": "",
-        "tooltip": "",
-        "group": "869bb80b.3ae8f8",
-        "order": 3,
-        "width": "1",
-        "height": "1",
-        "passthru": false,
-        "outs": "all",
-        "topic": "esp/L2/Island/setwrgb",
-        "min": 0,
-        "max": "100",
-        "step": 1,
-        "x": 350,
-        "y": 180,
-        "wires": [
-            [
-                "bfa92187.8423e",
-                "81ac85a5.8580c8"
-            ]
-        ]
-    },
-    {
         "id": "94ce8955.861978",
         "type": "function",
         "z": "f8865110.44c59",
@@ -1338,150 +1288,6 @@
         "wires": [
             [
                 "bcbc1481.027f48"
-            ]
-        ]
-    },
-    {
-        "id": "a2775747.ca44e8",
-        "type": "mqtt in",
-        "z": "d4b1bd47.24b07",
-        "name": "",
-        "topic": "esp/L2/Island/state",
-        "qos": "2",
-        "datatype": "json",
-        "broker": "b83f640b.f9b038",
-        "x": 130,
-        "y": 60,
-        "wires": [
-            [
-                "71b528ef.23fd58",
-                "a63f16e3.714dc8",
-                "8fc46731.b4e948"
-            ]
-        ]
-    },
-    {
-        "id": "bfa92187.8423e",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "apply WRGB",
-        "func": "let state = global.get(\"esp/L2/Island\") || {};\nmsg.payload = (((parseInt(state.wrgb || '0', 16) & 0xFFFFFF) | ((255 * msg.payload / 100) << 24))>>>0).toString(16);\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 510,
-        "y": 180,
-        "wires": [
-            [
-                "6e07aa94.3a4bc4"
-            ]
-        ]
-    },
-    {
-        "id": "acdf513f.f29f3",
-        "type": "ui_colour_picker",
-        "z": "d4b1bd47.24b07",
-        "name": "צבע",
-        "label": "",
-        "group": "869bb80b.3ae8f8",
-        "format": "hex",
-        "outformat": "string",
-        "showSwatch": true,
-        "showPicker": true,
-        "showValue": false,
-        "showHue": false,
-        "showAlpha": false,
-        "showLightness": true,
-        "square": "false",
-        "dynOutput": "true",
-        "order": 4,
-        "width": "1",
-        "height": "1",
-        "passthru": false,
-        "topic": "esp/L2/Island/setwrgb",
-        "x": 350,
-        "y": 240,
-        "wires": [
-            [
-                "a2a46e33.64b45",
-                "81ac85a5.8580c8"
-            ]
-        ]
-    },
-    {
-        "id": "a2a46e33.64b45",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "keep white",
-        "func": "let state = global.get(\"esp/L2/Island\") || {};\nmsg.payload = (parseInt(state.wrgb || '0', 16) >> 24).toString(16) + msg.payload;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 510,
-        "y": 240,
-        "wires": [
-            [
-                "6e07aa94.3a4bc4"
-            ]
-        ]
-    },
-    {
-        "id": "ef6021f.7640ce",
-        "type": "ui_dropdown",
-        "z": "d4b1bd47.24b07",
-        "name": "",
-        "label": "",
-        "tooltip": "",
-        "place": "אפקט",
-        "group": "869bb80b.3ae8f8",
-        "order": 6,
-        "width": "0",
-        "height": "0",
-        "passthru": false,
-        "options": [],
-        "payload": "",
-        "topic": "esp/L2/Island/setmode",
-        "x": 360,
-        "y": 360,
-        "wires": [
-            [
-                "6e07aa94.3a4bc4",
-                "81ac85a5.8580c8"
-            ]
-        ]
-    },
-    {
-        "id": "7945ebf7.011384",
-        "type": "inject",
-        "z": "d4b1bd47.24b07",
-        "name": "Init",
-        "repeat": "",
-        "crontab": "",
-        "once": true,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "false",
-        "payloadType": "bool",
-        "x": 110,
-        "y": 240,
-        "wires": [
-            [
-                "a63f16e3.714dc8"
-            ]
-        ]
-    },
-    {
-        "id": "a63f16e3.714dc8",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "Effect Options",
-        "func": "if (!msg.payload)\n    global.set(\"isleModes\", [3,7,8,9,10,11,12,16,17,18,20,25,32,33,36,38,39,40,41,42,43,44,46,47,48,49,50,51,52,53,54]);\nmsg.payload = typeof msg.payload.mode === \"number\"? msg.payload.mode : 0;\nmsg.options = [{\"Static\":0},{\"Blink\":1},{\"Breath\":2},{\"Color Wipe\":3},{\"Color Wipe Inv\":4},{\"Color Wipe Rev\":5},{\"Color Wipe Rev Inv\":6},{\"Color Wipe Random\":7},{\"Random Color\":8},{\"Single Dynamic\":9},{\"Multi Dynamic\":10},{\"Rainbow\":11},{\"Rainbow Cycle\":12},{\"Scan\":13},{\"Dual Scan\":14},{\"Fade\":15},{\"Theater Chase\":16},{\"Theater Chase Rainbow\":17},{\"Running Lights\":18},{\"Twinkle\":19},{\"Twinkle Random\":20},{\"Twinkle Fade\":21},{\"Twinkle Fade Random\":22},{\"Sparkle\":23},{\"Flash Sparkle\":24},{\"Hyper Sparkle\":25},{\"Strobe\":26},{\"Strobe Rainbow\":27},{\"Multi Strobe\":28},{\"Blink Rainbow\":29},{\"Chase White\":30},{\"Chase Color\":31},{\"Chase Random\":32},{\"Chase Rainbow\":33},{\"Chase Flash\":34},{\"Chase Flash Random\":35},{\"Chase Rainbow White\":36},{\"Chase Blackout\":37},{\"Chase Blackout Rainbow\":38},{\"Color Sweep Random\":39},{\"Running Color\":40},{\"Running Red Blue\":41},{\"Running Random\":42},{\"Larson Scanner\":43},{\"Comet\":44},{\"Fireworks\":45},{\"Fireworks Random\":46},{\"Merry Christmas\":47},{\"Fire Flicker\":48},{\"Fire Flicker Soft\":49},{\"Fire Flicker Intense\":50},{\"Circus Combustus\":51},{\"Halloween\":52},{\"Bicolor Chase\":53},{\"Tricolor Chase\":54},{\"ICU\":55}];\nreturn msg;\n",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 160,
-        "y": 360,
-        "wires": [
-            [
-                "ef6021f.7640ce",
-                "14eda738.f56399"
             ]
         ]
     },
@@ -1557,149 +1363,6 @@
         "x": 230,
         "y": 40,
         "wires": []
-    },
-    {
-        "id": "ac8be21e.cd0f4",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "pick mode",
-        "func": "const modes = global.get(\"isleModes\");\nconst curMode = global.get(\"esp/L2/Island\").mode || 0;\nconst next = (modes.findIndex(a => a > curMode)) % modes.length;\nmsg.payload = modes[next >= 0? next : 0];\nmsg.topic = \"esp/L2/Island/setmode\";\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 690,
-        "y": 400,
-        "wires": [
-            [
-                "6e07aa94.3a4bc4"
-            ]
-        ]
-    },
-    {
-        "id": "962506b2.53ed48",
-        "type": "msg-resend",
-        "z": "d4b1bd47.24b07",
-        "interval": "20",
-        "intervalUnit": "secs",
-        "maximum": "500",
-        "bytopic": false,
-        "clone": false,
-        "firstDelayed": false,
-        "addCounters": false,
-        "highRate": true,
-        "outputCountField": "",
-        "outputMaxField": "",
-        "name": "resend",
-        "x": 530,
-        "y": 400,
-        "wires": [
-            [
-                "ac8be21e.cd0f4"
-            ]
-        ]
-    },
-    {
-        "id": "14eda738.f56399",
-        "type": "ui_button",
-        "z": "d4b1bd47.24b07",
-        "d": true,
-        "name": "",
-        "group": "869bb80b.3ae8f8",
-        "order": 8,
-        "width": "2",
-        "height": "1",
-        "passthru": false,
-        "label": "Remove #{{payload}}",
-        "tooltip": "",
-        "color": "",
-        "bgcolor": "",
-        "icon": "",
-        "payload": "",
-        "payloadType": "str",
-        "topic": "",
-        "x": 270,
-        "y": 520,
-        "wires": [
-            [
-                "17c95405.d434fc"
-            ]
-        ]
-    },
-    {
-        "id": "17c95405.d434fc",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "apply",
-        "func": "const modes = global.get(\"isleModes\");\nconst idx = modes.indexOf(global.get(\"esp/L2/Island\").mode);\nif (idx !== -1) {\n    modes.splice(idx, 1);\n    global.set(\"isleModes\", modes);\n}\nreturn msg;\n",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 410,
-        "y": 520,
-        "wires": [
-            [
-                "ac8be21e.cd0f4"
-            ]
-        ]
-    },
-    {
-        "id": "4e0e68c0.c0d7f8",
-        "type": "ui_text_input",
-        "z": "d4b1bd47.24b07",
-        "name": "Off time",
-        "label": "off",
-        "tooltip": "",
-        "group": "869bb80b.3ae8f8",
-        "order": 7,
-        "width": "2",
-        "height": "1",
-        "passthru": false,
-        "mode": "time",
-        "delay": 300,
-        "topic": "esp/L2/Island/setsoff",
-        "x": 360,
-        "y": 300,
-        "wires": [
-            [
-                "f831e35b.f45c3"
-            ]
-        ]
-    },
-    {
-        "id": "8fc46731.b4e948",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "refresh states",
-        "func": "if (msg.payload.sw0 === undefined) return;\n\nreturn [\n    {payload: msg.payload.sw0},\n    {payload: 0| parseInt(msg.payload.wrgb.substr(0,2),16) / 255 * 100},\n    {payload: msg.payload.sOff? (new Date(Date.now() + msg.payload.sOff * 1000)).toTimeString().split(\" \")[0] : ''} \n];",
-        "outputs": 3,
-        "noerr": 0,
-        "x": 160,
-        "y": 133,
-        "wires": [
-            [
-                "e3aa2210.905a"
-            ],
-            [
-                "a68e7546.53d6e8"
-            ],
-            [
-                "4e0e68c0.c0d7f8"
-            ]
-        ]
-    },
-    {
-        "id": "f831e35b.f45c3",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "parse",
-        "func": "// payload is selected time in ms since midnight\nconst d = new Date(), msSinceMidnight = d.getTime() - d.setHours(0,0,0,0);\nmsg.payload = ((msg.payload > msSinceMidnight ? 0 : 24*60*60*1000) +\n    msg.payload - msSinceMidnight) / 1000 | 0;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 510,
-        "y": 300,
-        "wires": [
-            [
-                "6e07aa94.3a4bc4"
-            ]
-        ]
     },
     {
         "id": "3ef5bbd9.a1c984",
@@ -1953,23 +1616,6 @@
         ]
     },
     {
-        "id": "2694ba76.dc9996",
-        "type": "function",
-        "z": "3e6b6884.b00d58",
-        "d": true,
-        "name": "Temps",
-        "func": "return [[\"Top\", \"Center\", \"Bottom\", \"Output\"].map(key => ({\n    topic: key, \n    payload: msg.payload[\"t\"+key]\n}))];",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 330,
-        "y": 340,
-        "wires": [
-            [
-                "2e39d361.eac68c"
-            ]
-        ]
-    },
-    {
         "id": "b821a656.834c38",
         "type": "mqtt in",
         "z": "3e6b6884.b00d58",
@@ -1982,71 +1628,8 @@
         "y": 280,
         "wires": [
             [
-                "2694ba76.dc9996",
                 "baef96f9.cafd38"
             ]
-        ]
-    },
-    {
-        "id": "2e39d361.eac68c",
-        "type": "ui_chart",
-        "z": "3e6b6884.b00d58",
-        "d": true,
-        "name": "",
-        "group": "26ad0dca.e7b0d2",
-        "order": 15,
-        "width": "0",
-        "height": "0",
-        "label": "",
-        "chartType": "line",
-        "legend": "true",
-        "xformat": "HH:mm",
-        "interpolate": "bezier",
-        "nodata": "",
-        "dot": false,
-        "ymin": "",
-        "ymax": "",
-        "removeOlder": "12",
-        "removeOlderPoints": "",
-        "removeOlderUnit": "3600",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#d62728",
-            "#ff7f0e",
-            "#1f77b4",
-            "#aec7e8",
-            "#98df8a",
-            "#d62728",
-            "#ff9896",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "outputs": 1,
-        "x": 470,
-        "y": 340,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "cc433eb4.e9bdc",
-        "type": "ui_template",
-        "z": "3e6b6884.b00d58",
-        "group": "e7074671.132b98",
-        "name": "Grafana - דוד",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "format": "<div id='div_iframe'>\n    <iframe id=frame frameborder=\"0\" marginheight=\"0\" marginwidth=\"0\" src=\"http://razhome1.ddns.net:8085/d/k4AZNmEik/razhome?panelId=2&fullscreen&orgId=1&from=now-12h&to=now&refresh=20s\"/>\n</div>\n<style>\n#div_iframe {\n  overflow-x: auto;\n  width: inherit;\n  height: 100%;\n}\n\n#frame {\n  width: 550px;\n  height: 445px;\n  overflow: hidden;\n}\n</style>\n<script>\n$(document).ready(function() {\n    setTimeout(() => {\n        $('#div_iframe').scrollLeft(1000);\n    }, 2000);\n});\n</script>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 450,
-        "y": 600,
-        "wires": [
-            []
         ]
     },
     {
@@ -2054,7 +1637,7 @@
         "type": "ui_text",
         "z": "3e6b6884.b00d58",
         "group": "26ad0dca.e7b0d2",
-        "order": 4,
+        "order": 5,
         "width": "1",
         "height": "1",
         "name": "Top",
@@ -2095,7 +1678,7 @@
         "type": "ui_text",
         "z": "3e6b6884.b00d58",
         "group": "26ad0dca.e7b0d2",
-        "order": 5,
+        "order": 6,
         "width": "1",
         "height": "1",
         "name": "Center",
@@ -2111,7 +1694,7 @@
         "type": "ui_text",
         "z": "3e6b6884.b00d58",
         "group": "26ad0dca.e7b0d2",
-        "order": 6,
+        "order": 7,
         "width": "1",
         "height": "1",
         "name": "Bottom",
@@ -2127,7 +1710,7 @@
         "type": "ui_text",
         "z": "3e6b6884.b00d58",
         "group": "26ad0dca.e7b0d2",
-        "order": 7,
+        "order": 8,
         "width": "1",
         "height": "1",
         "name": "Output",
@@ -2142,8 +1725,9 @@
         "id": "4c570a17.b5fe94",
         "type": "ui_text",
         "z": "3e6b6884.b00d58",
+        "d": true,
         "group": "26ad0dca.e7b0d2",
-        "order": 3,
+        "order": 4,
         "width": "2",
         "height": "1",
         "name": "State",
@@ -2155,24 +1739,11 @@
         "wires": []
     },
     {
-        "id": "c2973cf3.b933",
-        "type": "mqtt out",
-        "z": "3e6b6884.b00d58",
-        "name": "> MQTT",
-        "topic": "",
-        "qos": "0",
-        "retain": "false",
-        "broker": "b83f640b.f9b038",
-        "x": 560,
-        "y": 460,
-        "wires": []
-    },
-    {
         "id": "b03dcb86.7f5d78",
         "type": "ui_text",
         "z": "3e6b6884.b00d58",
         "group": "26ad0dca.e7b0d2",
-        "order": 8,
+        "order": 2,
         "width": "3",
         "height": "1",
         "name": "Outlook",
@@ -2206,7 +1777,7 @@
         "z": "3e6b6884.b00d58",
         "group": "26ad0dca.e7b0d2",
         "order": 1,
-        "width": "5",
+        "width": "3",
         "height": "1",
         "name": "Title Wifi",
         "label": "<span class=\"nr-dashboard-cardpanel\"><p class=\"nr-dashboard-cardtitle\">דוד</p></span>",
@@ -2357,60 +1928,6 @@
         "wires": [
             [
                 "947ddb13.f8efd8"
-            ]
-        ]
-    },
-    {
-        "id": "6ae73881.39d0c8",
-        "type": "ui_ui_control",
-        "z": "3e6b6884.b00d58",
-        "name": "",
-        "events": "change",
-        "x": 260,
-        "y": 600,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "2103a388.90d37c",
-        "type": "ui_template",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "name": "Show Tank",
-        "order": 2,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'WaterTank'})\">\n    <div>graph</div>\n    <font class=\"fa fa-area-chart fa-2x\" color=#86F></font>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 90,
-        "y": 600,
-        "wires": [
-            [
-                "6ae73881.39d0c8"
-            ]
-        ]
-    },
-    {
-        "id": "c9e0da2c.7e6158",
-        "type": "ui_template",
-        "z": "3e6b6884.b00d58",
-        "group": "e7074671.132b98",
-        "name": "Hide Tank",
-        "order": 1,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'מכשירים'})\">\n    <div>back</div>\n    <font class=\"fa fa-arrow-left fa-2x\" color=#EEE/>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 80,
-        "y": 640,
-        "wires": [
-            [
-                "6ae73881.39d0c8"
             ]
         ]
     },
@@ -2650,7 +2167,7 @@
         "order": 1,
         "width": "0",
         "height": "0",
-        "format": "<script src=\"/js/iro.min.js\"></script>\n\n<style>\n  .md-text {\n    font-size: 13px;\n  }\n  md-option {\n      height: 25px;\n  }\n  .nr-dashboard-slider p.label {\n      margin: 0;\n  }\n  .nr-dashboard-cardpanel > p {\n      margin: 0;\n      text-align: center;\n  }\n\n  .button-row, .button-col {\n    display: flex;\n    width: calc(100% - 2px);\n    height: calc(100% - 2px);\n    border: 1px solid gray;\n    border-radius: 8px;\n  }\n\n  .button-row {\n    flex-direction: row;\n  }\n  .button-col {\n    flex-direction: column;\n  }\n    \n  .button-row > .myctl:not(:last-child) {\n     margin-right: 6px;\n  }\n  .button-col > .myctl:not(:last-child) {\n     margin-bottom: 6px;\n  }\n\n  .mysubctl,\n  .myctl {\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    padding: 0;\n    margin: 0;     \n    font-size: 12px;\n    min-width: 0;\n    min-height: 0;\n    line-height: unset;\n    text-transform: unset; \n    vertical-align: middle;\n    align-items: center;\n    text-align: center;\n    justify-content: center;\n  }\n  .myctl {\n    width: 100%;\n    height: 100%;\n    border-radius: 8px;\n  }\n  .mysubctl {\n    border-radius: 4px;\n    border: 0.5px solid;\n  }\n  .myctl > div > .md-button,\n  .md-button.myctl {\n    background-color: #225;\n  }\n  button.myctl {\n    background-color: #225;\n    color: #FFF;\n    border: 0;\n  }\n  .myctl.dialog-button {\n    background-color: #229;\n  }\n  .flex30 {\n      flex: 0 1 30%;\n  }\n\n  .bigger > div {\n      font-size: 110%;\n  }\n  \n  .sub-label {\n      position: absolute;\n      font-size: 9pt;\n      padding-left: 3px;\n      z-index: 1;\n  }\n  \n    .left-icon {\n        flex: 1;\n        display: flex;\n        width: 100% !important;\n        align-items: center;\n        justify-content: flex-start;\n        align-content: space-between;\n    }\n    .left-icon > *:first-child {\n        //align-items: flex-end;\n        width: 35%;\n        min-width: fit-content;;\n        left: 0;\n    }\n    .left-icon > *:not(:first-child) {\n        //width: 31px;\n        flex: 1;\n    }\n  \n  .myctl ng-md-icon {\n      width: unset;\n      height: unset;\n  }\n  \n  \n  \n.popup .myctl.md-button {\n    width: 42px;\n    height: 42px;\n    margin: 3px;\n}\n\n.popup md-input-container {\n    flex: 1 0;\n    min-width: 90px;\n    padding: 3px;\n    margin-top: 0;\n}\n.popup md-input-container button {\n    position: absolute;\n    right: 0;\n    background-color: transparent;\n    border: 0;\n    color: red;\n    font-size: 1.5rem;\n}\n\n.popup md-select, \n.popup md-select .md-select-icon {\n    color: white !important;\n}\n\n.popup input {\n    background-color: #333;\n    color: white;\n}\n\n.dialog-body > input {\n    width: calc(100% - 16px);\n    margin: 3px;\n    padding: 1px 3px;\n    font-size: 1.2rem;\n}\n\n\n.myctl.slider {\n    display: grid;\n    grid-template-columns: 85% 25px;\n    margin: 3px;\n    background-color: #225;\n    width: 84px;\n    height: 42px;\n}\n\n.slider md-slider {\n    height: 42px;\n    min-width: unset;\n    margin-left: 20px;\n}\n.slider md-slider-wrapper {\n    width: unset;\n    height: unset;\n}\n\n.slider md-slider .md-thumb:after, .slider md-slider .md-track,\n.slider md-slider .md-focus-thumb, .slider md-slider .md-focus-ring{\n    background-color: #FA9900 !important;\n    border-color: #FA9900 !important;\n}\n\n.slider .md-thumb {\n    left: -20px;\n}\n\n.slider > div {\n  color: white; \n}\n\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {opacity:0} \n    to {opacity:1}\n}\n\n@keyframes animatetop {\n    from {opacity:0}\n    to {opacity:1}\n}\n\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    opacity:0.99;\n    z-index: 20; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n    //-webkit-perspective: 1000;\n}\n\n/* dialog Content */\n.dialog-content {\n    position: relative;\n    background-color: #fefefe;\n    margin: auto;\n    padding: 0;\n    top: 100px;\n    border-radius: 10px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    -webkit-animation-duration: 0.4s;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n.dialog-body {\n    padding: 6px;\n}\n\n.popup .dialog-content {\n    background-color: #333333;\n    border: 1px solid #999;\n    border-radius: 3px;\n}\n\n.popup .dialog-body {\n    padding: 0;\n}\n\n/* Dialog Header */\n.dialog-header {\n  padding: 2px 16px;\n  background-color: #03A9F4; /*#5cb85c green;*/\n  border-radius: 10px 10px 0 0;\n  color: white;\n}\n\n/* The Close Button */\n.dialog-close {\n    color: #FFF;\n    text-decoration: none;\n    cursor: pointer;\n    float: right;\n    font-size: 24px;\n    line-height: 0.8;\n    font-weight: bold;\n}\n\n.dialog-close:hover,\n.dialog-close:focus {\n    color: #1565C0;\n}\n\n/* Buttons style */\n.pin {\n    width: 42px;\n    height: 42px;\n    min-width: 0;\n    font-weight: bold;\n    margin: 3px;\n    padding: 0;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n    touch-action: manipulation;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n</style>",
+        "format": "<script src=\"/js/iro.min.js\"></script>\n\n<style>\n  .md-text {\n    font-size: 13px;\n  }\n  md-option {\n      height: 25px;\n  }\n  .nr-dashboard-slider p.label {\n      margin: 0;\n  }\n  .nr-dashboard-cardpanel > p {\n      margin: 0;\n      text-align: center;\n  }\n\n  .button-row, .button-col {\n    display: flex;\n    width: calc(100% - 2px);\n    height: calc(100% - 2px);\n    border: 1px solid gray;\n    border-radius: 8px;\n  }\n\n  .button-row {\n    flex-direction: row;\n  }\n  .button-col {\n    flex-direction: column;\n  }\n    \n  .button-row > .myctl:not(:last-child) {\n     margin-right: 6px;\n  }\n  .button-col > .myctl:not(:last-child) {\n     margin-bottom: 6px;\n  }\n\n  .mysubctl,\n  .myctl {\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    padding: 0;\n    margin: 0;     \n    font-size: 12px;\n    min-width: 0;\n    min-height: 0;\n    line-height: unset;\n    text-transform: unset; \n    vertical-align: middle;\n    align-items: center;\n    text-align: center;\n    justify-content: center;\n  }\n  .myctl {\n    width: 100%;\n    height: 100%;\n    border-radius: 8px;\n  }\n  .mysubctl {\n    border-radius: 4px;\n    border: 0.5px solid;\n  }\n  .myctl > div > .md-button,\n  .md-button.myctl {\n    background-color: #225;\n  }\n  button.myctl {\n    background-color: #225;\n    color: #FFF;\n    border: 0;\n  }\n  .myctl.dialog-button {\n    background-color: #229;\n  }\n  .flex30 {\n      flex: 0 1 30%;\n  }\n\n  .bigger > div {\n      font-size: 110%;\n  }\n  \n  .sub-label {\n      position: absolute;\n      font-size: 9pt;\n      padding-left: 3px;\n      z-index: 1;\n  }\n  \n    .left-icon {\n        flex: 1;\n        display: flex;\n        width: 100% !important;\n        align-items: center;\n        justify-content: flex-start;\n        align-content: space-between;\n    }\n    .left-icon > *:first-child {\n        //align-items: flex-end;\n        width: 35%;\n        min-width: fit-content;;\n        left: 0;\n    }\n    .left-icon > *:not(:first-child) {\n        //width: 31px;\n        flex: 1;\n    }\n  \n  .myctl ng-md-icon {\n      width: unset;\n      height: unset;\n  }\n  \n  \n  \n.popup .myctl.md-button {\n    width: 42px;\n    height: 42px;\n    margin: 3px;\n}\n\n.myctl.md-button > .flex {\n    display: inline-flex; \n    align-items: center;\n}\n\n.popup md-input-container {\n    flex: 1 0;\n    min-width: 90px;\n    padding: 3px;\n    margin-top: 0;\n}\n.popup md-input-container button {\n    position: absolute;\n    right: 0;\n    background-color: transparent;\n    border: 0;\n    color: red;\n    font-size: 1.5rem;\n}\n\n.popup md-select, \n.popup md-select .md-select-icon {\n    color: white !important;\n}\n\n.popup input {\n    background-color: #333;\n    color: white;\n}\n\n.dialog-body > input {\n    width: calc(100% - 16px);\n    margin: 3px;\n    padding: 1px 3px;\n    font-size: 1.2rem;\n}\n\n.myctl.ctl-lwt {\n    opacity: 0.8;\n    color: red;\n}\n\n\n.myctl.slider {\n    display: grid;\n    grid-template-columns: 85% 25px;\n    margin: 3px;\n    background-color: #225;\n    width: 84px;\n    height: 42px;\n}\n\n.slider md-slider {\n    height: 42px;\n    min-width: unset;\n    margin-left: 20px;\n}\n.slider md-slider-wrapper {\n    width: unset;\n    height: unset;\n}\n\n.slider md-slider .md-thumb:after, .slider md-slider .md-track,\n.slider md-slider .md-focus-thumb, .slider md-slider .md-focus-ring{\n    background-color: #FA9900 !important;\n    border-color: #FA9900 !important;\n}\n\n.slider .md-thumb {\n    left: -20px;\n}\n\n.slider > div {\n  color: white; \n}\n\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {opacity:0} \n    to {opacity:1}\n}\n\n@keyframes animatetop {\n    from {opacity:0}\n    to {opacity:1}\n}\n\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    opacity:0.99;\n    z-index: 20; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n    //-webkit-perspective: 1000;\n}\n\n/* dialog Content */\n.dialog-content {\n    position: relative;\n    background-color: #fefefe;\n    margin: auto;\n    padding: 0;\n    top: 100px;\n    border-radius: 10px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    -webkit-animation-duration: 0.4s;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n.dialog-body {\n    padding: 6px;\n}\n\n.popup .dialog-content {\n    background-color: #333333;\n    border: 1px solid #999;\n    border-radius: 3px;\n}\n\n.popup .dialog-body {\n    padding: 0;\n}\n\n/* Dialog Header */\n.dialog-header {\n  padding: 2px 16px;\n  background-color: #03A9F4; /*#5cb85c green;*/\n  border-radius: 10px 10px 0 0;\n  color: white;\n}\n\n/* The Close Button */\n.dialog-close {\n    color: #FFF;\n    text-decoration: none;\n    cursor: pointer;\n    float: right;\n    font-size: 24px;\n    line-height: 0.8;\n    font-weight: bold;\n}\n\n.dialog-close:hover,\n.dialog-close:focus {\n    color: #1565C0;\n}\n\n/* Buttons style */\n.pin {\n    width: 42px;\n    height: 42px;\n    min-width: 0;\n    font-weight: bold;\n    margin: 3px;\n    padding: 0;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n    touch-action: manipulation;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n</style>",
         "storeOutMessages": true,
         "fwdInMessages": true,
         "templateScope": "global",
@@ -2664,7 +2181,7 @@
         "id": "98e33d7e.3046d",
         "type": "ui_template",
         "z": "38ee4b91.5dc3e4",
-        "group": "869bb80b.3ae8f8",
+        "group": "7e71b679.598338",
         "name": "General: jQuery actions",
         "order": 9,
         "width": "0",
@@ -2693,7 +2210,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 440,
-        "y": 640,
+        "y": 540,
         "wires": [
             [
                 "6e07aa94.3a4bc4"
@@ -2709,7 +2226,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 310,
-        "y": 640,
+        "y": 540,
         "wires": [
             [
                 "33902e24.5024c2"
@@ -2741,7 +2258,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 110,
-        "y": 600,
+        "y": 500,
         "wires": [
             [
                 "ef2dec1c.1f8ca"
@@ -2758,70 +2275,10 @@
         "datatype": "utf8",
         "broker": "b83f640b.f9b038",
         "x": 110,
-        "y": 640,
+        "y": 540,
         "wires": [
             [
                 "ef2dec1c.1f8ca"
-            ]
-        ]
-    },
-    {
-        "id": "e3aa2210.905a",
-        "type": "ui_template",
-        "z": "d4b1bd47.24b07",
-        "group": "869bb80b.3ae8f8",
-        "name": "אי",
-        "order": 1,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched bigger\"\n    ng-click=\"send({topic: 'esp/L2/Island/cmd',payload: msg.payload? 'sw0,0' : 'sw0,1'})\">\n    <div>אי</div>\n    <font class=\"fa fa-lightbulb-o fa-2x\" color={{msg.payload?'#FF4':'grey'}} />\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 350,
-        "y": 120,
-        "wires": [
-            [
-                "6e07aa94.3a4bc4",
-                "81ac85a5.8580c8"
-            ]
-        ]
-    },
-    {
-        "id": "caf27aac.e5adc8",
-        "type": "ui_template",
-        "z": "d4b1bd47.24b07",
-        "group": "869bb80b.3ae8f8",
-        "name": "וגס",
-        "order": 2,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: !msg.payload, resend_ignore: !!msg.payload})\">\n    <div>וגס</div>\n    <font class=\"material-icons\" color={{msg.payload?'#FF4':'grey'}}>{{!msg.payload?'play_arrow':'pause'}}</font>\n</md-button>",
-        "storeOutMessages": true,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 370,
-        "y": 400,
-        "wires": [
-            [
-                "962506b2.53ed48"
-            ]
-        ]
-    },
-    {
-        "id": "81ac85a5.8580c8",
-        "type": "function",
-        "z": "d4b1bd47.24b07",
-        "name": "stop play",
-        "func": "msg.payload = false; \nmsg.resend_ignore = true;\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 560,
-        "y": 360,
-        "wires": [
-            [
-                "caf27aac.e5adc8",
-                "962506b2.53ed48"
             ]
         ]
     },
@@ -2843,69 +2300,6 @@
         ]
     },
     {
-        "id": "3fd7d942.8e0aa6",
-        "type": "ui_template",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "name": "People",
-        "order": 10,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({topic: 'esp/L3/Boiler/cmd', payload: 'tapPeople'})\">\n    <div>אנשים</div>\n    <font size=4>&#x1f478;</font>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 340,
-        "y": 420,
-        "wires": [
-            [
-                "c2973cf3.b933"
-            ]
-        ]
-    },
-    {
-        "id": "e8a062d4.0cdd9",
-        "type": "ui_template",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "name": "Countdown",
-        "order": 12,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({topic: 'esp/L3/Boiler/cmd', payload: 'tapCountdown'})\">\n    <div>טיימר</div>\n    <font size=4>&#x23f1;</font>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 350,
-        "y": 460,
-        "wires": [
-            [
-                "c2973cf3.b933"
-            ]
-        ]
-    },
-    {
-        "id": "3a5a668e.252b0a",
-        "type": "ui_template",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "name": "Off",
-        "order": 13,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({topic: 'esp/L3/Boiler/cmd', payload: 'tapOff'})\">\n    <div style=\"height:40%\">כיבוי</div>\n    <i class=\"fa fa-power-off fa-lg\"/>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 330,
-        "y": 500,
-        "wires": [
-            [
-                "c2973cf3.b933"
-            ]
-        ]
-    },
-    {
         "id": "7c46f543.cc764c",
         "type": "ui_toast",
         "z": "d4b1bd47.24b07",
@@ -2920,7 +2314,7 @@
         "topic": "",
         "name": "",
         "x": 130,
-        "y": 1140,
+        "y": 800,
         "wires": []
     },
     {
@@ -2957,7 +2351,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 490,
-        "y": 720,
+        "y": 800,
         "wires": [
             []
         ]
@@ -2971,7 +2365,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 290,
-        "y": 720,
+        "y": 800,
         "wires": [
             [
                 "6955edc3.dedb34"
@@ -2988,64 +2382,10 @@
         "datatype": "utf8",
         "broker": "b83f640b.f9b038",
         "x": 100,
-        "y": 720,
+        "y": 800,
         "wires": [
             [
                 "1cdbe76d.0965b9"
-            ]
-        ]
-    },
-    {
-        "id": "f20740c4.cd566",
-        "type": "ui_ui_control",
-        "z": "38ee4b91.5dc3e4",
-        "name": "",
-        "events": "change",
-        "x": 340,
-        "y": 780,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "74aad12f.32fb1",
-        "type": "ui_template",
-        "z": "38ee4b91.5dc3e4",
-        "group": "7cdedc06.5fd6d4",
-        "name": "Show MQTT Log",
-        "order": 2,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'MQTT Log'})\">\n    <div>Log</div>\n    <font class=\"fa fa-list-alt fa-2x\" color=#777></font>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 130,
-        "y": 780,
-        "wires": [
-            [
-                "f20740c4.cd566"
-            ]
-        ]
-    },
-    {
-        "id": "ee2c9cd1.14704",
-        "type": "ui_template",
-        "z": "38ee4b91.5dc3e4",
-        "group": "4e465e1b.3d43e",
-        "name": "Hide MQTT Log",
-        "order": 1,
-        "width": "1",
-        "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'מכשירים'})\">\n    <div>back</div>\n    <font class=\"fa fa-arrow-left fa-2x\" color=#EEE/>\n</md-button>",
-        "storeOutMessages": false,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 120,
-        "y": 840,
-        "wires": [
-            [
-                "f20740c4.cd566"
             ]
         ]
     },
@@ -3297,7 +2637,7 @@
         "finalize": "",
         "libs": [],
         "x": 420,
-        "y": 660,
+        "y": 720,
         "wires": [
             [
                 "c3be8d97.29c86"
@@ -3314,7 +2654,7 @@
         "name": "",
         "events": "change",
         "x": 260,
-        "y": 580,
+        "y": 640,
         "wires": [
             []
         ]
@@ -3333,7 +2673,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 100,
-        "y": 620,
+        "y": 680,
         "wires": [
             [
                 "7e4004b8.4cfa4c",
@@ -3355,7 +2695,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 70,
-        "y": 580,
+        "y": 640,
         "wires": [
             [
                 "7e4004b8.4cfa4c"
@@ -3399,7 +2739,7 @@
         "fwdInMessages": true,
         "templateScope": "local",
         "x": 800,
-        "y": 660,
+        "y": 720,
         "wires": [
             []
         ]
@@ -3413,7 +2753,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 620,
-        "y": 660,
+        "y": 720,
         "wires": [
             [
                 "8547df7c.5ad12"
@@ -3445,33 +2785,16 @@
         "type": "function",
         "z": "38ee4b91.5dc3e4",
         "name": "Common JS",
-        "func": "const secUnits = {second: 1, minute: 60, hour: 60*60, day: 60*60*24, year: 60*60*24*365};\nconst units = Object.keys(secUnits), unitVals = Object.values(secUnits);\n\n// flags: long, addDate\nfunction get_durSingle(ms, flags) {\n    const {long, addDate} = flags || {};\n    const sec = ms / 1000 >> 0;\n    const unit = units.find((u,i) => i === units.length-1 || sec < unitVals[i+1]*2);\n    const val = sec / secUnits[unit] >> 0;\n    const str = val + (!long? unit[0] : \" \"+ unit + (val === 1? \"\" : \"s\"));\n    return !addDate? str : `${str} ago (${dt.toLocaleString(locale || \"en-US\")})`;\n}\n\nfunction get_dur(ms) {\n    const sec = ms / 1000 |0, parts = [];\n    for (let i = 0; !i || sec >= unitVals[i]-1; i++)\n        parts.unshift((sec % (unitVals[i+1] || 1) / unitVals[i] |0) + units[i][0]);\n    return parts.slice(0,2).join(\" \").replace(/ 0\\w/, '');\n    //return parts.slice(0,2).join(\":0\").replace(/:0(\\d\\d)/, \":$1\").replace(/:00\\w/, '');\n}\n\nfunction get_Hmm(dt) {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getHours() +\":\"+('0'+dt.getMinutes()).substr(-2);\n}\n\nfunction get_ddMM(dt) {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getDate() +\"/\"+(dt.getMonth()+1);\n}\n\nfunction get_ddMM_Hmm(dt, noDate) {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return (!noDate? get_ddMM(dt)+\", \" : \"\") + get_Hmm(dt);\n}\n\nglobal.set('my', {\n    get_durSingle, get_dur, get_Hmm, get_ddMM, get_ddMM_Hmm\n}, 'memoryOnly');",
+        "func": "",
         "outputs": 1,
         "noerr": 0,
-        "x": 250,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst my = global.get(\"my\", \"memoryOnly\") || {};\n\nconst secUnits = {second: 1, minute: 60, hour: 60*60, day: 60*60*24, year: 60*60*24*365};\nconst units = Object.keys(secUnits), unitVals = Object.values(secUnits);\n\n// flags: long, addDate\nmy.get_durSingle = (ms, flags) => {\n    const {long, addDate} = flags || {};\n    const sec = ms / 1000 >> 0;\n    const unit = units.find((u,i) => i === units.length-1 || sec < unitVals[i+1]*2);\n    const val = sec / secUnits[unit] >> 0;\n    const str = val + (!long? unit[0] : \" \"+ unit + (val === 1? \"\" : \"s\"));\n    return !addDate? str : `${str} ago (${dt.toLocaleString(locale || \"en-US\")})`;\n};\n\nmy.get_dur = (ms) => {\n    const sec = ms / 1000 |0, parts = [];\n    for (let i = 0; !i || sec >= unitVals[i]-1; i++)\n        parts.unshift((sec % (unitVals[i+1] || 1) / unitVals[i] |0) + units[i][0]);\n    return parts.slice(0,2).join(\" \").replace(/ 0\\w/, '');\n    //return parts.slice(0,2).join(\":0\").replace(/:0(\\d\\d)/, \":$1\").replace(/:00\\w/, '');\n};\n\nmy.get_Hmm = (dt) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getHours() +\":\"+('0'+dt.getMinutes()).substr(-2);\n};\n\nmy.get_ddMM = (dt) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getDate() +\"/\"+(dt.getMonth()+1);\n};\n\nmy.get_ddMM_Hmm = (dt, noDate) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return (!noDate? my.get_ddMM(dt)+\", \" : \"\") + get_Hmm(dt);\n};\n\nglobal.set('my', my, 'memoryOnly');",
+        "finalize": "",
+        "libs": [],
+        "x": 110,
         "y": 440,
         "wires": [
             []
-        ]
-    },
-    {
-        "id": "11419cd1.506863",
-        "type": "inject",
-        "z": "38ee4b91.5dc3e4",
-        "name": "init",
-        "repeat": "",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "0.01",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 90,
-        "y": 440,
-        "wires": [
-            [
-                "500702c4.ee9c9c"
-            ]
         ]
     },
     {
@@ -3521,7 +2844,7 @@
         "tostatus": false,
         "complete": "false",
         "x": 675,
-        "y": 596,
+        "y": 656,
         "wires": []
     },
     {
@@ -3533,7 +2856,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 465,
-        "y": 596,
+        "y": 656,
         "wires": [
             [
                 "7a9298a.99df368"
@@ -3550,7 +2873,7 @@
         "name": "RoofTop Image",
         "hikcamera": "456150fc.00f6b",
         "x": 320,
-        "y": 840,
+        "y": 920,
         "wires": [
             [
                 "c182103d.98a12",
@@ -3565,7 +2888,7 @@
         "name": "RoofTop Alarm",
         "hikcamera": "456150fc.00f6b",
         "x": 100,
-        "y": 840,
+        "y": 920,
         "wires": [
             [
                 "a8eb6403.430aa8",
@@ -3582,7 +2905,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 510,
-        "y": 840,
+        "y": 920,
         "wires": [
             [
                 "ddf86a04.d336f8"
@@ -3603,7 +2926,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 660,
-        "y": 840,
+        "y": 920,
         "wires": [
             [
                 "a8eb6403.430aa8",
@@ -3622,7 +2945,7 @@
         "overwriteFile": "true",
         "encoding": "none",
         "x": 270,
-        "y": 920,
+        "y": 1000,
         "wires": [
             [
                 "afefe9e1.5108d8"
@@ -3638,7 +2961,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 140,
-        "y": 920,
+        "y": 1000,
         "wires": [
             [
                 "96bccb35.9d7548"
@@ -3657,7 +2980,7 @@
         "dir": "files",
         "dirType": "msg",
         "x": 410,
-        "y": 920,
+        "y": 1000,
         "wires": [
             [
                 "4da6d3db.ee66cc"
@@ -3673,7 +2996,7 @@
         "outputs": 2,
         "noerr": 0,
         "x": 570,
-        "y": 920,
+        "y": 1000,
         "wires": [
             [
                 "a3ba139e.bae4f"
@@ -3693,7 +3016,7 @@
         "filename": "del",
         "filenameType": "msg",
         "x": 750,
-        "y": 900,
+        "y": 980,
         "wires": [
             []
         ]
@@ -3712,7 +3035,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 760,
-        "y": 940,
+        "y": 1020,
         "wires": [
             []
         ]
@@ -3820,8 +3143,8 @@
         "func": "let uNow = new Date() / 1000 |0;\nmsg.payload = [[{mac: \"04:d6:aa:d5:12:77\", name: \"Phone\", last_seen: uNow, idletime: 7*60}]];\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 280,
-        "y": 480,
+        "x": 260,
+        "y": 520,
         "wires": [
             [
                 "876b29de.202cf8"
@@ -3840,8 +3163,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 140,
-        "y": 480,
+        "x": 120,
+        "y": 520,
         "wires": [
             [
                 "d6223de1.2585e"
@@ -3856,8 +3179,8 @@
         "func": "let uNow = new Date() / 1000 |0;\nmsg.payload = [[{mac: \"04:d6:aa:d5:12:77\", name: \"Phone\", last_seen: uNow, idletime: 0}]];\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 290,
-        "y": 520,
+        "x": 270,
+        "y": 560,
         "wires": [
             [
                 "876b29de.202cf8"
@@ -3876,8 +3199,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 140,
-        "y": 520,
+        "x": 120,
+        "y": 560,
         "wires": [
             [
                 "2d6ce5ec.76f3ea"
@@ -3888,15 +3211,15 @@
         "id": "6a754df3.ecfe44",
         "type": "function",
         "z": "d4b1bd47.24b07",
-        "name": "Ctl Dispatcher",
+        "name": "Setup Dispatcher",
         "func": "const appl = global.get(\"appliances\");\nconst aplTypes = context.get(\"aplTypes\");\nconst uiTmpl = global.get(\"uiTmpl\") || {};\n\nfunction fillArr(arr, apl) {\n    arr[apl.iOut] = {\n        ...apl,\n        template: uiTmpl.std + uiTmpl.script,\n        at: aplTypes[apl.t]\n    }\n    return arr;\n}\n\nif (msg.dev)\n    return msg.dev\n        .reduce((ac,a) => fillArr(ac, a), []);\nelse\n    return Object.values(appl)\n        .reduce((ac,d) => (d.forEach(a => fillArr(ac, a)), ac), []);",
-        "outputs": 3,
+        "outputs": 4,
         "noerr": 0,
-        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst appl = {      // order of devices here corresponds directly to order of node outputs!!\n    PcDesk: [\n        {t: \"led1\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 0, dflt: 10},   // chl can be number or array\n        {t: \"fan\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 1, dflt: 10}\n    ],\n    Island: [\n        {t: \"wrgb\", h: \"אי\", path: \"esp/L2\", chl: 0, dflt: \"80000000\"},   // chl can be number or array\n    ]\n};\n\nlet iOut = 0;\nObject.entries(appl).forEach(([k,d]) => d.forEach(a => {\n    a.iOut = iOut++;\n    a.topic = `${a.path}/${k}/`;\n    a.state = {};\n    (typeof a.chl === \"number\"? [a.chl] : a.chl)\n        .forEach((c,i,ar) => {\n            const zc = c - ar[0];\n            a['c'+zc] = 0;\n        });\n\n}));\n\nglobal.set(\"appliances\", appl);\n\nconst aplTypes = {\n    led1: {\n        t: \"hdr-icn-val\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        a: \"togLedOnOff()\",\n        v: \"msg.c0\",\n        onClr: \"#FF4\",\n        onCond: \"msg.c0\",\n        elms: [\n            {t: \"btn-text\", h: \"100%\", a: \"setPwmFade(100)\"},\n            {t: \"btn-text\", h: \"50%\", a: \"setPwmFade(50)\"},\n            {t: \"btn-text\", h: \"10%\", a: \"setPwmFade(10)\"},\n            {t: \"btn-text\", h: \"OFF\", a: \"setPwmFade(0)\"},\n            {t: \"slider\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"setBySlider()\"},\n            {t: \"btn-text\", h: \"Strobe\", a: \"setStrobe()\"},\n            {t: \"time\", h: \"off\", bind: \"tmOff\", a: \"sendOff()\", aRmv: \"rmvOff()\"},\n        ]\n    },\n    fan: {\n        t: \"hdr-icn-val\",\n        icnMd: \"toys\",\n        a: \"togFanOnOff()\",\n        v: \"msg.c0\",\n        onClr: \"#FF4\",\n        onCond: \"msg.c0\",\n        elms: [\n            {t: \"btn-text\", h: \"100%\", a: \"setPwmFan(100)\"},\n            {t: \"btn-text\", h: \"50%\", a: \"setPwmFan(50)\"},\n            {t: \"btn-text\", h: \"10%\", a: \"setPwmFan(10)\"},\n            {t: \"btn-text\", h: \"OFF\", a: \"setPwmFan(0)\"},\n            {t: \"slider\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"setBySlider()\"},\n            {t: \"time\", h: \"off\", bind: \"tmOff\", a: \"sendOff()\", aRmv: \"rmvOff()\"},\n        ]\n    },\n    wrgb: {\n        t: \"hdr-icn-val\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        a: \"togWrgbOnOff()\",\n        v: \"msg.c0\",\n        onClr: \"#FF4\",\n        onCond: \"msg.c0\",\n        elms: [\n            {t: \"btn-text\", h: \"100%\", a: \"setWrgbWhite(100)\"},\n            {t: \"btn-text\", h: \"50%\", a: \"setWrgbWhite(50)\"},\n            {t: \"btn-text\", h: \"10%\", a: \"setWrgbWhite(10)\"},\n            {t: \"btn-text\", h: \"OFF\", a: \"setWrgb('00000000')\"},\n            //{t: \"slider\", msgBind: \"wh\", vmin: 0, vmax: 100, a: \"setBySliderWrgb()\"},\n            {t: \"bright\", msgBind: \"wh\", a: \"setBySliderWrgb()\"},\n            {t: \"select\", h: \"אפקט\", msgBind: \"mode\", a: \"send({topic: msg.topic+'setmode', payload: msg.mode})\", opts: {0: \"Static\", 3: \"Color Wipe\", 7: \"Color Wipe Random\", 8: \"Random Color\", 9: \"Single Dynamic\", 10: \"Multi Dynamic\", 11: \"Rainbow\", 12: \"Rainbow Cycle\", 16: \"Theater Chase\", 17: \"Theater Chase Rainbow\", 18: \"Running Lights\", 20: \"Twinkle Random\", 25: \"Hyper Sparkle\", 32: \"Chase Random\", 33: \"Chase Rainbow\", 36: \"Chase Rainbow White\", 38: \"Chase Blackout Rainbow\", 39: \"Color Sweep Random\", 40: \"Running Color\", 41: \"Running Red Blue\", 42: \"Running Random\", 43: \"Larson Scanner\", 44: \"Comet\", 46: \"Fireworks Random\", 47: \"Merry Christmas\", 48: \"Fire Flicker\", 49: \"Fire Flicker Soft\", 50: \"Fire Flicker Intense\", 51: \"Circus Combustus\", 52: \"Halloween\", 53: \"Bicolor Chase\", 54: \"Tricolor Chase\"}},\n            {t: \"color\", msgBind: \"rgb\"},\n            {t: \"time\", h: \"off\", bind: \"tmOff\", a: \"sendOffWrgb()\", aRmv: \"rmvOffWrgb()\"},\n        ]\n    },\n};\n\ncontext.set(\"aplTypes\", aplTypes);\n\n\n",
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\n// Order of devices here must correspond to order of node outputs!!\n// key use by device prep node and for topic path\n// t: type used aplTypes\n// h: title on button\n// path: used to construct topic text (path+'/'+key)\n// dflt: ON value if no prev0 value when turning on\nconst appl = {      \n    PcDesk: [\n        {t: \"led1\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 0, dflt: 10},   // chl can be number or array\n        {t: \"fan\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 1, dflt: 10}\n    ],\n    Island: [\n        {t: \"wrgb\", h: \"אי\", path: \"esp/L2\", chl: 0, dflt: \"80000000\"},\n    ],\n    Boiler: [\n        {t: \"boiler\", h: \"בוילר\", path: \"esp/L3\"},\n    ]\n};\n\n\nlet iOut = 0;\nObject.entries(appl).forEach(([k,d]) => d.forEach(a => {\n    a.iOut = iOut++;\n    a.topic = `${a.path}/${k}/`;\n    a.state = {};\n    if (a.chl !== undefined)\n        (typeof a.chl === \"number\"? [a.chl] : a.chl)\n            .forEach((c,i,ar) => {\n                const zc = c - ar[0];\n                a['c'+zc] = 0;\n            });\n\n}));\n\nglobal.set(\"appliances\", appl);\n\n// fa: https://fontawesome.com/v4.7.0/icons/\n// md: https://klarsys.github.io/angular-material-icons/\n\nconst aplTypes = {\n    led1: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        a: \"togLedOnOff()\",\n        v: \"msg.c0\",\n        onClr: \"#FF4\",\n        onCond: \"msg.c0\",\n        elms: [\n            {t: \"btn-text\", h: \"100%\", a: \"setPwmFade(100)\"},\n            {t: \"btn-text\", h: \"50%\", a: \"setPwmFade(50)\"},\n            {t: \"btn-text\", h: \"10%\", a: \"setPwmFade(10)\"},\n            {t: \"btn-text\", h: \"OFF\", a: \"setPwmFade(0)\"},\n            {t: \"slider\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"setBySlider()\"},\n            {t: \"btn-text\", h: \"Strobe\", a: \"setStrobe()\"},\n            {t: \"time\", h: \"off\", bind: \"tmOff\", a: \"sendOff()\", aRmv: \"rmvOff()\"},\n        ]\n    },\n    fan: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        icnMd: \"toys\",\n        a: \"togFanOnOff()\",\n        v: \"msg.c0\",\n        onClr: \"#FF4\",\n        onCond: \"msg.c0\",\n        elms: [\n            {t: \"btn-text\", h: \"100%\", a: \"setPwmFan(100)\"},\n            {t: \"btn-text\", h: \"50%\", a: \"setPwmFan(50)\"},\n            {t: \"btn-text\", h: \"10%\", a: \"setPwmFan(10)\"},\n            {t: \"btn-text\", h: \"OFF\", a: \"setPwmFan(0)\"},\n            {t: \"slider\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"setBySlider()\"},\n            {t: \"time\", h: \"off\", bind: \"tmOff\", a: \"sendOff()\", aRmv: \"rmvOff()\"},\n        ]\n    },\n    wrgb: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        a: \"togWrgbOnOff()\",\n        v: \"msg.c0\",\n        onClr: \"#FF4\",\n        onCond: \"msg.c0\",\n        elms: [\n            {t: \"btn-text\", h: \"100%\", a: \"setWrgbWhite(100)\"},\n            {t: \"btn-text\", h: \"50%\", a: \"setWrgbWhite(50)\"},\n            {t: \"btn-text\", h: \"10%\", a: \"setWrgbWhite(10)\"},\n            {t: \"btn-text\", h: \"OFF\", a: \"setWrgb('00000000')\"},\n            //{t: \"slider\", msgBind: \"wh\", vmin: 0, vmax: 100, a: \"setBySliderWrgb()\"},\n            {t: \"bright\", msgBind: \"wh\", a: \"setBySliderWrgb()\"},\n            {t: \"select\", h: \"אפקט\", msgBind: \"mode\", a: \"send({topic: msg.topic+'setmode', payload: msg.mode})\", opts: {0: \"Static\", 3: \"Color Wipe\", 7: \"Color Wipe Random\", 8: \"Random Color\", 9: \"Single Dynamic\", 10: \"Multi Dynamic\", 11: \"Rainbow\", 12: \"Rainbow Cycle\", 16: \"Theater Chase\", 17: \"Theater Chase Rainbow\", 18: \"Running Lights\", 20: \"Twinkle Random\", 25: \"Hyper Sparkle\", 32: \"Chase Random\", 33: \"Chase Rainbow\", 36: \"Chase Rainbow White\", 38: \"Chase Blackout Rainbow\", 39: \"Color Sweep Random\", 40: \"Running Color\", 41: \"Running Red Blue\", 42: \"Running Random\", 43: \"Larson Scanner\", 44: \"Comet\", 46: \"Fireworks Random\", 47: \"Merry Christmas\", 48: \"Fire Flicker\", 49: \"Fire Flicker Soft\", 50: \"Fire Flicker Intense\", 51: \"Circus Combustus\", 52: \"Halloween\", 53: \"Bicolor Chase\", 54: \"Tricolor Chase\"}},\n            {t: \"color\", msgBind: \"rgb\"},\n            {t: \"time\", h: \"off\", bind: \"tmOff\", a: \"sendOff()\", aRmv: \"rmvOff()\"},\n        ]\n    },\n    boiler: {\n        t: \"hdr-val\",\n        w: 3,\n        v: \"msg.disp\",\n        elms: [\n            {t: \"btn-text-icn\", h: \"מקלחות\", icnTx: \"&#x1f478;\", a: \"send({topic: msg.topic+'cmd', payload: 'tapPeople'})\"},\n            {t: \"btn-text-icn\", h: \"טיימר\", icnTx: \"&#x23f1;\", a: \"send({topic: msg.topic+'cmd', payload: 'tapCountdown'})\"},\n            {t: \"btn-text-icn\", h: \"כיבוי\", icnFa: \"fa fa-power-off fa-lg\", a: \"send({topic: msg.topic+'cmd', payload: 'tapOff'})\"},\n            {t: \"btn-text-icn\", h: \"גראפ\", icnFa: \"fa fa-area-chart fa-2x\", style: \"color: #86F\", a: \"closeDialog(); send({apply:'my.uiControl(`WaterTank`)'})\"},\n        ]\n    },\n};\n\ncontext.set(\"aplTypes\", aplTypes);\n\n\n",
         "finalize": "",
         "libs": [],
-        "x": 540,
-        "y": 880,
+        "x": 550,
+        "y": 200,
         "wires": [
             [
                 "1d88e39a.5ff43c"
@@ -3906,6 +3229,9 @@
             ],
             [
                 "81748804.1ecf18"
+            ],
+            [
+                "c6712985.1b7608"
             ]
         ]
     },
@@ -3922,11 +3248,11 @@
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 740,
-        "y": 880,
+        "x": 800,
+        "y": 120,
         "wires": [
             [
-                "68dd5b11.091d94"
+                "6a8ee662.4a0298"
             ]
         ]
     },
@@ -3935,12 +3261,14 @@
         "type": "mqtt in",
         "z": "d4b1bd47.24b07",
         "name": "",
-        "topic": "esp/Dimmer/+/state",
+        "topic": "esp/Dimmer/+/+",
         "qos": "2",
         "datatype": "json",
         "broker": "b83f640b.f9b038",
-        "x": 130,
-        "y": 880,
+        "nl": false,
+        "rap": false,
+        "x": 120,
+        "y": 140,
         "wires": [
             [
                 "b097fd90.b4b85"
@@ -3960,11 +3288,11 @@
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 750,
-        "y": 920,
+        "x": 810,
+        "y": 160,
         "wires": [
             [
-                "68dd5b11.091d94"
+                "6a8ee662.4a0298"
             ]
         ]
     },
@@ -3980,7 +3308,7 @@
         "finalize": "",
         "libs": [],
         "x": 600,
-        "y": 800,
+        "y": 60,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -4012,7 +3340,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 110,
-        "y": 800,
+        "y": 60,
         "wires": [
             [
                 "2c20f083.18f5e"
@@ -4028,10 +3356,10 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "plain",
-        "template": "<script>\n\n(function(scope) {\n    scope.dlg = null;\n    scope.tmOff = null;\n    \n    scope.$watch('msg.msOff', function(tm) {\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.tmOff = tm;\n    });\n    \n    scope.open = (id, idx) => {\n        //This trick make it works on smartphones too :)\n        if (!scope.dlg) {\n            scope.dlg = $('#mydialog_'+id).detach();\n            scope.dlg.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        }\n        \n        // create color picker in display range.\n        let iroElm = !scope.iroClr && scope.dlg.find(\"#iro-color-picker\")[0];\n        if (iroElm) {\n            scope.iroClr = new iro.ColorPicker(iroElm, { // Option guide: https://iro.js.org/guide.html#color-picker-options\n                width: 96,\n                color: scope.msg.c0? scope.msg.rgb : \"#ff0000\",\n                padding: 4,\n                handleRadius: 8,\n                borderWidth: 0.5,\n                borderColor: \"#fff\",\n            });\n            scope.iroClr.on([\"color:change\"], function(color) {\n                scope.setWrgb((scope.msg.wrgb || \"00\").substr(0,2) + color.hexString.substr(1), true);\n            });\n        }\n        \n        // create color picker in display range.\n        iroElm = !scope.iroBrt && scope.dlg.find(\"#iro-bright-picker\")[0];\n        if (iroElm) {\n            scope.iroBrt = new iro.ColorPicker(iroElm, { // Option guide: https://iro.js.org/guide.html#color-picker-options\n                width: 96,\n                color: ['#','','',''].join((scope.msg.wrgb || \"00\").substr(0,2)),\n                padding: 4,\n                handleRadius: 8,\n                borderWidth: 0.5,\n                borderColor: \"#fff\",\n                layout: [{\n                  component: iro.ui.Slider,\n                  options: {\n                    sliderType: 'value'\n                  }\n                }]\n            });\n            scope.iroBrt.on([\"color:change\"], function(color) {\n                scope.setWrgbWhite(color.value, true);\n            });\n        }\n        \n        const rBtn = $('#btn_'+id)[0].getBoundingClientRect();\n        scope.dlg.css(\"display\", \"block\");\n        const cnt = scope.dlg.find(\".dialog-content\");\n        cnt.css({margin: 0, left: (rBtn.left|0) + \"px\", top: (rBtn.bottom|0) + \"px\"});\n        const rCnt = scope.dlg.find(\".dialog-content\")[0].getBoundingClientRect();\n        const rWin = $('#nr-dashboard')[0].getBoundingClientRect();\n        if (rCnt.right > rWin.right || rCnt.bottom > rWin.bottom)\n            cnt.css({\n                margin: 0, \n                left: (rCnt.right > rWin.right? rWin.right - rCnt.width : rBtn.left) + \"px\", \n                top: (rCnt.bottom > rWin.bottom? rWin.bottom - rCnt.height : rBtn.bottom) + \"px\"\n            });\n\n        // ng-model-options=\"{'timezone':'UTC'}\" \n        //console.log((new Date(Date.now() + msOff)).toTimeString().split(\" \")[0]);\n        let tm = scope.msg.msOff;\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.tmOff = tm;\n    }\n    \n    scope.closeDialog = function(bDelay) {\n        clearTimeout(scope.closeTmr);\n        scope.closeTmr = setTimeout(() => $('.dialog').css(\"display\", \"none\"), bDelay? 5000 : 0);\n    }\n    \n    scope.togLedOnOff = function() {\n        const {c0, prev0, dflt} = scope.msg;\n        scope.setPwmFade(!c0? prev0 || dflt : 0);\n        // const {chl, c0, prev0} = scope.msg;\n        // scope.send({topic: scope.msg.topic + 'cmd', payload: \n        //     !c0? `c${chl} p${prev0} t1000 d${4*60*60*1000} ; c${chl} p0 t10000` :\n        //          `c${chl} p0 t1000`\n        // });\n    }\n    \n    scope.togFanOnOff = function() {\n        const {c0, prev0, dflt} = scope.msg;\n        scope.setPwmFan(!c0? prev0 || dflt : 0);\n    }\n\n    scope.setPwmFade = function(tgt) {\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: \n            tgt > 0? `c${chl} p${tgt} t1000 d${4*60*60*1000} ; c${chl} p0 t10000` :\n                     `c${chl} p0 t1000`\n        });\n        scope.closeDialog();\n    }\n    \n    scope.setPwmFan = function(tgt) {\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: \n            tgt === 100? `c${chl} p100 t0 d${4*60*60*1000} ; c${chl} p0` :\n            tgt === 0?   `c${chl} p0` :\n                         `c${chl} p100 t0 d300; c${chl} p${tgt} t0 d${4*60*60*1000} ; c${chl} p0`\n        });\n        scope.closeDialog();\n    }\n    \n    scope.setBySlider = function() {\n        const chl = scope.msg.chl;\n        const tgt = scope.msg.c0;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: \n            tgt > 0? `c${chl} p${tgt} t0 d${4*60*60*1000} ; c${chl} p0 t10000` :\n                     `c${chl} p0`\n        });\n        scope.closeDialog(true);\n    }\n\n    scope.setStrobe = function(tgt) {\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: `c${chl} p${scope.msg.c0 || 50} t500 ; c${chl} p0 t500 *`});\n    }\n    \n    scope.sendOff = () => {\n        clearTimeout(scope.tmr);\n        if (!scope.tmOff) return;\n        // payload is selected time in ms since midnight\n        let wu = new Date(scope.tmOff);\n        wu = wu.getTime() - wu.setHours(0,0,0,0);\n        const d = new Date(), now = d.getTime() - d.setHours(0,0,0,0);\n        const dur = (wu > now ? 0 : 24*60*60*1000) + wu - now;\n        const chl = scope.msg.chl;\n        scope.tmr = setTimeout(() => {\n            scope.send({topic: scope.msg.topic + 'cmd', payload: `c${chl} p${scope.msg.c0} t0 d${dur} ; c${chl} p0 t10000`});\n            scope.closeDialog();\n        }, 5000);\n    };\n    \n    scope.rmvOff = () => {\n        scope.tmOff = null;\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: `c${chl} p${scope.msg.c0}`});\n        scope.closeDialog(true);\n    };\n    \n\n    scope.togWrgbOnOff = function() {\n        const {c0, prev0, dflt} = scope.msg;\n        scope.setWrgb(!c0? prev0 || dflt : \"00000000\");\n    }\n    \n    scope.setWrgb = function(wrgb, bDelay) {\n        scope.send({\n            topic: scope.msg.topic + 'setwrgb', \n            payload: wrgb\n        });\n        scope.closeDialog(bDelay);\n    }\n    \n    scope.setWrgbWhite = function(wht, bDelay) {\n        const hex = (\"0\"+ (255 * wht / 100 |0).toString(16)).substr(-2);\n        scope.setWrgb(hex + (scope.msg.wrgb || \"000000\").substr(-6), bDelay);\n            // (((parseInt(wrgb || '0', 16) & 0xFFFFFF) | ((255 * tgt / 100) << 24))>>>0).toString(16));\n    }\n    \n    scope.setBySliderWrgb = function() {\n        scope.setWrgbWhite(scope.msg.wh, true);\n    }\n\n    scope.colorWrgb = function() {\n        const {wrgb, rgb} = scope.msg;\n        scope.setWrgb((wrgb || \"00\").substr(0,2) + rgb.substr(1), true);\n    }\n    \n    scope.setWrgbMode = function(key, val) {\n        console.log(key, val);\n    }\n\n})(scope);\n\n// Get the element that closes the dialog\n$('.dialog-close').on('click', e => {\n    $('.dialog').css(\"display\", \"none\");\n});\n\n// When the user clicks anywhere outside of the dialog, close it\nwindow.onclick = e => {\n    if ($(e.target).hasClass('dialog'))\n        $('.dialog').css(\"display\", \"none\");\n}\n\n\n</script>\n",
+        "template": "<script>\n\n(function(scope) {\n    scope.dlg = null;\n    scope.tmOff = null;\n    \n    scope.$watch('msg.msOff', function(tm) {\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.tmOff = tm;\n    });\n    \n    scope.open = (id, idx) => {\n        //This trick make it works on smartphones too :)\n        if (!scope.dlg) {\n            scope.dlg = $('#mydialog_'+id).detach();\n            scope.dlg.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        }\n        \n        // create color picker in display range.\n        let iroElm = !scope.iroClr && scope.dlg.find(\"#iro-color-picker\")[0];\n        if (iroElm) {\n            scope.iroClr = new iro.ColorPicker(iroElm, { // Option guide: https://iro.js.org/guide.html#color-picker-options\n                width: 96,\n                color: scope.msg.c0? scope.msg.rgb : \"#ff0000\",\n                padding: 4,\n                handleRadius: 8,\n                borderWidth: 0.5,\n                borderColor: \"#fff\",\n            });\n            scope.iroClr.on([\"color:change\"], function(color) {\n                scope.setWrgb((scope.msg.wrgb || \"00\").substr(0,2) + color.hexString.substr(1), true);\n            });\n        }\n        \n        // create color picker in display range.\n        iroElm = !scope.iroBrt && scope.dlg.find(\"#iro-bright-picker\")[0];\n        if (iroElm) {\n            scope.iroBrt = new iro.ColorPicker(iroElm, { // Option guide: https://iro.js.org/guide.html#color-picker-options\n                width: 96,\n                color: ['#','','',''].join((scope.msg.wrgb || \"00\").substr(0,2)),\n                padding: 4,\n                handleRadius: 8,\n                borderWidth: 0.5,\n                borderColor: \"#fff\",\n                layout: [{\n                  component: iro.ui.Slider,\n                  options: {\n                    sliderType: 'value'\n                  }\n                }]\n            });\n            scope.iroBrt.on([\"color:change\"], function(color) {\n                scope.setWrgbWhite(color.value, true);\n            });\n        }\n        \n        const rBtn = $('#btn_'+id)[0].getBoundingClientRect();\n        scope.dlg.css(\"display\", \"block\");\n        const cnt = scope.dlg.find(\".dialog-content\");\n        cnt.css({margin: 0, left: (rBtn.left|0) + \"px\", top: (rBtn.bottom|0) + \"px\"});\n        const rCnt = scope.dlg.find(\".dialog-content\")[0].getBoundingClientRect();\n        const rWin = $('#nr-dashboard')[0].getBoundingClientRect();\n        if (rCnt.right > rWin.right || rCnt.bottom > rWin.bottom)\n            cnt.css({\n                margin: 0, \n                left: (rCnt.right > rWin.right? rWin.right - rCnt.width : rBtn.left) + \"px\", \n                top: (rCnt.bottom > rWin.bottom? rWin.bottom - rCnt.height : rBtn.bottom) + \"px\"\n            });\n\n        // ng-model-options=\"{'timezone':'UTC'}\" \n        //console.log((new Date(Date.now() + msOff)).toTimeString().split(\" \")[0]);\n        let tm = scope.msg.msOff;\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.tmOff = tm;\n    }\n    \n    scope.closeDialog = function(bDelay) {\n        clearTimeout(scope.closeTmr);\n        scope.closeTmr = setTimeout(() => $('.dialog').css(\"display\", \"none\"), bDelay? 5000 : 0);\n    }\n    \n    scope.togLedOnOff = function() {\n        const {c0, prev0, dflt} = scope.msg;\n        scope.setPwmFade(!c0? prev0 || dflt : 0);\n        // const {chl, c0, prev0} = scope.msg;\n        // scope.send({topic: scope.msg.topic + 'cmd', payload: \n        //     !c0? `c${chl} p${prev0} t1000 d${4*60*60*1000} ; c${chl} p0 t10000` :\n        //          `c${chl} p0 t1000`\n        // });\n    }\n    \n    scope.togFanOnOff = function() {\n        const {c0, prev0, dflt} = scope.msg;\n        scope.setPwmFan(!c0? prev0 || dflt : 0);\n    }\n\n    scope.setPwmFade = function(tgt) {\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: \n            tgt > 0? `c${chl} p${tgt} t1000 d${4*60*60*1000} ; c${chl} p0 t10000` :\n                     `c${chl} p0 t1000`\n        });\n        scope.closeDialog();\n    }\n    \n    scope.setPwmFan = function(tgt) {\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: \n            tgt === 100? `c${chl} p100 t0 d${4*60*60*1000} ; c${chl} p0` :\n            tgt === 0?   `c${chl} p0` :\n                         `c${chl} p100 t0 d300; c${chl} p${tgt} t0 d${4*60*60*1000} ; c${chl} p0`\n        });\n        scope.closeDialog();\n    }\n    \n    scope.setBySlider = function() {\n        const chl = scope.msg.chl;\n        const tgt = scope.msg.c0;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: \n            tgt > 0? `c${chl} p${tgt} t0 d${4*60*60*1000} ; c${chl} p0 t10000` :\n                     `c${chl} p0`\n        });\n        scope.closeDialog(true);\n    }\n\n    scope.setStrobe = function(tgt) {\n        const chl = scope.msg.chl;\n        scope.send({topic: scope.msg.topic + 'cmd', payload: `c${chl} p${scope.msg.c0 || 50} t500 ; c${chl} p0 t500 *`});\n    }\n    \n    scope.sendOff = () => {\n        clearTimeout(scope.tmr);\n        if (!scope.tmOff) return;\n        // payload is selected time in ms since midnight\n        let wu = new Date(scope.tmOff);\n        wu = wu.getTime() - wu.setHours(0,0,0,0);\n        const d = new Date(), now = d.getTime() - d.setHours(0,0,0,0);\n        const dur = (wu > now ? 0 : 24*60*60*1000) + wu - now;\n        const {chl, t} = scope.msg;\n        scope.tmr = setTimeout(() => {\n            if (t === \"led1\" || t === \"fan\")\n                scope.send({topic: scope.msg.topic + 'cmd', payload: `c${chl} p${scope.msg.c0} t0 d${dur} ; c${chl} p0 t10000`});\n            else if (t === \"wrgb\")\n                scope.send({topic: scope.msg.topic + 'setsoff', payload: \"\"+dur});\n            scope.closeDialog();\n        }, 5000);\n    };\n    \n    scope.rmvOff = () => {\n        scope.tmOff = null;\n        const {chl, t} = scope.msg;\n        if (t === \"led1\" || t === \"fan\")\n            scope.send({topic: scope.msg.topic + 'cmd', payload: `c${chl} p${scope.msg.c0}`});\n        else if (t === \"wrgb\")\n            scope.send({topic: scope.msg.topic + 'setsoff', payload: \"0\"});\n        scope.closeDialog(true);\n    };\n    \n\n    scope.togWrgbOnOff = function() {\n        const {c0, prev0, dflt} = scope.msg;\n        scope.setWrgb(!c0? prev0 || dflt : \"00000000\");\n    }\n    \n    scope.setWrgb = function(wrgb, bDelay) {\n        scope.send({\n            topic: scope.msg.topic + 'setwrgb', \n            payload: wrgb\n        });\n        scope.closeDialog(bDelay);\n    }\n    \n    scope.setWrgbWhite = function(wht, bDelay) {\n        const hex = (\"0\"+ (255 * wht / 100 |0).toString(16)).substr(-2);\n        scope.setWrgb(hex + (scope.msg.wrgb || \"000000\").substr(-6), bDelay);\n            // (((parseInt(wrgb || '0', 16) & 0xFFFFFF) | ((255 * tgt / 100) << 24))>>>0).toString(16));\n    }\n    \n    scope.setBySliderWrgb = function() {\n        scope.setWrgbWhite(scope.msg.wh, true);\n    }\n\n    scope.colorWrgb = function() {\n        const {wrgb, rgb} = scope.msg;\n        scope.setWrgb((wrgb || \"00\").substr(0,2) + rgb.substr(1), true);\n    }\n    \n})(scope);\n\n// Get the element that closes the dialog\n$('.dialog-close').on('click', e => {\n    $('.dialog').css(\"display\", \"none\");\n});\n\n// When the user clicks anywhere outside of the dialog, close it\nwindow.onclick = e => {\n    if ($(e.target).hasClass('dialog'))\n        $('.dialog').css(\"display\", \"none\");\n}\n\n\n</script>\n",
         "output": "str",
         "x": 250,
-        "y": 800,
+        "y": 60,
         "wires": [
             [
                 "61289668.27fb68"
@@ -4047,10 +3375,10 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "plain",
-        "template": "<!-- msg: appliance: {t: <type>, h: <title>, chl: <num|array<num>>, c<n>: cur pwm val, topic, state, template} -->\n<!-- Trigger/Open The dialog -->\n\n<md-button ng-click=\"open($id)\" id=\"{{'btn_'+$id}}\" class=\"myctl vibrate touched dialog-button\">\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"flex30\">{{msg.h}}</div>\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"left-icon\">\n        <md-button ng-click=\"$event.stopPropagation(); $eval(msg.at.a);\" class=\"mysubctl vibrate touched\">\n            <font ng-if=\"msg.at.icnFa\" class={{msg.at.icnFa}} \n                color=\"{{msg.at.onClr && (!msg.at.onCond || $eval(msg.at.onCond)) ?msg.at.onClr : 'grey'}}\" />\n            <ng-md-icon ng-if=\"msg.at.icnMd\" icon={{msg.at.icnMd}} \n                style=\"fill:{{msg.at.onClr && (!msg.at.onCond || $eval(msg.at.onCond)) ?msg.at.onClr : 'grey'}}\" />\n        </md-button>\n        <font size=2 color=#9E8>{{$eval(msg.at.v)}}</font>\n    </div>\n</md-button>\n\n\n\n<div id=\"{{'mydialog_'+$id}}\" class=\"dialog popup\">\n    <div class=\"dialog-content\" style=\"width: 192px\">\n        <div class=\"dialog-body\" style=\"display: flex; flex-direction: row; flex-wrap: wrap;\">\n            <div ng-repeat=\"elm in msg.at.elms track by $index\">\n                <md-button ng-if=\"elm.t === 'btn-text'\" \n                    class=\"myctl vibrate touched\" style=\"line-height:1\"\n                    ng-click=\"$eval(elm.a)\">\n                    <div>{{elm.h}}</div>\n                </md-button>\n                <div ng-if=\"elm.t === 'slider'\" class=\"myctl slider\">\n                    <md-slider min={{elm.vmin}} max={{elm.vmax}} step=\"1\" \n                       ng-model=\"msg[elm.msgBind]\" ng-change=\"$eval(elm.a)\">\n                    </md-slider>\n                    <div ng-bind-html=\"msg[elm.msgBind]\" class=\"dimValue\"></div>\n                </div>\n    \n                <div ng-if=\"elm.t === 'time'\" class=\"nr-dashboard-textinput\">\n                    <md-input-container class=\"md-block flex has-label md-input-has-value\" flex=\"\" \n                        md-is-error=\"false\">\n                        <input type=\"time\" placeholder={{elm.h}} aria-label={{elm.h}} ng-model=\"$parent[elm.bind]\" \n                            ng-change=\"$eval(elm.a)\" aria-invalid=\"false\"/>\n                        <button ng-if=\"$parent[elm.bind]\" ng-click=\"$eval(elm.aRmv)\">&times;</button>\n                    </md-input-container>\n                </div>\n                <div ng-if=\"elm.t === 'bright'\" id=\"iro-bright-picker\"></div>\n                <div ng-if=\"elm.t === 'color'\" id=\"iro-color-picker\"></div>\n                <!--input ng-if=\"elm.t === 'color'\" type=\"color\" ng-model=\"msg[elm.msgBind]\" ng-change=\"$eval(elm.a)\"-->\n                \n                <md-select ng-if=\"elm.t === 'select'\"\n                    ng-model=\"msg[elm.msgBind]\" ng-change=\"$eval(elm.a)\"\n                    placeholder={{elm.h}} class=\"myctl ng-pristine ng-untouched ng-valid flex-100 ng-empty\" >\n                    <md-option ng-repeat=\"(key, val) in elm.opts track by key\" \n                        ng-value=\"key\">{{val}}</md-option>\n                </md-select>\n            </div>\n        </div>\n    </div>\n</div>\n\n",
+        "template": "<!-- msg: appliance: {t: <type>, h: <title>, chl: <num|array<num>>, c<n>: cur pwm val, topic, state, template} -->\n<!-- Trigger/Open The dialog -->\n\n<md-button ng-click=\"open($id)\" id=\"{{'btn_'+$id}}\" \n        class=\"{{msg.at.cls || 'myctl'}} {{msg.lwt && 'ctl-lwt'}} vibrate touched dialog-button\" aria-label=\"x\">\n    <div ng-if=\"msg.h\" class=\"{{msg.at.t.startsWith('hdr-')? 'flex30' : ''}}\" >{{msg.h}}</div>\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"left-icon\">\n        <md-button ng-click=\"$event.stopPropagation(); $eval(msg.at.a);\" class=\"mysubctl vibrate touched\" aria-label=\"x\">\n            <font ng-if=\"msg.at.icnFa\" class={{msg.at.icnFa}} \n                color=\"{{msg.at.onClr && (!msg.at.onCond || $eval(msg.at.onCond)) ?msg.at.onClr : 'grey'}}\" />\n            <ng-md-icon ng-if=\"msg.at.icnMd\" icon={{msg.at.icnMd}} \n                style=\"fill:{{msg.at.onClr && (!msg.at.onCond || $eval(msg.at.onCond)) ?msg.at.onClr : 'grey'}}\" />\n        </md-button>\n        <font size=2 color=#9E8>{{$eval(msg.at.v)}}</font>\n    </div>\n    <div ng-if=\"msg.at.t === 'hdr-val'\" class=\"flex\">{{$eval(msg.at.v)}}</div>\n</md-button>\n\n\n<div id=\"{{'mydialog_'+$id}}\" class=\"dialog popup\">\n    <div class=\"dialog-content\" style=\"width: {{msg.at.w * 48}}px\">\n        <div class=\"dialog-body\" style=\"display: flex; flex-direction: row; flex-wrap: wrap;\">\n            <div ng-repeat=\"elm in msg.at.elms track by $index\">\n                <md-button ng-if=\"elm.t.startsWith('btn-text')\" \n                    class=\"myctl vibrate touched\" style=\"line-height:1\"\n                    ng-click=\"$eval(elm.a)\">\n                    <div class=\"flex30\">{{elm.h}}</div>\n                    <font ng-if=\"elm.icnTx\" size=4 class=\"flex\" ng-bind-html=\"elm.icnTx\"></font>\n                    <i ng-if=\"elm.icnFa\" class=\"flex {{elm.icnFa}}\" style=\"{{elm.style || ''}}\"/>\n                </md-button>\n\n                <div ng-if=\"elm.t === 'slider'\" class=\"myctl slider\">\n                    <md-slider min={{elm.vmin}} max={{elm.vmax}} step=\"1\" aria-label=\"x\"\n                       ng-model=\"msg[elm.msgBind]\" ng-change=\"$eval(elm.a)\">\n                    </md-slider>\n                    <div ng-bind-html=\"msg[elm.msgBind]\" class=\"dimValue\"></div>\n                </div>\n    \n                <div ng-if=\"elm.t === 'time'\" class=\"nr-dashboard-textinput\">\n                    <md-input-container class=\"md-block flex has-label md-input-has-value\" flex=\"\" \n                        md-is-error=\"false\">\n                        <input type=\"time\" placeholder={{elm.h}} aria-label={{elm.h}} ng-model=\"$parent[elm.bind]\" \n                            ng-change=\"$eval(elm.a)\" aria-invalid=\"false\"/>\n                        <button ng-if=\"$parent[elm.bind]\" ng-click=\"$eval(elm.aRmv)\">&times;</button>\n                    </md-input-container>\n                </div>\n                <div ng-if=\"elm.t === 'bright'\" id=\"iro-bright-picker\"></div>\n                <div ng-if=\"elm.t === 'color'\" id=\"iro-color-picker\"></div>\n                <!--input ng-if=\"elm.t === 'color'\" type=\"color\" ng-model=\"msg[elm.msgBind]\" ng-change=\"$eval(elm.a)\"-->\n                \n                <md-select ng-if=\"elm.t === 'select'\"\n                    ng-model=\"msg[elm.msgBind]\" ng-change=\"$eval(elm.a)\"\n                    placeholder={{elm.h}} class=\"myctl ng-pristine ng-untouched ng-valid flex-100 ng-empty\" >\n                    <md-option ng-repeat=\"(key, val) in elm.opts track by key\" \n                        ng-value=\"key\">{{val}}</md-option>\n                </md-select>\n            </div>\n        </div>\n    </div>\n</div>\n\n",
         "output": "str",
         "x": 410,
-        "y": 800,
+        "y": 60,
         "wires": [
             [
                 "8c50368.ce216c8"
@@ -4071,8 +3399,8 @@
         "correl": "",
         "expiry": "",
         "broker": "b83f640b.f9b038",
-        "x": 960,
-        "y": 880,
+        "x": 1100,
+        "y": 200,
         "wires": []
     },
     {
@@ -4080,14 +3408,14 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "Dimmers prep",
-        "func": "const appl = global.get(\"appliances\");\nconst devName = msg.topic && msg.topic.split('/')[2];\nconst dev = devName && appl[devName];\n\nif (!dev || typeof msg.payload !== \"object\")\n    return node.warn(\"Unknown topic: \"+ msg.topic);\n    \ndev.forEach(a => {\n    let dur;\n    a.state = msg.payload;\n    (typeof a.chl === \"number\"? [a.chl] : a.chl)\n        .forEach((c,i,ar) => {\n            const zc = c - ar[0];\n            const cur = a['c'+zc] = a.state['pwm'+c];\n            if (cur) a['prev'+zc] = cur;\n            dur = dur || a.state['dur'+c];\n        });\n    a.msOff = dur && Date.now() + dur;\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n\n",
+        "func": "const topicArr = msg.topic && msg.topic.split('/');\nconst tpc = topicArr && topicArr[3];\nif (!tpc || ![\"state\", \"LWT\"].includes(tpc)) return;\nconst appl = global.get(\"appliances\");\nconst dev = appl[topicArr[2]];\n    \ndev.forEach(a => {\n    let dur;\n    a.lwt = tpc === \"LWT\";\n    if (typeof msg.payload !== \"object\") return;\n    a.state = msg.payload;\n    (typeof a.chl === \"number\"? [a.chl] : a.chl)\n        .forEach((c,i,ar) => {\n            const zc = c - ar[0];\n            const cur = a['c'+zc] = a.state['pwm'+c];\n            if (cur) a['prev'+zc] = cur;\n            dur = dur || a.state['dur'+c];\n        });\n    a.msOff = dur && Date.now() + dur;\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 320,
-        "y": 880,
+        "y": 140,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -4104,7 +3432,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 130,
-        "y": 940,
+        "y": 200,
         "wires": [
             [
                 "622279d9.118758"
@@ -4116,14 +3444,14 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "WRGB prep",
-        "func": "const appl = global.get(\"appliances\");\nconst devName = msg.topic && msg.topic.split('/')[2];\nconst dev = devName && appl[devName];       // currently only \"Island\"\n\nif (!dev || typeof msg.payload !== \"object\")\n    return node.warn(\"Unknown topic: \"+ msg.topic);\n    \ndev.forEach(a => {\n    a.state = msg.payload;\n    (typeof a.chl === \"number\"? [a.chl] : a.chl)\n        .forEach((c,i,ar) => {\n            const zc = c - ar[0];\n            Object.assign(a, a.state);\n            a.aWrgb = [...new Array(4).keys()].map(b => Math.ceil(parseInt(a.wrgb.substr(b*2,2), 16) / 255 * 100));\n            a['c'+zc] = Math.max(...a.aWrgb);\n            a.wh = a.aWrgb[0];\n            a.rgb = \"#\" + a.wrgb.substr(2);\n            if (a.wrgb !== \"00000000\") a['prev'+zc] = a.state.wrgb;\n        });\n    a.msOff = a.state.sOff && (Date.now() + (a.state.sOff*1000));\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
+        "func": "const topicArr = msg.topic && msg.topic.split('/');\nconst tpc = topicArr && topicArr[3];\nif (!tpc || ![\"state\", \"LWT\"].includes(tpc)) return;\nconst appl = global.get(\"appliances\");\nconst dev = appl[topicArr[2]];      // currently only \"Island\"\n    \ndev.forEach(a => {\n    a.lwt = tpc === \"LWT\";\n    if (typeof msg.payload !== \"object\") return;\n    a.state = msg.payload;\n    (typeof a.chl === \"number\"? [a.chl] : a.chl)\n        .forEach((c,i,ar) => {\n            const zc = c - ar[0];\n            Object.assign(a, a.state);\n            a.aWrgb = [...new Array(4).keys()].map(b => Math.ceil(parseInt(a.wrgb.substr(b*2,2), 16) / 255 * 100));\n            a['c'+zc] = Math.max(...a.aWrgb);\n            a.wh = a.aWrgb[0];\n            a.rgb = \"#\" + a.wrgb.substr(2);\n            if (a.wrgb !== \"00000000\") a['prev'+zc] = a.state.wrgb;\n        });\n    a.msOff = a.state.sOff && (Date.now() + (a.state.sOff*1000));\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 310,
-        "y": 940,
+        "y": 200,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -4143,12 +3471,201 @@
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 730,
-        "y": 960,
+        "x": 790,
+        "y": 200,
+        "wires": [
+            [
+                "6a8ee662.4a0298"
+            ]
+        ]
+    },
+    {
+        "id": "c6712985.1b7608",
+        "type": "ui_template",
+        "z": "d4b1bd47.24b07",
+        "group": "26ad0dca.e7b0d2",
+        "name": "Boiler",
+        "order": 3,
+        "width": "2",
+        "height": "1",
+        "format": "",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 790,
+        "y": 240,
+        "wires": [
+            [
+                "6a8ee662.4a0298"
+            ]
+        ]
+    },
+    {
+        "id": "d669265b.c54c38",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "Boiler prep",
+        "func": "const topicArr = msg.topic && msg.topic.split('/');\nconst tpc = topicArr && topicArr[3];\nif (!tpc || ![\"state\", \"LWT\"].includes(tpc)) return;\nconst appl = global.get(\"appliances\");\nconst dev = appl[topicArr[2]];          // Boiler\n    \ndev.forEach(a => {\n    a.lwt = tpc === \"LWT\";\n    if (typeof msg.payload !== \"object\") return;\n    const st = a.state = msg.payload;\n    a.disp = st.countDown? st.countDown + \" mins\" : st.numPeople? st.numPeople + \" ->\" + st.target : \"Off\"\n    Object.assign(a, st);\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 260,
+        "wires": [
+            [
+                "6a754df3.ecfe44"
+            ]
+        ]
+    },
+    {
+        "id": "cf476f64.4e79d",
+        "type": "mqtt in",
+        "z": "d4b1bd47.24b07",
+        "name": "",
+        "topic": "esp/L3/Boiler/state",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "b83f640b.f9b038",
+        "x": 130,
+        "y": 260,
+        "wires": [
+            [
+                "d669265b.c54c38"
+            ]
+        ]
+    },
+    {
+        "id": "1435dbe9.9ff354",
+        "type": "function",
+        "z": "38ee4b91.5dc3e4",
+        "name": "Define func",
+        "func": "",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst my = global.get(\"my\", \"memoryOnly\") || {};\n\nmy.uiControl = (to) => {\n    node.send({payload: to});\n};\n\nglobal.set('my', my, 'memoryOnly');",
+        "finalize": "",
+        "libs": [],
+        "x": 110,
+        "y": 520,
+        "wires": [
+            [
+                "a794f086.7875d"
+            ]
+        ]
+    },
+    {
+        "id": "a794f086.7875d",
+        "type": "ui_ui_control",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "events": "change",
+        "x": 300,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6a8ee662.4a0298",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "Action Dispacher",
+        "func": "if (msg.topic)\n    return msg;\nif (msg.apply) {\n    const my = global.get(\"my\", \"memoryOnly\");\n    eval(msg.apply);\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1070,
+        "y": 140,
         "wires": [
             [
                 "68dd5b11.091d94"
             ]
+        ]
+    },
+    {
+        "id": "cfe3c230.c4ad3",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "e7074671.132b98",
+        "name": "Hide Tank",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'מכשירים'})\">\n    <div>back</div>\n    <font class=\"fa fa-arrow-left fa-2x\" color=#EEE/>\n</md-button>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 100,
+        "y": 580,
+        "wires": [
+            [
+                "a794f086.7875d"
+            ]
+        ]
+    },
+    {
+        "id": "74aad12f.32fb1",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "7cdedc06.5fd6d4",
+        "name": "Show MQTT Log",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'MQTT Log'})\">\n    <div>Log</div>\n    <font class=\"fa fa-list-alt fa-2x\" color=#777></font>\n</md-button>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 130,
+        "y": 640,
+        "wires": [
+            [
+                "a794f086.7875d"
+            ]
+        ]
+    },
+    {
+        "id": "ee2c9cd1.14704",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "4e465e1b.3d43e",
+        "name": "Hide MQTT Log",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'מכשירים'})\">\n    <div>back</div>\n    <font class=\"fa fa-arrow-left fa-2x\" color=#EEE/>\n</md-button>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 120,
+        "y": 700,
+        "wires": [
+            [
+                "a794f086.7875d"
+            ]
+        ]
+    },
+    {
+        "id": "dfec6127.1174f",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "e7074671.132b98",
+        "name": "Grafana - דוד",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "<div id='div_iframe'>\n    <iframe id=frame frameborder=\"0\" marginheight=\"0\" marginwidth=\"0\" src=\"http://razhome1.ddns.net:8085/d/k4AZNmEik/razhome?panelId=2&fullscreen&orgId=1&from=now-12h&to=now&refresh=20s\"/>\n</div>\n<style>\n#div_iframe {\n  overflow-x: auto;\n  width: inherit;\n  height: 100%;\n}\n\n#frame {\n  width: 550px;\n  height: 445px;\n  overflow: hidden;\n}\n</style>\n<script>\n$(document).ready(function() {\n    setTimeout(() => {\n        $('#div_iframe').scrollLeft(1000);\n    }, 2000);\n});\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 490,
+        "y": 580,
+        "wires": [
+            []
         ]
     }
 ]
