@@ -63,24 +63,6 @@
         "willPayload": ""
     },
     {
-        "id": "d9eb1526.34e608",
-        "type": "openhab2-controller",
-        "name": "My OpenHab",
-        "protocol": "http",
-        "host": "localhost",
-        "port": "10203",
-        "path": "",
-        "username": "",
-        "password": ""
-    },
-    {
-        "id": "4b5b0c00.24def4",
-        "type": "googlehome-config-node",
-        "ipaddress": "10.20.30.121",
-        "name": "Kitchen Speaker",
-        "language": "en"
-    },
-    {
         "id": "18812ff0.9ab48",
         "type": "ui_base",
         "theme": {
@@ -276,7 +258,7 @@
     {
         "id": "2bee767.051258a",
         "type": "ui_group",
-        "name": "סלון",
+        "name": "תאורה",
         "tab": "aa347550.c05b48",
         "order": 2,
         "disp": true,
@@ -468,6 +450,14 @@
         "name": "RazHome"
     },
     {
+        "id": "bc3d1efa.c1ec2",
+        "type": "castv2-connection",
+        "name": "",
+        "target": "Kitchen Speaker",
+        "host": "",
+        "port": "8009"
+    },
+    {
         "id": "19b1005b.daf9a",
         "type": "mqtt in",
         "z": "f8865110.44c59",
@@ -477,28 +467,12 @@
         "datatype": "auto",
         "broker": "b83f640b.f9b038",
         "x": 70,
-        "y": 100,
+        "y": 40,
         "wires": [
             [
                 "bcbc1481.027f48"
             ]
         ]
-    },
-    {
-        "id": "485ea403.89523c",
-        "type": "debug",
-        "z": "f8865110.44c59",
-        "d": true,
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "x": 950,
-        "y": 160,
-        "wires": []
     },
     {
         "id": "6f1d37fd.f65b18",
@@ -518,37 +492,21 @@
         ]
     },
     {
-        "id": "40510d75.49dac4",
-        "type": "cast-to-client",
-        "z": "f8865110.44c59",
-        "name": "Google Home",
-        "url": "",
-        "contentType": "",
-        "message": "",
-        "language": "en",
-        "ip": "",
-        "port": "",
-        "volume": "",
-        "x": 1320,
-        "y": 40,
-        "wires": [
-            []
-        ],
-        "icon": "node-red-contrib-cast/google-home2.svg"
-    },
-    {
         "id": "d3f115ff.93a3a8",
         "type": "function",
         "z": "f8865110.44c59",
         "name": "Check googleHomeState, Vol 4-6",
-        "func": "let d = new Date();\nlet m = d.getHours() * 60 + d.getMinutes();\n\nmsg.payload = {\n    // lowerVolumeLimit: 40, \n    // upperVolumeLimit: 60,\n    volume: m > 23*60 || m < 3*60 || (m > 5*60 && m < 9*60) ? 40 : 50,\n    message: msg.payload\n};\nmsg.ip = global.get(\"googleHomeIP\");\n\nreturn flow.get(\"googleHomeState\") === \"PLAY\"? \n    null : msg;",
+        "func": "const ks = global.get(\"kitchenSpeaker\") || {};\nif (ks.app !== \"Default Media Receiver\" && \n    [\"PLAYING\", \"BUFFERING\"].includes(ks.playerState) &&\n    ks.time + (ks.duration||0)*1000 > Date.now()) return;\n\nlet d = new Date();\nlet m = d.getHours() * 60 + d.getMinutes();\n\nconst params =  (/[\\u0590-\\u05FF]/).test(msg.payload)? \"&hl=he-il\" : \"&hl=en-au&v=Isla\";\nsetTimeout(() => node.send({\n    payload: {\n        type: \"MEDIA\",\n        media: {\n            //url: \"http://RazHome1.ddns.net:19880/textToSpeech?text=\" + encodeURIComponent(msg.payload),\n            url: `https://api.voicerss.org/?key=870e79d6c2cf42fa94e8412f15e05dda${params}&c=AAC&src=${encodeURIComponent(msg.payload)}`,\n            contentType: \"audio/mp3\"\n        }\n    }\n}), 0);\n\nreturn {\n    payload: {\n        type: \"VOLUME\",\n        volume: m > 23*60 || m < 3*60 || (m > 5*60 && m < 9*60) ? 40 : 50\n    }\n};    \n",
         "outputs": 1,
         "noerr": 0,
-        "x": 1040,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 820,
         "y": 40,
         "wires": [
             [
-                "40510d75.49dac4"
+                "accdf10c.17886"
             ]
         ]
     },
@@ -557,18 +515,27 @@
         "type": "inject",
         "z": "f8865110.44c59",
         "name": "inject sample text...",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
         "repeat": "",
         "crontab": "",
         "once": false,
         "onceDelay": 0.1,
         "topic": "",
-        "payload": "The great fox jumps over the hound",
+        "payload": "פתיחת שער",
         "payloadType": "str",
-        "x": 130,
-        "y": 40,
+        "x": 590,
+        "y": 120,
         "wires": [
             [
-                "bcbc1481.027f48"
+                "d3f115ff.93a3a8"
             ]
         ]
     },
@@ -577,14 +544,16 @@
         "type": "function",
         "z": "f8865110.44c59",
         "name": "Funnel",
-        "func": "\nreturn msg;",
+        "func": "msg.payload = msg.payload\n    .replace(/sensor malf.*/, \"sensor malfunction\")\n    .replace(/Garage door opened/i, \"פתיחת שער\")\n    .replace(/Garage door closed/i, \"שער סגור\")\n    ;\nreturn msg;\n",
         "outputs": 1,
         "noerr": 0,
-        "x": 810,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
         "y": 40,
         "wires": [
             [
-                "485ea403.89523c",
                 "d3f115ff.93a3a8",
                 "5d62f704.3401c8"
             ]
@@ -613,7 +582,7 @@
         "datatype": "auto",
         "broker": "b83f640b.f9b038",
         "x": 200,
-        "y": 100,
+        "y": 40,
         "wires": [
             [
                 "bcbc1481.027f48"
@@ -630,7 +599,7 @@
         "datatype": "auto",
         "broker": "b83f640b.f9b038",
         "x": 80,
-        "y": 160,
+        "y": 100,
         "wires": [
             [
                 "7b9733cb.e6a58c"
@@ -666,7 +635,7 @@
             }
         ],
         "x": 90,
-        "y": 220,
+        "y": 160,
         "wires": [
             [
                 "b6fe6889.953ab8",
@@ -684,7 +653,7 @@
         "retain": "false",
         "broker": "b83f640b.f9b038",
         "x": 320,
-        "y": 280,
+        "y": 220,
         "wires": []
     },
     {
@@ -696,7 +665,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 310,
-        "y": 220,
+        "y": 160,
         "wires": [
             [
                 "bcbc1481.027f48"
@@ -712,10 +681,10 @@
         "outputs": 1,
         "noerr": 0,
         "x": 290,
-        "y": 160,
+        "y": 100,
         "wires": [
             [
-                "94ce8955.861978"
+                "bcbc1481.027f48"
             ]
         ]
     },
@@ -728,7 +697,7 @@
         "chatId": "",
         "message": "",
         "parseMode": "",
-        "x": 1270,
+        "x": 1050,
         "y": 100,
         "wires": []
     },
@@ -740,7 +709,7 @@
         "func": "let d = new Date();\nlet m = d.getHours() * 60 + d.getMinutes();\n\nlet Gilad = 551043853, Tali = 522829430, Both = -255724016;\n\nlet id = m < 4*60+30 || m >= 23*60+30 || \n    (d.getDay() >= 5 && m > 15*60 && m < 17*60) ? Gilad :\n    //m < 9*60+30 ? Tali : \n    Both;\n    \nmsg.telegram = {chat: {id}};\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 1040,
+        "x": 820,
         "y": 100,
         "wires": [
             [
@@ -788,9 +757,7 @@
         "x": 320,
         "y": 280,
         "wires": [
-            [
-                "654ea35e.9d48fc"
-            ]
+            []
         ]
     },
     {
@@ -830,109 +797,6 @@
         ]
     },
     {
-        "id": "654ea35e.9d48fc",
-        "type": "googlehome-notify",
-        "z": "5515e8ec.3a0e28",
-        "server": "4b5b0c00.24def4",
-        "name": "",
-        "x": 560,
-        "y": 280,
-        "wires": []
-    },
-    {
-        "id": "feb3f78d.934518",
-        "type": "debug",
-        "z": "5515e8ec.3a0e28",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 550,
-        "y": 600,
-        "wires": []
-    },
-    {
-        "id": "4db02244.743f7c",
-        "type": "cast-to-client",
-        "z": "5515e8ec.3a0e28",
-        "name": "Google Home",
-        "url": "",
-        "contentType": "",
-        "message": "",
-        "language": "en",
-        "ip": "10.20.30.121",
-        "port": "",
-        "volume": "",
-        "x": 360,
-        "y": 600,
-        "wires": [
-            [
-                "feb3f78d.934518"
-            ]
-        ],
-        "icon": "node-red-contrib-cast/google-home2.svg"
-    },
-    {
-        "id": "1485dbd.34c0424",
-        "type": "inject",
-        "z": "5515e8ec.3a0e28",
-        "name": "Status",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "{\"status\": true, \"volume\": 50}",
-        "payloadType": "json",
-        "x": 90,
-        "y": 600,
-        "wires": [
-            [
-                "4db02244.743f7c"
-            ]
-        ]
-    },
-    {
-        "id": "e4030152.12aea",
-        "type": "inject",
-        "z": "5515e8ec.3a0e28",
-        "name": "Status",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "str",
-        "x": 90,
-        "y": 660,
-        "wires": [
-            [
-                "4db02244.743f7c"
-            ]
-        ]
-    },
-    {
-        "id": "a0ad8e8c.2c946",
-        "type": "inject",
-        "z": "5515e8ec.3a0e28",
-        "name": "Status",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "{\"status\": true}",
-        "payloadType": "json",
-        "x": 90,
-        "y": 540,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "c20b8d0d.8835c",
         "type": "function",
         "z": "5515e8ec.3a0e28",
@@ -967,220 +831,18 @@
         ]
     },
     {
-        "id": "12ae1190.be59ee",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "check presence",
-        "func": "const lastSeenSeconds = 300;\nlet presenceCutoff = new Date() / 1000 - lastSeenSeconds +\n    new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad: \"04:d6:aa:d5:12:77\",         // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali: \"4c:74:bf:78:f6:9b\",\n    Inbal: \"76:a8:62:bf:3e:da\",         // Galaxy S20\n    Shahar: \"f4:60:e2:a3:f8:ce\",\n    Yarden: \"1c:cc:d6:42:62:d7\",        // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer: \"12:6c:74:b9:42:a0\",          // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Shoham: \"1c:cc:d6:45:39:b9\",    // \"8c:f5:a3:80:2f:cf\",  \"68:3e:34:52:f7:c5\",\n};\n\nlet peopleArr = Object.keys(people);\n\nlet devices = msg.payload[0].filter(dev => \n    (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"presence\") || {};\n\nlet bChanged = false;\nObject.entries(people).forEach(([nm, mac]) => {\n//peopleArr.forEach((nm, i) => {\n    //let dev = devices.find(dev => dev.mac === people[nm]) || {};\n    let dev = devices.find(dev => dev.mac === mac) || {};\n    let cur = curStat[nm];\n    if (!cur) curStat[nm] = cur = {};\n    const isHome = dev.last_seen > presenceCutoff;\n    if (isHome !== cur.isHome) {\n        bChanged = true;\n        if (typeof cur.isHome === \"boolean\")\n            cur.tm = Date.now();\n        cur.isHome = isHome;\n    }\n});\n\nif (bChanged) {\n    context.set(\"presence\", curStat);\n}\n\n//let devices = devices.filter(device => device.name === people[topic] && device.last_seen > presenceCutoff);\n//let devices = devices.filter(device => device.name === people[topic]);\nreturn [peopleArr.map((person,idx) => {\n    let dev = devices.find(dev => dev.mac === people[person]) || {};\n    return {\n        topic: person,\n        more:dev,\n        payload: dev.last_seen > presenceCutoff? idx + 1 : 0\n    };\n})];\n",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 380,
-        "y": 1280,
-        "wires": [
-            [
-                "a60a6420.567bc8"
-            ]
-        ],
-        "outputLabels": [
-            "joep presence"
-        ]
-    },
-    {
-        "id": "6f124888.38edc8",
-        "type": "ui_chart",
-        "z": "f8865110.44c59",
-        "d": true,
-        "name": "",
-        "group": "7e71b679.598338",
-        "order": 7,
-        "width": 0,
-        "height": 0,
-        "label": "",
-        "chartType": "line",
-        "legend": "true",
-        "xformat": "H:mm",
-        "interpolate": "linear",
-        "nodata": "",
-        "dot": false,
-        "ymin": "0.1",
-        "ymax": "7",
-        "removeOlder": 1,
-        "removeOlderPoints": "",
-        "removeOlderUnit": "86400",
-        "cutout": 0,
-        "useOneColor": false,
-        "colors": [
-            "#1f77b4",
-            "#aec7e8",
-            "#ff7f0e",
-            "#2ca02c",
-            "#98df8a",
-            "#d62728",
-            "#9467bd",
-            "#9467bd",
-            "#c5b0d5"
-        ],
-        "useOldStyle": false,
-        "outputs": 1,
-        "x": 750,
-        "y": 1429,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "a60a6420.567bc8",
-        "type": "rbe",
-        "z": "f8865110.44c59",
-        "name": "diff",
-        "func": "rbe",
-        "gap": "",
-        "start": "",
-        "inout": "out",
-        "property": "payload",
-        "x": 90,
-        "y": 1340,
-        "wires": [
-            [
-                "789f1131.e5b0e"
-            ]
-        ]
-    },
-    {
-        "id": "c2aa934.c11387",
-        "type": "collector",
-        "z": "f8865110.44c59",
-        "name": "",
-        "onlyIfChanged": true,
-        "x": 420,
-        "y": 1340,
-        "wires": [
-            [
-                "a5bb0b38.bf9e28"
-            ]
-        ]
-    },
-    {
-        "id": "789f1131.e5b0e",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "Set columns",
-        "func": "msg.payload = {\n    Name: msg.topic, \n    Where: msg.payload? \"home\" : `out`,\n    // decrease 10 minutes of timeout when out:\n    When: new Date(new Date().getTime() - (msg.payload? 0 : 5*60*1000)),\n    //lastSeen: new Date((msg.more.last_seen - (msg.payload? msg.more.duration : 0)) * 1000),\n    //lastSeen2: msg.more.last_seen,\n    //now: (new Date() / 1000 - (new Date().getTimezoneOffset() * 60 * 1000)) >>0\n};\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 250,
-        "y": 1340,
-        "wires": [
-            [
-                "c2aa934.c11387"
-            ]
-        ]
-    },
-    {
-        "id": "6269aa6e.4902b4",
-        "type": "ui_table",
-        "z": "f8865110.44c59",
-        "d": true,
-        "group": "7e71b679.598338",
-        "name": "טבלת נוכחות",
-        "order": 8,
-        "width": "0",
-        "height": "0",
-        "columns": [],
-        "outputs": 0,
-        "cts": false,
-        "x": 770,
-        "y": 1380,
-        "wires": []
-    },
-    {
-        "id": "a5bb0b38.bf9e28",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "to array, sort",
-        "func": "msg.payload = Object.values(msg.payload);\n//if (msg.payload.some(a => typeof a.When !== \"object\")) return null;\nmsg.payload.sort((a,b) => b.When.getTime() - a.When.getTime());\nmsg.payload = msg.payload.map(a => ({...a, When: a.When.toTimeString().split(\" \")[0]}));\n//msg.payload.forEach(a => a.When = a.When.toTimeString().split(\" \")[0]);\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 590,
-        "y": 1340,
-        "wires": [
-            [
-                "6269aa6e.4902b4",
-                "d2cb9ed1.28f76"
-            ]
-        ]
-    },
-    {
         "id": "d72256c1.618838",
         "type": "function",
         "z": "f8865110.44c59",
         "name": "Save Device IPs",
-        "func": "let googleHome = msg.payload[0].find(dev => dev.mac === \"48:d6:d5:cb:7c:d8\");\nif (googleHome)\n    global.set(\"googleHomeIP\", googleHome.ip)\nreturn msg;",
+        "func": "let googleHome = msg.payload[0].find(dev => dev.mac === \"48:d6:d5:cb:7c:d8\");\nif (googleHome)\n    global.set(\"googleHomeIP\", googleHome.ip)\n",
         "outputs": 1,
         "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
         "x": 420,
         "y": 760,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "f057a6ef.4ecb68",
-        "type": "change",
-        "z": "f8865110.44c59",
-        "name": "set googleHomeState",
-        "rules": [
-            {
-                "t": "set",
-                "p": "googleHomeState",
-                "pt": "flow",
-                "to": "payload",
-                "tot": "msg"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 880,
-        "y": 480,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "a3f9817.ab8cd8",
-        "type": "openhab2-in",
-        "z": "f8865110.44c59",
-        "name": "GH Player Status",
-        "controller": "d9eb1526.34e608",
-        "itemname": "GH_Entryway_Player",
-        "x": 660,
-        "y": 480,
-        "wires": [
-            [
-                "f057a6ef.4ecb68"
-            ],
-            []
-        ]
-    },
-    {
-        "id": "d2cb9ed1.28f76",
-        "type": "ui_template",
-        "z": "f8865110.44c59",
-        "d": true,
-        "group": "7e71b679.598338",
-        "name": "Table",
-        "order": 6,
-        "width": "6",
-        "height": "5",
-        "format": "<table>\n    <thead>\n        <tr style=\"width:100%\">\n            <td ng-repeat=\"(key,val) in msg.payload[0]\"><b>{{key}}</b></td>\n            <!--<td ng-repeat=\"(key,val) in msg.payload[0] track by key\" ng-if=\"key !== 'Where'\"><b>{{key}}</b></td>-->\n        </tr>\n    </thead>\n    <tbody>\n    <tr ng-repeat=\"row in msg.payload track by row.Name\">\n        <td ng-repeat=\"(key,val) in row\">{{val}}</td>\n        <!--<i class=\"fa fa-sign-in\"></i>-->\n        <!--<td ng-repeat=\"(key,val) in row\" ng-if=\"key !== 'Where'\">{{}} {{val}}<i class=\"fa fa-sign-in\"></i></td>-->\n    </tr>\n    </tbody>\n</table>\n",
-        "storeOutMessages": true,
-        "fwdInMessages": false,
-        "templateScope": "local",
-        "x": 750,
-        "y": 1340,
         "wires": [
             []
         ]
@@ -1256,7 +918,7 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 880,
+        "x": 660,
         "y": 200,
         "wires": [
             [
@@ -1272,27 +934,11 @@
         "func": "msg.payload = \"test\";\n//msg.telegram = {chat: {id: 551043853}};\nmsg.telegram = {chat: {id: 522829430}};\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 1030,
+        "x": 810,
         "y": 200,
         "wires": [
             [
                 "acc05ed8.b05ff"
-            ]
-        ]
-    },
-    {
-        "id": "94ce8955.861978",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "Rephrase",
-        "func": "msg.payload = msg.payload\n    .replace(/sensor malf.*/, \"sensor malfunction\");\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 480,
-        "y": 160,
-        "wires": [
-            [
-                "bcbc1481.027f48"
             ]
         ]
     },
@@ -2114,7 +1760,7 @@
         "order": 1,
         "width": "0",
         "height": "0",
-        "format": "<script src=\"/js/iro.min.js\"></script>\n\n<style>\n  .md-text {\n    font-size: 13px;\n  }\n  md-option {\n      height: 25px;\n  }\n  .nr-dashboard-slider p.label {\n      margin: 0;\n  }\n  .nr-dashboard-cardpanel > p {\n      margin: 0;\n      text-align: center;\n  }\n\n  .button-row, .button-col {\n    display: flex;\n    width: calc(100% - 2px);\n    height: calc(100% - 2px);\n    border: 1px solid gray;\n    border-radius: 8px;\n  }\n\n  .button-row {\n    flex-direction: row;\n  }\n  .button-col {\n    flex-direction: column;\n  }\n    \n  .button-row > .myctl:not(:last-child) {\n     margin-right: 6px;\n  }\n  .button-col > .myctl:not(:last-child) {\n     margin-bottom: 6px;\n  }\n\n  .mysubctl,\n  .myctl {\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    padding: 0;\n    margin: 0;     \n    font-size: 12px;\n    min-width: 0;\n    min-height: 0;\n    line-height: unset;\n    text-transform: unset; \n    vertical-align: middle;\n    align-items: center;\n    text-align: center;\n    justify-content: center;\n  }\n  .myctl {\n    width: 100%;\n    height: 100%;\n    border-radius: 8px;\n  }\n  .mysubctl {\n    border-radius: 4px;\n    border: 0.5px solid;\n  }\n  .myctl > div > .md-button,\n  .md-button.myctl {\n    background-color: #225;\n  }\n  .myctl > * {\n      z-index: 5;\n  }\n  button.myctl {\n    background-color: #225;\n    color: #FFF;\n    border: 0;\n  }\n  .myctl.dialog-button {\n    background-color: #229;\n  }\n  .flex30 {\n      flex: 0 1 30%;\n  }\n\n  .bigger > div {\n      font-size: 110%;\n  }\n  \n  .sub-label {\n      position: absolute;\n      font-size: 9pt;\n      padding-left: 3px;\n      z-index: 1;\n  }\n  \n    .left-icon {\n        flex: 1;\n        display: flex;\n        width: 100% !important;\n        align-items: center;\n        justify-content: flex-start;\n        align-content: space-between;\n    }\n    .left-icon > *:first-child {\n        //align-items: flex-end;\n        width: 35%;\n        min-width: fit-content;;\n        left: 0;\n    }\n    .left-icon > *:not(:first-child) {\n        //width: 31px;\n        flex: 1;\n    }\n  \n  .myctl ng-md-icon {\n      width: unset;\n      height: unset;\n  }\n  \n  \n  \n.popup .myctl.md-button {\n    width: 42px;\n    height: 42px;\n    margin: 3px;\n}\n\n.myctl.md-button > .flex {\n    display: inline-flex; \n    align-items: center;\n}\n\n.popup md-input-container {\n    flex: 1 0;\n    min-width: 90px;\n    padding: 3px;\n    margin-top: 0;\n}\n.popup md-input-container button {\n    position: absolute;\n    right: 0;\n    background-color: transparent;\n    border: 0;\n    color: red;\n    font-size: 1.5rem;\n}\n\n.popup md-select, \n.popup md-select .md-select-icon {\n    color: white !important;\n}\n\n.popup input {\n    background-color: #333;\n    color: white;\n}\n\n.dialog-body > input {\n    width: calc(100% - 16px);\n    margin: 3px;\n    padding: 1px 3px;\n    font-size: 1.2rem;\n}\n\n.myctl.ctl-lwt {\n    opacity: 0.8;\n    color: red;\n}\n\n\n.myctl.slider {\n    display: grid;\n    grid-template-columns: 85% 25px;\n    margin: 3px;\n    background-color: #225;\n    width: 84px;\n    height: 42px;\n}\n\n.slider md-slider {\n    height: 42px;\n    min-width: unset;\n    margin-left: 20px;\n}\n.slider md-slider-wrapper {\n    width: unset;\n    height: unset;\n}\n\n.slider md-slider .md-thumb:after, .slider md-slider .md-track,\n.slider md-slider .md-focus-thumb, .slider md-slider .md-focus-ring{\n    background-color: #FA9900 !important;\n    border-color: #FA9900 !important;\n}\n\n.slider .md-thumb {\n    left: -20px;\n}\n\n.slider > div {\n  color: white; \n}\n\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {opacity:0} \n    to {opacity:1}\n}\n\n@keyframes animatetop {\n    from {opacity:0}\n    to {opacity:1}\n}\n\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    opacity:0.99;\n    z-index: 20; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n    //-webkit-perspective: 1000;\n}\n\n/* dialog Content */\n.dialog-content {\n    position: relative;\n    background-color: #fefefe;\n    margin: auto;\n    padding: 0;\n    top: 100px;\n    border-radius: 10px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    -webkit-animation-duration: 0.4s;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n.dialog-body {\n    padding: 6px;\n}\n\n.popup .dialog-content {\n    background-color: #333333;\n    border: 1px solid #999;\n    border-radius: 3px;\n}\n\n.popup .dialog-body {\n    padding: 0;\n}\n\n/* Dialog Header */\n.dialog-header {\n  padding: 2px 16px;\n  background-color: #03A9F4; /*#5cb85c green;*/\n  border-radius: 10px 10px 0 0;\n  color: white;\n}\n\n/* The Close Button */\n.dialog-close {\n    color: #FFF;\n    text-decoration: none;\n    cursor: pointer;\n    float: right;\n    font-size: 24px;\n    line-height: 0.8;\n    font-weight: bold;\n}\n\n.dialog-close:hover,\n.dialog-close:focus {\n    color: #1565C0;\n}\n\n/* Buttons style */\n.pin {\n    width: 42px;\n    height: 42px;\n    min-width: 0;\n    font-weight: bold;\n    margin: 3px;\n    padding: 0;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n    touch-action: manipulation;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n</style>",
+        "format": "<script src=\"/js/iro.min.js\"></script>\n\n<style>\n  .md-text {\n    font-size: 13px;\n  }\n  md-option {\n      height: 25px;\n  }\n  .nr-dashboard-slider p.label {\n      margin: 0;\n  }\n  .nr-dashboard-cardpanel > p {\n      margin: 0;\n      text-align: center;\n  }\n\n  .button-row, .button-col {\n    display: flex;\n    width: calc(100% - 2px);\n    height: calc(100% - 2px);\n    border: 1px solid gray;\n    border-radius: 8px;\n  }\n\n  .button-row {\n    flex-direction: row;\n  }\n  .button-col {\n    flex-direction: column;\n  }\n    \n  .button-row > .myctl:not(:last-child) {\n     margin-right: 6px;\n  }\n  .button-col > .myctl:not(:last-child) {\n     margin-bottom: 6px;\n  }\n\n  .mysubctl,\n  .myctl {\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    padding: 0;\n    margin: 0;     \n    font-size: 12px;\n    min-width: 0;\n    min-height: 0;\n    line-height: unset;\n    text-transform: unset; \n    vertical-align: middle;\n    align-items: center;\n    text-align: center;\n    justify-content: center;\n  }\n  .myctl {\n    width: 100%;\n    height: 100%;\n    border-radius: 8px;\n  }\n  .mysubctl {\n    border-radius: 4px;\n    border: 0.5px solid;\n  }\n  .myctl > div > .md-button,\n  .md-button.myctl {\n    background-color: #225;\n  }\n  .myctl > * {\n      z-index: 5;\n  }\n  button.myctl {\n    background-color: #225;\n    color: #FFF;\n    border: 0;\n  }\n  .myctl.dialog-button {\n    background-color: #229;\n  }\n  .flex30 {\n      flex: 0 1 30%;\n  }\n\n  .bigger > div {\n      font-size: 110%;\n  }\n  \n  .sub-label {\n      position: absolute;\n      font-size: 9pt;\n      padding-left: 3px;\n      z-index: 1;\n  }\n  \n    .left-icon {\n        flex: 1;\n        display: flex;\n        width: 100% !important;\n        align-items: center;\n        justify-content: flex-start;\n        align-content: space-between;\n    }\n    .left-icon > *:first-child {\n        //align-items: flex-end;\n        width: 35%;\n        min-width: fit-content;;\n        left: 0;\n    }\n    .left-icon > *:not(:first-child) {\n        //width: 31px;\n        flex: 1;\n    }\n  \n  .myctl ng-md-icon {\n      width: unset;\n      height: unset;\n  }\n  \n  \n  \n.popup .myctl.md-button {\n    width: 42px;\n    height: 42px;\n    margin: 3px;\n}\n\n.myctl.md-button > .flex {\n    display: inline-flex; \n    align-items: center;\n}\n\n.popup md-input-container {\n    flex: 1 0;\n    min-width: 90px;\n    padding: 3px;\n    margin-top: 0;\n}\n\n\n.popup md-select, \n.popup md-select .md-select-icon {\n    color: white !important;\n}\n\n.popup input {\n    background-color: #333;\n    color: white;\n}\n\n.dialog-body > input {\n    width: calc(100% - 16px);\n    margin: 3px;\n    padding: 1px 3px;\n    font-size: 1.2rem;\n}\n\n.myctl.ctl-lwt {\n    opacity: 0.8;\n    color: red;\n}\n\n\n.myctl.slider, .myctl.slider2, .myctl.slider4  {\n    display: grid;\n    grid-template-columns: 85% 25px;\n    margin: 3px;\n    background-color: #225;\n}\n.myctl.slider, .myctl.slider2 {\n    width: 84px;\n    height: 42px;\n}\n.myctl.slider4 {\n    width: 168px;\n    height: 42px;\n}\n\n.slider md-slider {\n    height: 42px;\n    min-width: unset;\n    margin-left: 20px;\n}\n.slider md-slider-wrapper {\n    width: unset;\n    height: unset;\n}\n\n.slider md-slider .md-thumb:after, .slider md-slider .md-track,\n.slider md-slider .md-focus-thumb, .slider md-slider .md-focus-ring{\n    background-color: #FA9900 !important;\n    border-color: #FA9900 !important;\n}\n\n.slider .md-thumb {\n    left: -20px;\n}\n\n.slider > div {\n  color: white; \n}\n\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {opacity:0} \n    to {opacity:1}\n}\n\n@keyframes animatetop {\n    from {opacity:0}\n    to {opacity:1}\n}\n\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    opacity:0.99;\n    z-index: 20; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n    //-webkit-perspective: 1000;\n}\n\n/* dialog Content */\n.dialog-content {\n    position: relative;\n    background-color: #fefefe;\n    margin: auto;\n    padding: 0;\n    top: 100px;\n    border-radius: 10px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    -webkit-animation-duration: 0.4s;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n.dialog-body {\n    padding: 6px;\n}\n\n.popup .dialog-content {\n    background-color: #333333;\n    border: 1px solid #999;\n    border-radius: 3px;\n}\n\n.popup .dialog-body {\n    padding: 0;\n}\n\n/* Dialog Header */\n.dialog-header {\n  padding: 2px 16px;\n  background-color: #03A9F4; /*#5cb85c green;*/\n  border-radius: 10px 10px 0 0;\n  color: white;\n}\n\n/* The Close Button */\n.dialog-close {\n    color: #FFF;\n    text-decoration: none;\n    cursor: pointer;\n    float: right;\n    font-size: 24px;\n    line-height: 0.8;\n    font-weight: bold;\n}\n\n.dialog-close:hover,\n.dialog-close:focus {\n    color: #1565C0;\n}\n\n/* Buttons style */\n.pin {\n    width: 42px;\n    height: 42px;\n    min-width: 0;\n    font-weight: bold;\n    margin: 3px;\n    padding: 0;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n    touch-action: manipulation;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n</style>",
         "storeOutMessages": true,
         "fwdInMessages": true,
         "templateScope": "global",
@@ -2262,7 +1908,7 @@
         "fwdInMessages": true,
         "templateScope": "local",
         "x": 270,
-        "y": 980,
+        "y": 1160,
         "wires": [
             []
         ]
@@ -2339,7 +1985,7 @@
         "payloadType": "bool",
         "topic": "show",
         "x": 110,
-        "y": 940,
+        "y": 1120,
         "wires": [
             [
                 "7f80ebb8.21fa64"
@@ -2361,7 +2007,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 295.3750343322754,
-        "y": 939.9642696380615,
+        "y": 1119.9642696380615,
         "wires": [
             []
         ]
@@ -2522,7 +2168,7 @@
         "type": "function",
         "z": "f8865110.44c59",
         "name": "check presence",
-        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst sTolerance = 5*60;\nlet uNow = new Date() / 1000 |0; //+ new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad:    \"04:d6:aa:d5:12:77\",      // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali:     \"6e:d7:d6:2f:97:3d\",      // \"44:4a:db:1f:b8:5f\",      // iPhone 11 Pro Max           // iPhone 7+ \"4c:74:bf:78:f6:9b\",\n    Inbal:    \"76:a8:62:bf:3e:da\",      // Galaxy S20\n    Shahar:   \"f4:60:e2:a3:f8:ce\",\n    Yarden:   \"1c:cc:d6:42:62:d7\",      // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer:     \"12:6c:74:b9:42:a0\",      // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Daniel:   \"c6:c1:46:22:78:e9\",\n    Tamar:    \"5e:09:c4:9f:67:7b\"\n};\n\nlet peopleArr = Object.keys(people);\nlet nPpl = Object.keys(people).length;\n\nlet devices = msg.payload[0].filter(dev => \n    (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"curDevices\") || {};\n\nlet bChanged = false;\nconst timeline = [];\n\nObject.entries(people).forEach(([name, mac], idx) => {\n    let cur = curStat[name];\n    if (!cur) curStat[name] = cur = {};\n    let dev = devices.find(dev => dev.mac === mac) || {};\n    const ls = cur.lastSeen = dev.last_seen - dev.idletime || cur.lastSeen || 0;\n    //if (name === \"Gilad\") node.warn({name, seen: my.get_dur((uNow - ls)*1000)});\n    const isHome = ls > uNow - sTolerance; // || dev.last_seen > uNow - sTolerance;\n    if (isHome !== cur.isHome) {\n        bChanged = true;\n        cur.isHome = isHome;\n        timeline.push({name, isOn: isHome, fix: ls && (uNow - ls) * -1000});\n    }\n});\n\ncontext.set(\"curDevices\", curStat);\n\n//if (bChanged) timeline.forEach(t => node.warn(t));\nif (bChanged)\n    return {payload: timeline};",
+        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst sTolerance = 5*60;\nlet uNow = new Date() / 1000 |0; //+ new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad:    \"04:d6:aa:d5:12:77\",      // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali:     \"6e:d7:d6:2f:97:3d\",      // \"44:4a:db:1f:b8:5f\",      // iPhone 11 Pro Max           // iPhone 7+ \"4c:74:bf:78:f6:9b\",\n    Inbal:    \"76:a8:62:bf:3e:da\",      // Galaxy S20\n    Shahar:   \"f4:60:e2:a3:f8:ce\",\n    Yarden:   \"1c:cc:d6:42:62:d7\",      // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer:     \"12:6c:74:b9:42:a0\",      // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Daniel:   \"c6:c1:46:22:78:e9\",\n    Tamar:    \"5e:09:c4:9f:67:7b\",\n    TESLA:    \"4c:fc:aa:14:0a:c5\"\n};\n\nlet peopleArr = Object.keys(people);\nlet nPpl = Object.keys(people).length;\n\nconst devices = {};\nmsg.payload[0].forEach(dev => devices[dev.mac] = dev);\n//filter(dev =>     (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"curDevices\") || {};\n\nlet bChanged = false;\nconst timeline = [];\n\nObject.entries(people).forEach(([name, mac], idx) => {\n    let cur = curStat[name];\n    if (!cur) curStat[name] = cur = {};\n    let dev = devices[mac] || {};\n    //let dev = devices.find(dev => dev.mac === mac) || {};\n    const ls = cur.lastSeen = dev.last_seen - dev.idletime || cur.lastSeen || 0;\n    //if (name === \"Gilad\") node.warn({name, seen: my.get_dur((uNow - ls)*1000)});\n    const isHome = ls > uNow - sTolerance; // || dev.last_seen > uNow - sTolerance;\n    if (isHome !== cur.isHome) {\n        bChanged = true;\n        cur.isHome = isHome;\n        timeline.push({name, isOn: isHome, fix: ls && (uNow - ls) * -1000});\n    }\n});\n\ncontext.set(\"curDevices\", curStat);\n\n//if (bChanged) timeline.forEach(t => node.warn(t));\nif (bChanged)\n    return {payload: timeline};",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2595,29 +2241,6 @@
         ]
     },
     {
-        "id": "66887e1a.7b78",
-        "type": "msg-resend",
-        "z": "f8865110.44c59",
-        "interval": "12",
-        "intervalUnit": "hours",
-        "maximum": "0",
-        "bytopic": true,
-        "clone": false,
-        "firstDelayed": false,
-        "addCounters": false,
-        "highRate": true,
-        "outputCountField": "",
-        "outputMaxField": "",
-        "name": "12h echo",
-        "x": 600,
-        "y": 1429,
-        "wires": [
-            [
-                "6f124888.38edc8"
-            ]
-        ]
-    },
-    {
         "id": "8547df7c.5ad12",
         "type": "ui_template",
         "z": "f8865110.44c59",
@@ -2650,26 +2273,6 @@
             [
                 "8547df7c.5ad12"
             ]
-        ]
-    },
-    {
-        "id": "fe51222d.a7f2b",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "check presence",
-        "func": "const lastSeenSeconds = 300;\nlet presenceCutoff = new Date() / 1000 - lastSeenSeconds +\n    new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad: \"04:d6:aa:d5:12:77\",         // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali: \"4c:74:bf:78:f6:9b\",\n    Inbal: \"76:a8:62:bf:3e:da\",         // Galaxy S20\n    Shahar: \"f4:60:e2:a3:f8:ce\",\n    Yarden: \"1c:cc:d6:42:62:d7\",        // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer: \"12:6c:74:b9:42:a0\",          // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Shoham: \"1c:cc:d6:45:39:b9\",    // \"8c:f5:a3:80:2f:cf\",  \"68:3e:34:52:f7:c5\",\n};\n\nlet peopleArr = Object.keys(people);\nlet nPpl = Object.keys(people).length;\n\nlet devices = msg.payload[0].filter(dev => \n    (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"curDevices\") || {};\n\nlet bChanged = false;\nconst graphMsgs = [];\n\nObject.entries(people).forEach(([nm, mac], idx) => {\n    let dev = devices.find(dev => dev.mac === mac) || {};\n    let cur = curStat[nm];\n    if (!cur) curStat[nm] = cur = {};\n    const isHome = dev.last_seen > presenceCutoff;\n    if (cur.bChanged = (isHome !== cur.isHome)) {\n        bChanged = true;\n        if (typeof cur.isHome === \"boolean\") {\n            cur.tm = Date.now();\n            graphMsgs.push({topic: nm, payload: isHome ? 0 : idx+1});\n        }\n        cur.isHome = isHome;\n        graphMsgs.push({topic: nm, payload: !isHome ? 0 : idx+1});\n    }\n});\n\nif (!bChanged) return;\n\ncontext.set(\"curDevices\", curStat);\nreturn [graphMsgs];",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 420,
-        "y": 1429,
-        "wires": [
-            [
-                "66887e1a.7b78"
-            ]
-        ],
-        "outputLabels": [
-            "joep presence",
-            ""
         ]
     },
     {
@@ -2944,51 +2547,10 @@
         "y": 400,
         "wires": [
             [
-                "31eacb9.61c4e34",
                 "bcbc1481.027f48"
             ],
             [
                 "1bb58972.a6c207"
-            ]
-        ]
-    },
-    {
-        "id": "2611745d.9ece0c",
-        "type": "inject",
-        "z": "f8865110.44c59",
-        "name": "",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "Garage door open",
-        "payloadType": "str",
-        "x": 550,
-        "y": 280,
-        "wires": [
-            [
-                "2b87c038.412b7"
-            ]
-        ]
-    },
-    {
-        "id": "a8bda4e.ac54b58",
-        "type": "inject",
-        "z": "f8865110.44c59",
-        "name": "",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "Garage door closed",
-        "payloadType": "str",
-        "x": 550,
-        "y": 320,
-        "wires": [
-            [
-                "2b87c038.412b7"
             ]
         ]
     },
@@ -3012,20 +2574,6 @@
                 "2b87c038.412b7"
             ]
         ]
-    },
-    {
-        "id": "31eacb9.61c4e34",
-        "type": "debug",
-        "z": "f8865110.44c59",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 900,
-        "y": 340,
-        "wires": []
     },
     {
         "id": "d6223de1.2585e",
@@ -3104,10 +2652,10 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "Setup Dispatcher",
-        "func": "const appl = global.get(\"appliances\");\nconst aplTypes = context.get(\"aplTypes\");\nconst uiTmpl = global.get(\"uiTmpl\") || {};\n\nfunction fillArr(arr, apl) {\n    const at = aplTypes[apl.t];\n    arr[apl.iOut] = {\n        ...apl,\n        template: at.elms? uiTmpl.popbtn : uiTmpl.btn,\n        at\n    }\n    return arr;\n}\n\nif (msg.dev)\n    return msg.dev\n        .reduce((ac,a) => fillArr(ac, a), []);\nelse\n    return Object.values(appl)\n        .reduce((ac,d) => (d.forEach(a => fillArr(ac, a)), ac), []);",
-        "outputs": 8,
+        "func": "const appl = global.get(\"appliances\");\nconst aplTypes = context.get(\"aplTypes\");\nconst uiTmpl = global.get(\"uiTmpl\") || {};\n\nfunction fillArr(arr, apl) {\n    const at = aplTypes[apl.t];\n    if (!at)\n        return node.warn(\"Appliance type unknown: \"+ apl.t +\" (\"+apl.topic+\")\");\n    arr[apl.iOut] = {\n        ...apl,\n        template: at.elms? uiTmpl.popbtn : uiTmpl.btn,\n        at\n    }\n    return arr;\n}\n\nif (msg.dev)\n    return msg.dev\n        .reduce((ac,a) => fillArr(ac, a), []);\nelse\n    return Object.values(appl)\n        .reduce((ac,d) => (d.forEach(a => fillArr(ac, a)), ac), []);",
+        "outputs": 9,
         "noerr": 0,
-        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\n// Order of devices here must correspond to order of node outputs!!\n// key use by device prep node and for topic path\n// t: type used aplTypes\n// h: title on button\n// path: used to construct topic text (path+'/'+key)\n// dflt: ON value if no prev0 value when turning on\nconst appl = {      \n    PcDesk: [\n        {t: \"led1\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 0, dflt: 10},   // chl can be number or array\n        {t: \"fan\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 1, dflt: 10}\n    ],\n    Island: [\n        {t: \"wrgb\", h: \"אי\", path: \"esp/L2\", chl: 0, dflt: \"80000000\"},\n    ],\n    Boiler: [\n        {t: \"boiler\", h: \"בוילר\", path: \"esp/L3\"},\n    ],\n    \"Shutters/Parents\": [\n        {t: \"shutters\", h: \"תריס\", h2: \"הורים\", path: \"esp/L3\"},\n        {t: \"lgtsw\", h: \"מרפסת\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Parents\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Shahar\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"שחר\", path: \"esp/L3\"},\n    ]\n};\n\n\nlet iOut = 0, aOld;\nconst oldAppl = global.get(\"appliances\") || {};\n\nObject.entries(appl).forEach(([k,d]) => d.forEach(a => {\n    if (oldAppl[k] && (aOld = oldAppl[k].find(ao => ao.t === a.t && ao.h === a.h)))\n        Object.assign(a, {...aOld, ...a});\n    a.iOut = iOut++;\n    a.topic = `${a.path}/${k}/`;\n    if (a.chl !== undefined)\n        (typeof a.chl === \"number\"? [a.chl] : a.chl)\n            .forEach((c,i,ar) => {\n                const zc = c - ar[0];\n                a['c'+zc] = 0;\n            });\n\n}));\n\nglobal.set(\"appliances\", appl);\n\n// fa: https://fontawesome.com/v4.7.0/icons/\n// md: https://klarsys.github.io/angular-material-icons/\n\nconst aplTypes = {\n    led1: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p${tgt} t1000 d${4*60*60*1000} ; c${msg.chl} p0 t10000` : `c${msg.chl} p0 t1000`)\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"100%\", a: \"sendTopicClose('cmd', `c${msg.chl} p100 t1000 d${4*60*60*1000} ; c${msg.chl} p0 t10000`)\"},\n            {t: \"btn\", h: \"50%\", a: \"sendTopicClose('cmd', `c${msg.chl} p50 t1000 d${4*60*60*1000} ; c${msg.chl} p0 t10000`)\"},\n            {t: \"btn\", h: \"10%\", a: \"sendTopicClose('cmd', `c${msg.chl} p10 t1000 d${4*60*60*1000} ; c${msg.chl} p0 t10000`)\"},\n            {t: \"btn\", h: \"OFF\", a: \"sendTopicClose('cmd', `c${msg.chl} p0 t1000`)\"},\n            {t: \"slider\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"sendTopicClose('cmd', msg.c0 > 0? `c${msg.chl} p${msg.c0} t0 d${4*60*60*1000} ; c${msg.chl} p0 t10000` : `c${msg.chl} p0`, true)\"},\n            {t: \"btn\", h: \"Strobe\", a: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0 || 50} t500 ; c${msg.chl} p0 t500 *`, true)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0}`, true)\"},\n     ]\n    },\n    fan: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p100 t0 d300; c${msg.chl} p${tgt} t0 d${4*60*60*1000} ; c${msg.chl} p0` : `c${msg.chl} p0`)\",\n        icnMd: \"toys\",\n        iStyle: \"msg.c0 && 'fill: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"100%\", a: \"sendTopicClose('cmd', `c${msg.chl} p100 t0 d${4*60*60*1000} ; c${msg.chl} p0`)\"},\n            {t: \"btn\", h: \"50%\", a: \"sendTopicClose('cmd', `c${msg.chl} p100 t0 d300; c${msg.chl} p50 t0 d${4*60*60*1000} ; c${msg.chl} p0`)\"},\n            {t: \"btn\", h: \"10%\", a: \"sendTopicClose('cmd', `c${msg.chl} p100 t0 d300; c${msg.chl} p10 t0 d${4*60*60*1000} ; c${msg.chl} p0`)\"},\n            {t: \"btn\", h: \"OFF\", a: \"sendTopicClose('cmd', `c${msg.chl} p0`)\"},\n            {t: \"slider\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"sendTopicClose('cmd', msg.c0 > 0? `c${msg.chl} p${msg.c0} t0 d${4*60*60*1000} ; c${msg.chl} p0 t10000` : `c${msg.chl} p0`, true)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",\n                aRmvOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0}`, true)\"},\n        ]\n    },\n    wrgb: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"sendTopicClose('setwrgb', !msg.c0? msg.prev0 || msg.dflt : '00000000')\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"100%\", a: \"sendTopicClose('setwrgb', 'FF'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"50%\", a: \"sendTopicClose('setwrgb', '80'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"10%\", a: \"sendTopicClose('setwrgb', '19'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"OFF\", a: \"sendTopicClose('setwrgb', '00000000')\"},\n            //{t: \"slider\", msgBind: \"wh\", vmin: 0, vmax: 100, a: \"setBySliderWrgb()\"},\n            {t: \"bright\", msgBind: \"wh\", a: \"let hex = ('0'+ (255 * msg.wh / 100 |0).toString(16)).substr(-2); sendTopicClose('setwrgb', hex + (msg.wrgb || '000000').substr(-6), true)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('setsoff', ''+ms, true)\",\n                aRmvOff: \"sendTopicClose('setsoff', '0', true)\"},\n            {t: \"color\", msgBind: \"rgb\"},\n            {t: \"select\", h: \"אפקט\", msgBind: \"mode\", a: \"sendTopicClose('setmode', msg.mode, 10000)\", \n                opts: {0: \"Static\", 3: \"Color Wipe\", 7: \"Color Wipe Random\", 8: \"Random Color\", 9: \"Single Dynamic\", \n                    10: \"Multi Dynamic\", 11: \"Rainbow\", 12: \"Rainbow Cycle\", 16: \"Theater Chase\", 17: \"Theater Chase Rainbow\", \n                    18: \"Running Lights\", 20: \"Twinkle Random\", 25: \"Hyper Sparkle\", 32: \"Chase Random\", 33: \"Chase Rainbow\", \n                    36: \"Chase Rainbow White\", 38: \"Chase Blackout Rainbow\", 39: \"Color Sweep Random\", 40: \"Running Color\", \n                    41: \"Running Red Blue\", 42: \"Running Random\", 43: \"Larson Scanner\", 44: \"Comet\", 46: \"Fireworks Random\", \n                    47: \"Merry Christmas\", 48: \"Fire Flicker\", 49: \"Fire Flicker Soft\", 50: \"Fire Flicker Intense\", \n                    51: \"Circus Combustus\", 52: \"Halloween\", 53: \"Bicolor Chase\", 54: \"Tricolor Chase\"}},\n        ]\n    },\n    boiler: {\n        t: \"hdr-val\",\n        w: 3,\n        v: \"msg.disp\",\n        elms: [\n            {t: \"btn\", h: \"מקלחות\", icnTx: \"&#x1f478;\", a: \"sendTopicClose('cmd', 'tapPeople', true)\"},\n            {t: \"btn\", h: \"טיימר\", icnTx: \"&#x23f1;\", a: \"sendTopicClose('cmd', 'tapCountdown', true)\"},\n            {t: \"btn\", h: \"כיבוי\", icnFa: \"fa fa-power-off fa-lg\", a: \"sendTopicClose('cmd', 'tapOff')\"},\n            {t: \"btn\", h: \"גראפ\", icnFa: \"fa fa-area-chart fa-2x\", iStyle: \"'color: #86F'\", \n                a: \"closeDialog(); send({apply:'my.uiControl(`WaterTank`)'})\"},\n        ]\n    },\n    shutters: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"msg.pos\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"פתוח\", a: \"sendTopicClose('cmd', msg.moving==='UP'? 'STOP' : 100, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-270\", iStyle: \"msg.moving==='UP' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"+10%\", a: \"sendTopicClose('cmd', msg.pos < 90? msg.pos+10 : 100, true)\"},\n            {t: \"btn\", h: \"סגור\", a: \"sendTopicClose('cmd', msg.moving==='DOWN'? 'STOP' : 0, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-90\", iStyle: \"msg.moving==='DOWN' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"מדורגת\", a: \"sendTopicClose('wakeup', msg.wakeup && msg.wakeup < 100 ? 0 : 1)\",\n                icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose('cmd', 'DUMMY'+(msg.d ^1), true)\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"השכמה\", \n                aOff: \"sendTopicClose('wakeup', secs)\", \n                aRmvOff: \"sendTopicClose('wakeup', 0, true)\"},\n        ]\n    },\n    heatpad: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"msg.tBed+'°'\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"\", icnFa: \"fa fa-power-off fa-lg\", iStyle: \"msg.power && 'color: #FF4'\",\n                a: \"sendTopicClose('cmd', msg.power? 'OFF' : 'ON', true)\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose('cmd', 'DUMMY'+(msg.d ^1), true)\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"כיבוי\", \n                aOff: \"sendTopicClose('setsoff', ''+ms, true)\", \n                aRmvOff: \"sendTopicClose('setsoff', 0, true)\"},\n        ]\n    },\n// esp/L3/HeatPad/Parents/state {\"time\": \"12:30:07\", \"power\": 0, \"relay\": 0, \"watt\": 5497, \"sOff\": 0, \"tBed\": 26.8}\n// /esp_L2_LR/info {ip:\"10.20.30.226\", time:\"12:30:48\", mac:\"84:F3:EB:B2:43:8F\", ssid:\"RazUB\", ch:1, rssi: \"%\", uptime:22, temp:27}\n// esp/L3/Boiler/temp {\"time\": \"12:30:56\", \"tTop\": 69.7, \"tCenter\": 47.1, \"tB\n    \n    lgtsw: {\n        t: \"bgicn-hdr-hdr2\",\n        a: \"send({topic: msg.topic+'cmd', payload: 'sw1,'+(msg.sw[0] ^1)})\",\n        icnFa: \"fa fa-lightbulb-o fa-3x\",\n        iStyle: \"msg.sw[0] && 'color: #FF4'\",\n    }\n};\n\ncontext.set(\"aplTypes\", aplTypes);\n\n\n",
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\n// Order of devices here must correspond to order of node outputs!!\n// key use by device prep node and for topic path\n// t: type used aplTypes\n// h: title on button\n// path: used to construct topic text (path+'/'+key)\n// dflt: ON value if no prev0 value when turning on\n// off: off timer in ms\nconst appl = {      \n    PcDesk: [\n        {t: \"led1\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 0, dflt: 10, off: 4*60*60*1000},   // chl can be number or array\n        {t: \"fan\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 1, dflt: 10, off: 4*60*60*1000}\n    ],\n    Island: [\n        {t: \"wrgb\", h: \"אי\", path: \"esp/L2\", chl: 0, dflt: \"80000000\"},\n    ],\n    Boiler: [\n        {t: \"boiler\", h: \"בוילר\", path: \"esp/L3\"},\n    ],\n    \"Shutters/Parents\": [\n        {t: \"shutters\", h: \"תריס\", h2: \"הורים\", path: \"esp/L3\"},\n        {t: \"lgtsw\", h: \"מרפסת\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Parents\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Shahar\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"שחר\", path: \"esp/L3\"},\n    ],\n    Strip1: [\n        {t: \"led2\", h: \"ניסוי\", path: \"esp/Dimmer\", chl: [0,1], dflt: [10,10], cct: 0.5, off: 4*60*60*1000},\n    ],\n};\n\nconst klvMin = 2700, klvMax = 11000;\n\nlet iOut = 0, aOld;\nconst oldAppl = global.get(\"appliances\") || {};\n\nObject.entries(appl).forEach(([k,d]) => d.forEach((a, ai) => {\n    if (oldAppl[k] && (aOld = oldAppl[k].find(ao => ao.t === a.t && ao.h === a.h)))\n        Object.assign(a, {...aOld, ...a});\n    a.iOut = iOut++;\n    a.topic = `${a.path}/${k}/`;\n    a.apl = k;\n    a.aplIdx = ai;\n    if (a.chl !== undefined) {\n        a.c = []; \n        a.prev = a.dflt || 0;\n        (typeof a.chl === \"number\"? [a.chl] : a.chl)\n            .forEach((c,i,ar) => {\n                const zc = c - ar[0];\n                a['c'+zc] = 0;\n                a.c[zc] = 0;\n            });\n    }\n\n}));\n\nglobal.set(\"appliances\", appl);\n\n// fa: https://fontawesome.com/v4.7.0/icons/\n// md: https://klarsys.github.io/angular-material-icons/\n\nconst aplTypes = {\n    led1: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p${tgt} t1000 d${msg.off} e0 ; c${msg.chl} p0 t10000 e0` : `c${msg.chl} p0 t1000 e0`)\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",        // a js expression\n        elms: [\n            // {t: \"btn\", h: \"10\", a: \"sendTopicClose('cmd', `c${msg.chl} p10 t1000 d${msg.off} ; c${msg.chl} p0 t10000 e0`)\"},\n            // {t: \"btn\", h: \"Strobe\", a: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0 || 50} e0 t500 ; c${msg.chl} e0 p0 t500 *`)\"},\n            // {t: \"slider\", sz: 4, msgBind: \"c0\", vmin: 0, vmax: 100, a: \"\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.c0\",                // optional: update iro color whenever changed. actual value applied using toClr.\n                toClr: \"({h:0, s:0, v: curVal})\",   // object format of iro.color\n                fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopicClose5('cmd', fromClr > 0? `c${msg.chl} p${fromClr} e1 t0 d${msg.off} ; c${msg.chl} p0 e0 t10000` : `c${msg.chl} p0 e0`)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} e0 t0 d${ms} ; c${msg.chl} p0 t10000 e0`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0} e0`)\"},\n     ]\n    },\n    led2: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !Math.max(...msg.c)? msg.prev || msg.dflt : 0; sendTopicClose('cmd', `c${msg.chl[0]} p${tgt && tgt[0]} e1 t1000,c${msg.chl[1]} p${tgt && tgt[1]} e1 t1000` +(!tgt? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"Math.max(...msg.c)\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"iro-picker\",\n                curVal: \"Math.max(msg.c0, msg.c1)\",                \n                watch: \"msg.c0 + msg.c1\",           // optional - otherwise use curVal: updates iro. actual value applied using toClr.            \n                toClr: \"({h:0, s:0, v: curVal})\",   // eval converter to iro.color format\n                fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopic('cmd', `c${msg.chl[0]} p${fromClr * Math.min(msg.cct*2,1) |0} e1 t1000,c${msg.chl[1]} p${fromClr * Math.min((1-msg.cct)*2,1) |0} e1 t1000` +(!fromClr? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.cct\",\n                toClr: `({kelvin: ${klvMin} + curVal * ${klvMax - klvMin}})`,\n                fromClr: `((color.kelvin - ${klvMin}) / ${klvMax - klvMin} * 100 | 0) / 100`,\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'kelvin', minTemperature: klvMin, maxTemperature: klvMax}}]        // , sliderSize: 40\n                },\n                a: `let v = Math.max(...msg.c); `\n                    + \"updState('dev.cct='+fromClr); \"\n                    + \"sendTopic('cmd', `c${msg.chl[0]} p${v * Math.min(fromClr*2,1) |0} e1 t1000,c${msg.chl[1]} p${v * Math.min((1-fromClr)*2,1) |0} e1 t1000` +(!v? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\"\n            },\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0}`)\"},\n     ]\n    },\n    fan: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p100 t0 d300; c${msg.chl} p${tgt} t0 d${msg.off} ; c${msg.chl} p0` : `c${msg.chl} p0`)\",\n        icnMd: \"toys\",\n        iStyle: \"msg.c0 && 'fill: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"iro-picker\",\n                curVal: \"msg.c0\",\n                toClr: \"({h:0, s:0, v: msg.c0})\",\n                fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopicClose5('cmd', !fromClr? `c${msg.chl} p0` : (!msg.c0? `c${msg.chl} p100 t0 d300; `:'') +`c${msg.chl} p${fromClr} t0 d${msg.off} ; c${msg.chl} p0`)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0}`)\"},\n        ]\n    },\n    wrgb: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"sendTopicClose('setwrgb', !msg.c0? msg.prev0 || msg.dflt : '00000000')\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"100%\", a: \"sendTopicClose('setwrgb', 'FF'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"50%\", a: \"sendTopicClose('setwrgb', '80'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"10%\", a: \"sendTopicClose('setwrgb', '19'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"OFF\", a: \"sendTopicClose('setwrgb', '00000000')\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.wrgb\",                \n                toClr: \"'#'+(msg.wrgb || '00').substr(0,2).repeat(3)\",\n                fromClr: \"('0'+ (255 * color.value / 100 |0).toString(16)).substr(-2) + (msg.wrgb || '000000').substr(-6)\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 96, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopic('setwrgb', fromClr)\"},\n                //a: \"let hex = ('0'+ (255 * val.value / 100 |0).toString(16)).substr(-2); sendTopicClose5('setwrgb', hex + (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"time\", h: \"off\",\n                aOff: \"sendTopicClose5('setsoff', ''+ms)\",\n                aRmvOff: \"sendTopicClose5('setsoff', '0')\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.wrgb\",                \n                toClr: \"msg.c0? msg.rgb : '#ff0000'\",\n                fromClr: \"(msg.wrgb || '00').substr(0,2) + color.hexString.substr(1)\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 96, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layoutDirection: \"horizontal\",\n                    //layout: [{component: \"Wheel\"}, {component: \"Slider\"}]\n                },\n                a: \"sendTopic('setwrgb', fromClr)\"},\n            {t: \"select\", h: \"אפקט\", msgBind: \"mode\", a: \"sendTopicClose('setmode', msg.mode, 10000)\", \n                opts: {0: \"Static\", 3: \"Color Wipe\", 7: \"Color Wipe Random\", 8: \"Random Color\", 9: \"Single Dynamic\", \n                    10: \"Multi Dynamic\", 11: \"Rainbow\", 12: \"Rainbow Cycle\", 16: \"Theater Chase\", 17: \"Theater Chase Rainbow\", \n                    18: \"Running Lights\", 20: \"Twinkle Random\", 25: \"Hyper Sparkle\", 32: \"Chase Random\", 33: \"Chase Rainbow\", \n                    36: \"Chase Rainbow White\", 38: \"Chase Blackout Rainbow\", 39: \"Color Sweep Random\", 40: \"Running Color\", \n                    41: \"Running Red Blue\", 42: \"Running Random\", 43: \"Larson Scanner\", 44: \"Comet\", 46: \"Fireworks Random\", \n                    47: \"Merry Christmas\", 48: \"Fire Flicker\", 49: \"Fire Flicker Soft\", 50: \"Fire Flicker Intense\", \n                    51: \"Circus Combustus\", 52: \"Halloween\", 53: \"Bicolor Chase\", 54: \"Tricolor Chase\"}},\n        ]\n    },\n    boiler: {\n        t: \"hdr-val\",\n        w: 3,\n        v: \"msg.disp\",\n        elms: [\n            {t: \"btn\", h: \"מקלחות\", icnTx: \"&#x1f478;\", a: \"sendTopicClose5('cmd', 'tapPeople')\"},\n            {t: \"btn\", h: \"טיימר\", icnTx: \"&#x23f1;\", a: \"sendTopicClose5('cmd', 'tapCountdown')\"},\n            {t: \"btn\", h: \"כיבוי\", icnFa: \"fa fa-power-off fa-lg\", a: \"sendTopicClose('cmd', 'tapOff')\"},\n            {t: \"btn\", h: \"גראפ\", icnFa: \"fa fa-area-chart fa-2x\", iStyle: \"'color: #86F'\", \n                a: \"closeDialog(); send({apply:'my.uiControl(`WaterTank`)'})\"},\n        ]\n    },\n    shutters: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"msg.pos\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"פתוח\", a: \"sendTopicClose('cmd', msg.moving==='UP'? 'STOP' : 100, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-270\", iStyle: \"msg.moving==='UP' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"+10%\", a: \"sendTopicClose5('cmd', msg.pos < 90? msg.pos+10 : 100)\"},\n            {t: \"btn\", h: \"סגור\", a: \"sendTopicClose('cmd', msg.moving==='DOWN'? 'STOP' : 0, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-90\", iStyle: \"msg.moving==='DOWN' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"מדורגת\", a: \"sendTopicClose('wakeup', msg.wakeup && msg.wakeup < 100 ? 0 : 1)\",\n                icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose5('cmd', 'DUMMY'+(msg.d ^1))\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"השכמה\", \n                aOff: \"sendTopicClose('wakeup', secs)\", \n                aRmvOff: \"sendTopicClose5('wakeup', 0)\"},\n        ]\n    },\n    heatpad: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"(msg.tBed||'?')+'°'\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"\", icnFa: \"fa fa-power-off fa-lg\", iStyle: \"msg.power && 'color: #FF4'\",\n                a: \"sendTopicClose5('cmd', msg.power? 'OFF' : 'ON')\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose5('cmd', 'DUMMY'+(msg.d ^1))\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"כיבוי\", \n                aOff: \"sendTopicClose5('setsoff', ''+ms)\", \n                aRmvOff: \"sendTopicClose5('setsoff', 0)\"},\n        ]\n    },\n// esp/L3/HeatPad/Parents/state {\"time\": \"12:30:07\", \"power\": 0, \"relay\": 0, \"watt\": 5497, \"sOff\": 0, \"tBed\": 26.8}\n// /esp_L2_LR/info {ip:\"10.20.30.226\", time:\"12:30:48\", mac:\"84:F3:EB:B2:43:8F\", ssid:\"RazUB\", ch:1, rssi: \"%\", uptime:22, temp:27}\n// esp/L3/Boiler/temp {\"time\": \"12:30:56\", \"tTop\": 69.7, \"tCenter\": 47.1, \"tB\n    \n    lgtsw: {\n        t: \"bgicn-hdr-hdr2\",\n        a: \"send({topic: msg.topic+'cmd', payload: 'sw1,'+(msg.sw[0] ^1)})\",\n        icnFa: \"fa fa-lightbulb-o fa-3x\",\n        iStyle: \"msg.sw[0] && 'color: #FF4'\",\n    }\n};\n\ncontext.set(\"aplTypes\", aplTypes);\n\n\n",
         "finalize": "",
         "libs": [],
         "x": 570,
@@ -3136,6 +2684,9 @@
             ],
             [
                 "7a641d43.3e70c4"
+            ],
+            [
+                "2af0e3ca.d29aec"
             ]
         ]
     },
@@ -3172,7 +2723,7 @@
         "nl": false,
         "rap": false,
         "x": 130,
-        "y": 220,
+        "y": 260,
         "wires": [
             [
                 "b097fd90.b4b85"
@@ -3260,7 +2811,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "plain",
-        "template": "<!-- msg: appliance: {t: <type>, h: <title>, chl: <num|array<num>>, c<n>: cur pwm val, topic, state, template} -->\n<!-- Trigger/Open The dialog -->\n\n<md-button ng-click=\"open($id)\" id=\"{{'btn_'+$id}}\" \n        class=\"{{msg.at.cls || 'myctl'}} {{msg.lwt && 'ctl-lwt'}} vibrate touched dialog-button\" aria-label=\"x\">\n    <div ng-if=\"msg.h\" class=\"{{msg.at.t.startsWith('hdr-')? 'flex30' : ''}}\" >{{msg.h}}</div>\n    <div ng-if=\"msg.h2\" class=\"flex30\" >{{msg.h2}}</div>\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"left-icon\">\n        <md-button ng-click=\"$event.stopPropagation(); myEval(msg, msg.at.a);\" class=\"mysubctl vibrate touched\" aria-label=\"x\">\n            <i ng-if=\"msg.at.icnFa\" class={{msg.at.icnFa}} \n                style=\"color: grey; {{$eval(msg.at.iStyle||'')}}\"/>\n            <ng-md-icon ng-if=\"msg.at.icnMd\" icon={{msg.at.icnMd}} \n                style=\"{{$eval(msg.at.iStyle||'') || 'fill:grey'}}\" />\n        </md-button>\n        <div style=\"line-height: 1; font-size: 120%; {{$eval(msg.at.vStyle||'')}}\">{{$eval(msg.at.v)}}</div>\n    </div>\n    <div ng-if=\"msg.at.t.includes('-val') && msg.at.t !== 'hdr-icn-val'\" class=\"flex\" \n        style=\"line-height: 1; font-size: 120%; {{$eval(msg.at.vStyle||'')}}\">{{$eval(msg.at.v)}}</div>\n    <i ng-if=\"msg.at.t.startsWith('bgicn-') && msg.at.icnFa\" class=\"{{msg.at.icnFa}}\" \n        style=\"position: absolute; z-index: 4; opacity: 0.8; color: grey; {{$eval(msg.at.iStyle||'')}}\"/>\n</md-button>\n\n\n<div id=\"{{'mydialog_'+$id}}\" class=\"dialog popup\">\n    <div class=\"dialog-content\" style=\"width: {{(msg.at.w || 3) * 48}}px\">\n        <div class=\"dialog-body\" style=\"display: flex; flex-direction: row; flex-wrap: wrap;\">\n            <div ng-repeat=\"elm in msg.at.elms track by $index\" ng-switch=\"elm.t\">\n                <div ng-switch-when=\"btn\"><md-button \n                    class=\"myctl vibrate touched\" style=\"line-height:1\"\n                    ng-click=\"myEval(msg, elm.a, elm)\">\n                    <div ng-if=\"elm.h\" class=\"flex30\">{{elm.h}}</div>\n                    <font ng-if=\"elm.icnTx\" size=4 class=\"flex\" ng-bind-html=\"elm.icnTx\"></font>\n                    <i ng-if=\"elm.icnFa\" class=\"flex {{elm.icnFa}}\" style=\"{{$eval(msg.at.iStyle||'')}}\"/>\n                </md-button></div>\n\n                <div ng-switch-when=\"slider\" class=\"myctl slider\">\n                    <md-slider min={{elm.vmin}} max={{elm.vmax}} step=\"1\" aria-label=\"x\"\n                       ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\">\n                    </md-slider>\n                    <div ng-bind-html=\"msg[elm.msgBind]\" class=\"dimValue\"></div>\n                </div>\n    \n                <div ng-switch-when=\"time\" class=\"nr-dashboard-textinput\">\n                    <md-input-container class=\"md-block flex has-label md-input-has-value\" flex=\"\" \n                        md-is-error=\"false\">\n                        <input type=\"time\" placeholder={{elm.h}} aria-label={{elm.h}} \n                            ng-model=\"cur.tmOff\" ng-change=\"sendOff(elm, msg)\" aria-invalid=\"false\"/>\n                        <button ng-if=\"cur.tmOff\" ng-click=\"rmvOff(elm, msg)\">&times;</button>\n                    </md-input-container>\n                </div>\n\n                <div ng-switch-when=\"bright\" id=\"iro-bright-picker\"></div>\n                <div ng-switch-when=\"color\" id=\"iro-color-picker\"></div>\n                <!--input ng-switch-when=\"color\" type=\"color\" ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a)\"-->\n                \n                <md-select ng-switch-when=\"select\"\n                    ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\"\n                    placeholder={{elm.h}} class=\"myctl ng-pristine ng-untouched ng-valid flex-100 ng-empty\" >\n                    <md-option ng-repeat=\"(key, val) in elm.opts track by key\" \n                        ng-value=\"key\">{{val}}</md-option>\n                </md-select>\n            </div>\n        </div>\n    </div>\n</div>\n\n<script>\n\n(function(scope) {\n    scope.dlg = null;\n    scope.cur = {tmOff: null};      // ng-model shouldn't change a scope val, only within an object!\n    \n    scope.$watch('msg.msOff', function(tm) {\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.cur.tmOff = tm || null;\n    });\n    \n    scope.open = (id, idx) => {\n        //This trick make it works on smartphones too :)\n        if (!scope.dlg) {\n            scope.dlg = $('#mydialog_'+id).detach();\n            scope.dlg.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        }\n        \n        // create color picker in display range.\n        let iroElm = !scope.iroClr && scope.dlg.find(\"#iro-color-picker\")[0];\n        if (iroElm) {\n            scope.iroClr = new iro.ColorPicker(iroElm, { // Option guide: https://iro.js.org/guide.html#color-picker-options\n                width: 96,\n                color: scope.msg.c0? scope.msg.rgb : \"#ff0000\",\n                padding: 4,\n                handleRadius: 8,\n                borderWidth: 0.5,\n                borderColor: \"#fff\",\n                layoutDirection: \"horizontal\",\n                zlayout: [{ \n                    component: iro.ui.Wheel,\n                }, { \n                    component: iro.ui.Slider,\n                }],\n            });\n            scope.iroClr.on([\"color:change\"], function(color) {\n                scope.setWrgb((scope.msg.wrgb || \"00\").substr(0,2) + color.hexString.substr(1), true);\n            });\n        }\n        \n        // create color picker in display range.\n        iroElm = !scope.iroBrt && scope.dlg.find(\"#iro-bright-picker\")[0];\n        if (iroElm) {\n            scope.iroBrt = new iro.ColorPicker(iroElm, { // Option guide: https://iro.js.org/guide.html#color-picker-options\n                width: 96,\n                color: ['#','','',''].join((scope.msg.wrgb || \"00\").substr(0,2)),\n                padding: 4,\n                handleRadius: 8,\n                borderWidth: 0.5,\n                borderColor: \"#fff\",\n                layout: [{\n                  component: iro.ui.Slider,\n                  options: {\n                    sliderType: 'value'\n                  }\n                }]\n            });\n            scope.iroBrt.on([\"color:change\"], function(color) {\n                scope.setWrgbWhite(color.value, true);\n            });\n        }\n        \n        const rBtn = $('#btn_'+id)[0].getBoundingClientRect();\n        scope.dlg.css(\"display\", \"block\");\n        const cnt = scope.dlg.find(\".dialog-content\");\n        cnt.css({margin: 0, left: (rBtn.left|0) + \"px\", top: (rBtn.bottom|0) + \"px\"});\n        const rCnt = scope.dlg.find(\".dialog-content\")[0].getBoundingClientRect();\n        const rWin = $('#nr-dashboard')[0].getBoundingClientRect();\n        if (rCnt.right > rWin.right || rCnt.bottom > rWin.bottom)\n            cnt.css({\n                margin: 0, \n                left: (rCnt.right > rWin.right? rWin.right - rCnt.width : rBtn.left) + \"px\", \n                top: (rCnt.bottom > rWin.bottom? rWin.bottom - rCnt.height : rBtn.bottom) + \"px\"\n            });\n\n        // ng-model-options=\"{'timezone':'UTC'}\" \n        //console.log((new Date(Date.now() + msOff)).toTimeString().split(\" \")[0]);\n        // let tm = scope.msg.msOff;\n        // if (tm) {\n        //     tm = new Date(tm);\n        //     tm.setSeconds(0, 0);\n        // }\n        // scope.tmOff = tm;\n    }\n    \n    scope.closeDialog = function(delay) {\n        clearTimeout(scope.closeTmr);\n        scope.closeTmr = setTimeout(() => $('.dialog').css(\"display\", \"none\"), delay === true? 5000 : delay || 0);\n    }\n    \n    scope.sendTopicClose = function(tpc, payload, delay) {\n        scope.send({topic: scope.msg.topic + tpc, payload});\n        scope.closeDialog(delay);\n    }\n    \n    scope.myEval = function(msg, evl, elm) {\n        const {send, sendTopicClose, closeDialog} = scope, {at} = msg; \n        eval(evl);\n    }\n    \n\n    scope.sendOff = (elm, msg) => {\n        clearTimeout(scope.closeTmr);\n        if (!scope.cur.tmOff) return;\n        let wu = new Date(scope.cur.tmOff);\n        wu = wu.getTime() - wu.setHours(0,0,0,0);\n        const d = new Date(), now = d.getTime() - d.setHours(0,0,0,0);\n        const ms = (wu > now ? 0 : 24*60*60*1000) + wu - now;\n        const secs = ms / 1000 |0;\n        const {send, sendTopicClose} = scope;\n        scope.closeTmr = setTimeout(() => {\n            eval(elm.aOff);\n        }, 5000);\n    };\n    \n    scope.rmvOff = (elm, msg) => {\n        scope.cur.tmOff = null;\n        const {send, sendTopicClose} = scope;\n        eval(elm.aRmvOff);\n    };\n    \n    scope.setWrgb = function(wrgb, bDelay) {\n        scope.send({\n            topic: scope.msg.topic + 'setwrgb', \n            payload: wrgb\n        });\n        scope.closeDialog(bDelay);\n    }\n    \n    scope.setWrgbWhite = function(wht, bDelay) {\n        const hex = (\"0\"+ (255 * wht / 100 |0).toString(16)).substr(-2);\n        scope.setWrgb(hex + (scope.msg.wrgb || \"000000\").substr(-6), bDelay);\n            // (((parseInt(wrgb || '0', 16) & 0xFFFFFF) | ((255 * tgt / 100) << 24))>>>0).toString(16));\n    }\n    \n    scope.colorWrgb = function() {\n        const {wrgb, rgb} = scope.msg;\n        scope.setWrgb((wrgb || \"00\").substr(0,2) + rgb.substr(1), true);\n    }\n    \n})(scope);\n\n// Get the element that closes the dialog\n$('.dialog-close').on('click', e => {\n    $('.dialog').css(\"display\", \"none\");\n});\n\n// When the user clicks anywhere outside of the dialog, close it\nwindow.onclick = e => {\n    if ($(e.target).hasClass('dialog'))\n        $('.dialog').css(\"display\", \"none\");\n}\n\n</script>\n",
+        "template": "<!-- msg: appliance: {t: <type>, h: <title>, chl: <num|array<num>>, c<n>: cur pwm val, topic, state, template} -->\n<!-- Trigger/Open The dialog -->\n\n<md-button ng-click=\"open($id)\" id=\"{{'btn_'+$id}}\" \n        class=\"{{msg.at.cls || 'myctl'}} {{msg.lwt && 'ctl-lwt'}} vibrate touched dialog-button\" aria-label=\"x\">\n    <div ng-if=\"msg.h\" class=\"{{msg.at.t.startsWith('hdr-')? 'flex30' : ''}}\" >{{msg.h}}</div>\n    <div ng-if=\"msg.h2\" class=\"flex30\" >{{msg.h2}}</div>\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"left-icon\">\n        <md-button ng-click=\"$event.stopPropagation(); myEval(msg, msg.at.a);\" class=\"mysubctl vibrate touched\" aria-label=\"x\">\n            <i ng-if=\"msg.at.icnFa\" class={{msg.at.icnFa}} \n                style=\"color: grey; {{$eval(msg.at.iStyle||'')}}\"/>\n            <ng-md-icon ng-if=\"msg.at.icnMd\" icon={{msg.at.icnMd}} \n                style=\"{{$eval(msg.at.iStyle||'') || 'fill:grey'}}\" />\n        </md-button>\n        <div style=\"line-height: 1; font-size: 120%; {{$eval(msg.at.vStyle||'')}}\">{{myEval(msg,msg.at.v)}}</div>\n    </div>\n    <div ng-if=\"msg.at.t.includes('-val') && msg.at.t !== 'hdr-icn-val'\" class=\"flex\" \n        style=\"line-height: 1; font-size: 120%; {{$eval(msg.at.vStyle||'')}}\">{{myEval(msg,msg.at.v)}}</div>\n    <i ng-if=\"msg.at.t.startsWith('bgicn-') && msg.at.icnFa\" class=\"{{msg.at.icnFa}}\" \n        style=\"position: absolute; z-index: 4; opacity: 0.8; color: grey; {{$eval(msg.at.iStyle||'')}}\"/>\n</md-button>\n\n\n<div id=\"{{'mydialog_'+$id}}\" class=\"dialog popup\">\n    <div class=\"dialog-content\" style=\"width: {{(msg.at.w || 3) * 48}}px\">\n        <div class=\"dialog-body\" style=\"display: flex; flex-direction: row; flex-wrap: wrap;\">\n            <div ng-repeat=\"elm in msg.at.elms track by $index\" ng-switch=\"elm.t\">\n                <div ng-switch-when=\"btn\"><md-button aria-label=\"x\"\n                    class=\"myctl vibrate touched\" style=\"line-height:1\"\n                    ng-click=\"myEval(msg, elm.a, elm)\">\n                    <div ng-if=\"elm.h\" class=\"flex30\">{{elm.h}}</div>\n                    <font ng-if=\"elm.icnTx\" size=4 class=\"flex\" ng-bind-html=\"elm.icnTx\"></font>\n                    <i ng-if=\"elm.icnFa\" class=\"flex {{elm.icnFa}}\" style=\"{{$eval(elm.iStyle)}}\"/>\n                </md-button></div>\n\n                <div ng-switch-when=\"slider\" class=\"myctl slider{{elm.sz||''}}\">\n                    <md-slider min={{elm.vmin}} max={{elm.vmax}} step=\"1\" aria-label=\"x\"\n                       ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\">\n                    </md-slider>\n                    <div ng-bind-html=\"msg[elm.msgBind]\" class=\"dimValue\"></div>\n                </div>\n    \n                <div ng-switch-when=\"time\" class=\"nr-dashboard-textinput\">\n                    <md-input-container class=\"flex has-label md-input-has-value layout-row\" md-is-error=\"false\">\n                        <input type=\"time\" placeholder={{elm.h}} aria-label={{elm.h}} \n                            ng-model=\"cur.tmOff\" ng-change=\"sendOff(elm, msg)\" aria-invalid=\"false\"></input>\n                        <button ng-if=\"cur.tmOff\" ng-click=\"rmvOff(elm, msg)\" style=\"background-color: transparent; border: 0; color: red; font-size: 1.5rem;\">&times;</button>\n                    </md-input-container>\n                </div>\n\n                <div ng-switch-when=\"iro-picker\" id=\"iro-picker\" idx=\"{{$index}}\"></div>\n                <!--input ng-switch-when=\"color\" type=\"color\" ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a)\"-->\n                \n                <md-select ng-switch-when=\"select\"\n                    ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\"\n                    placeholder={{elm.h}} class=\"myctl ng-pristine ng-untouched ng-valid flex-100 ng-empty\" >\n                    <md-option ng-repeat=\"(key, val) in elm.opts track by key\" \n                        ng-value=\"key\">{{val}}</md-option>\n                </md-select>\n            </div>\n        </div>\n    </div>\n</div>\n\n<script>\n\n(function(scope) {\n    scope.dlg = null;\n    scope.cur = {tmOff: null};      // ng-model shouldn't change a scope val, only within an object!\n    \n    scope.$watch('msg.msOff', function(tm) {\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.cur.tmOff = tm || null;\n    });\n    \n    scope.open = (id, idx) => {\n        //This trick make it works on smartphones too :)\n        if (!scope.dlg) {\n            scope.dlg = $('#mydialog_'+id).detach();\n            scope.dlg.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        }\n        \n        const {msg} = scope;\n        // create color picker in display range.\n        if (!scope.iros) {\n            scope.iros = [];\n            scope.dlg[0].querySelectorAll(\"#iro-picker\").forEach((eIro,i) => {\n                const elm = msg.at.elms[eIro.getAttribute(\"idx\") |0];\n                const opts = elm.opts || {};\n                const curVal = eval(elm.curVal);\n                opts.color = eval(elm.toClr);\n                (opts.layout|| []).forEach(l => l.component = iro.ui[l.component]);\n                const oIro = new iro.ColorPicker(eIro, opts);\n                scope.iros.push(oIro);\n                oIro.on([\"input:change\"], function(color) {\n                    const {msg} = scope;\n                    const curVal = eval(elm.curVal);\n                    const fromClr = eval(elm.fromClr);\n                    //console.log(\"input:change\", curVal, fromClr);\n                    if (fromClr !== curVal)     // hack - sometimes change called even if not user made the change\n                        scope.myEval(msg, elm.a, elm, \"fromClr, curVal\", {fromClr, curVal});\n                });\n                \n                if (elm.watch || elm.curVal) scope.$watch(elm.watch || elm.curVal, function(val) {\n                    const {msg} = scope;\n                    const curVal = eval(elm.curVal);\n                    //console.log(\"watch\", elm.curVal, val);\n                    oIro.color.set(eval(elm.toClr));\n                });\n            })\n        }\n        \n        const rBtn = $('#btn_'+id)[0].getBoundingClientRect();\n        scope.dlg.css(\"display\", \"block\");\n        const cnt = scope.dlg.find(\".dialog-content\");\n        cnt.css({margin: 0, left: (rBtn.left|0) + \"px\", top: (rBtn.bottom|0) + \"px\"});\n        const rCnt = scope.dlg.find(\".dialog-content\")[0].getBoundingClientRect();\n        const rWin = $('#nr-dashboard')[0].getBoundingClientRect();\n        if (rCnt.right > rWin.right || rCnt.bottom > rWin.bottom)\n            cnt.css({\n                margin: 0, \n                left: (rCnt.right > rWin.right? rWin.right - rCnt.width : rBtn.left) + \"px\", \n                top: (rCnt.bottom > rWin.bottom? rWin.bottom - rCnt.height : rBtn.bottom) + \"px\"\n            });\n    }\n    \n    scope.closeDialog = function(delay) {\n        clearTimeout(scope.closeTmr);\n        scope.closeTmr = setTimeout(() => $('.dialog').css(\"display\", \"none\"), delay || 0);\n    }\n    \n    scope.updState = function(evl) {\n        scope.send({updState: evl, apl: scope.msg.apl, aplIdx: scope.msg.aplIdx});\n    }\n    \n    scope.sendTopic = function(tpc, payload) {\n        scope.send({topic: scope.msg.topic + tpc, payload});\n    }\n\n    scope.sendTopicClose = function(tpc, payload, delay) {\n        scope.sendTopic(tpc, payload);\n        scope.closeDialog(delay);\n    }\n    \n    scope.sendTopicClose5 = function(tpc, payload) {\n        scope.sendTopicClose(tpc, payload, 5000);\n    }\n\n    \n    scope.myEval = function(msg, evl, elm, params, paramsObj) {\n        const {send, sendTopic, sendTopicClose, sendTopicClose5, closeDialog, updState} = scope, {at} = msg; \n        return eval((!params? \"\" : `let {${params}} = paramsObj; `) + evl);\n    }\n    \n\n    scope.sendOff = (elm, msg) => {\n        clearTimeout(scope.closeTmr);\n        if (!scope.cur.tmOff) return;\n        let wu = new Date(scope.cur.tmOff);\n        wu = wu.getTime() - wu.setHours(0,0,0,0);\n        const d = new Date(), now = d.getTime() - d.setHours(0,0,0,0);\n        const ms = (wu > now ? 0 : 24*60*60*1000) + wu - now;\n        const secs = ms / 1000 |0;\n        const {send, sendTopicClose} = scope;\n        scope.closeTmr = setTimeout(() => {\n            eval(elm.aOff);\n        }, 5000);\n    };\n    \n    scope.rmvOff = (elm, msg) => {\n        scope.cur.tmOff = null;\n        scope.myEval(msg, elm.aRmvOff, elm);\n    };\n    \n})(scope);\n\n// Get the element that closes the dialog\n$('.dialog-close').on('click', e => {\n    $('.dialog').css(\"display\", \"none\");\n});\n\n// When the user clicks anywhere outside of the dialog, close it\nwindow.onclick = e => {\n    if ($(e.target).hasClass('dialog'))\n        $('.dialog').css(\"display\", \"none\");\n}\n\n</script>\n",
         "output": "str",
         "x": 410,
         "y": 60,
@@ -3293,14 +2844,14 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "Dimmers prep",
-        "func": "const appl = global.get(\"appliances\");\nconst dev = appl[msg.topic.split('/')[2]];\n    \ndev.forEach(a => {\n    a.lwt = false;\n    if (typeof msg.payload !== \"object\") return;\n    Object.assign(a, msg.payload);\n    let dur;\n    (typeof a.chl === \"number\"? [a.chl] : a.chl)\n        .forEach((c,i,ar) => {\n            const zc = c - ar[0];\n            const cur = a['c'+zc] = a['pwm'+c];\n            if (cur) a['prev'+zc] = cur;\n            if (!msg.payload['dur'+c]) delete a['dur'+c];\n            dur = dur || a['dur'+c];\n        });\n    a.msOff = dur && Date.now() + dur;\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
+        "func": "const appl = global.get(\"appliances\");\nconst dev = appl[msg.topic.split('/')[2]];\nif (!dev) \n    return node.warn(\"Unknown device: \"+ msg.topic);\n\ndev.forEach(a => {\n    a.lwt = false;\n    if (typeof msg.payload !== \"object\") return;\n    Object.assign(a, msg.payload);\n    let dur;\n    const chnls = typeof a.chl === \"number\"? [a.chl] : a.chl;\n    a.c = chnls.map(c => a.pwm[c]);\n    if (a.c.some(v => v))\n        a.prev = [...a.c];\n    chnls.forEach((c,i,ar) => {\n        const zc = c - ar[0];\n        const cur = a['c'+zc] = a.pwm[c];\n        if (cur) a['prev'+zc] = cur;\n        dur = dur || a.dur[c];\n    });\n    a.msOff = dur && Date.now() + dur;\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 320,
-        "y": 220,
+        "y": 260,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3317,7 +2868,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 130,
-        "y": 280,
+        "y": 320,
         "wires": [
             [
                 "622279d9.118758"
@@ -3336,7 +2887,7 @@
         "finalize": "",
         "libs": [],
         "x": 310,
-        "y": 280,
+        "y": 320,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3347,7 +2898,7 @@
         "id": "81748804.1ecf18",
         "type": "ui_template",
         "z": "d4b1bd47.24b07",
-        "group": "c7bb58b6.261158",
+        "group": "2bee767.051258a",
         "name": "Island",
         "order": 2,
         "width": "1",
@@ -3390,14 +2941,14 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "Boiler prep",
-        "func": "const appl = global.get(\"appliances\");\nconst dev = appl[msg.topic.split('/')[2]];          // Boiler\n    \ndev.forEach(a => {\n    a.lwt = false;\n    if (typeof msg.payload !== \"object\") return;\n    Object.assign(a, msg.payload);\n    a.disp = a.countDown? a.countDown + \" mins\" : a.numPeople? a.numPeople + \" ->\" + a.target : \"Off\"\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
+        "func": "const appl = global.get(\"appliances\");\nconst dev = appl[msg.topic.split('/')[2]];          // Boiler\n    \ndev.forEach(a => {\n    a.lwt = false;\n    if (typeof msg.payload !== \"object\") return;\n    Object.assign(a, msg.payload);\n    a.disp = a.countDown? a.countDown + \" mins\" : a.numPeople? a.numPeople + \" ->\" + a.target : \"Off\";\n    a.dispOutlook = a.outlook > 0? a.outlook + \" showers ready\" : -a.outlook + \" mins for 1\"\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
         "x": 310,
-        "y": 340,
+        "y": 380,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3414,7 +2965,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 130,
-        "y": 340,
+        "y": 380,
         "wires": [
             [
                 "d669265b.c54c38"
@@ -3457,7 +3008,7 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "Action Dispacher",
-        "func": "if (msg.topic)\n    return msg;\nif (msg.apply) {\n    const my = global.get(\"my\", \"memoryOnly\");\n    eval(msg.apply);\n}",
+        "func": "if (msg.topic)\n    return msg;\nif (msg.apply) {\n    const my = global.get(\"my\", \"memoryOnly\");\n    eval(msg.apply);\n} else if (msg.updState) {\n    const appl = global.get(\"appliances\") || {};\n    const dev = appl[msg.apl][msg.aplIdx];\n    eval(msg.updState);\n    global.set(\"appliances\", appl);\n}\n\n\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -3558,16 +3109,18 @@
         "type": "mqtt in",
         "z": "d4b1bd47.24b07",
         "name": "",
-        "topic": "esp/Dimmer/+/LWT",
+        "topic": "esp/+/+/LWT",
         "qos": "2",
         "datatype": "utf8",
         "broker": "b83f640b.f9b038",
         "nl": false,
         "rap": false,
-        "x": 130,
-        "y": 160,
+        "x": 110,
+        "y": 140,
         "wires": [
-            []
+            [
+                "a9ea2cdd.02bfc"
+            ]
         ]
     },
     {
@@ -3575,14 +3128,14 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "LWT prep",
-        "func": "const appl = global.get(\"appliances\");\nconst dev = appl[msg.topic.split('/')[2]];\n    \ndev.forEach(a => {\n    a.lwt = Date.now();\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
+        "func": "const appl = global.get(\"appliances\");\nconst dev = appl[msg.topic.split('/').slice(2,-1).join('/')];\n\nif (!dev)\n    return node.warn(\"Unknown dev:\"+ msg.topic.split('/').slice(2,-1).join('/'));\n    \ndev.forEach(a => {\n    a.lwt = Date.now();\n});\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 300,
-        "y": 160,
+        "x": 340,
+        "y": 140,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3599,7 +3152,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 140,
-        "y": 400,
+        "y": 440,
         "wires": [
             [
                 "76e93bea.6d8ef4"
@@ -3618,7 +3171,7 @@
         "finalize": "",
         "libs": [],
         "x": 340,
-        "y": 400,
+        "y": 440,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3659,15 +3212,15 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 860,
-        "y": 60,
+        "x": 1050,
+        "y": 280,
         "wires": []
     },
     {
         "id": "de0aaa8d.f5b0d8",
         "type": "ui_template",
         "z": "d4b1bd47.24b07",
-        "group": "e21dc06f.7833",
+        "group": "2bee767.051258a",
         "name": "מרפסת הורים",
         "order": 3,
         "width": "1",
@@ -3704,69 +3257,6 @@
         ]
     },
     {
-        "id": "b171c196.fec0f",
-        "type": "node-red-contrib-whatsapp-cmb-send-message",
-        "z": "f8865110.44c59",
-        "name": "",
-        "account": "29168689.717dba",
-        "text": "text",
-        "inputtypemessage": "msg",
-        "rejectssl": false,
-        "x": 1240,
-        "y": 280,
-        "wires": [
-            [
-                "a0cc8c2b.b1161"
-            ]
-        ]
-    },
-    {
-        "id": "2e8cc107.29622e",
-        "type": "inject",
-        "z": "f8865110.44c59",
-        "name": "",
-        "props": [
-            {
-                "p": "text",
-                "v": "whwhhat? grrr",
-                "vt": "str"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 1070,
-        "y": 280,
-        "wires": [
-            [
-                "b171c196.fec0f"
-            ]
-        ]
-    },
-    {
-        "id": "a0cc8c2b.b1161",
-        "type": "debug",
-        "z": "f8865110.44c59",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1360,
-        "y": 360,
-        "wires": []
-    },
-    {
         "id": "f92e827b.16ca9",
         "type": "mqtt in",
         "z": "d4b1bd47.24b07",
@@ -3776,7 +3266,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 140,
-        "y": 460,
+        "y": 500,
         "wires": [
             [
                 "38a72747.3ca468"
@@ -3795,7 +3285,7 @@
         "finalize": "",
         "libs": [],
         "x": 340,
-        "y": 460,
+        "y": 500,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3818,7 +3308,9 @@
         "x": 800,
         "y": 380,
         "wires": [
-            []
+            [
+                "6a8ee662.4a0298"
+            ]
         ]
     },
     {
@@ -3837,7 +3329,663 @@
         "x": 800,
         "y": 420,
         "wires": [
+            [
+                "6a8ee662.4a0298"
+            ]
+        ]
+    },
+    {
+        "id": "5a4a5038.13a5",
+        "type": "mqtt in",
+        "z": "d4b1bd47.24b07",
+        "name": "",
+        "topic": "esp/+/+/+/LWT",
+        "qos": "2",
+        "datatype": "utf8",
+        "broker": "b83f640b.f9b038",
+        "nl": false,
+        "rap": false,
+        "x": 120,
+        "y": 200,
+        "wires": [
+            [
+                "a9ea2cdd.02bfc"
+            ]
+        ]
+    },
+    {
+        "id": "47c2e780.0506b8",
+        "type": "function",
+        "z": "38ee4b91.5dc3e4",
+        "name": "Send datetime",
+        "func": "//const dateTimeLocaleOptions = {month: '2-digit', day: \"numeric\", year: '2-digit', hour: \"numeric\", minute: \"2-digit\", second: \"2-digit\"};\nconst my = global.get(\"my\", \"memoryOnly\");\nconst ctx = context.ctx = context.ctx || {};\nif (!msg.payload.time) {\n    clearTimeout(ctx.tmr);\n    ctx.tmr = setTimeout(() => {\n        node.send({topic: \"home/time_sync\", payload: new Date(Date.now() -new Date().getTimezoneOffset() * 60 * 1000).toISOString()});\n        //node.send({topic: \"home/time_sync\", payload: new Date().toLocaleString(undefined, dateTimeLocaleOptions)});\n    }, 2000);\n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 880,
+        "wires": [
+            [
+                "221fce92.e51262"
+            ]
+        ]
+    },
+    {
+        "id": "221fce92.e51262",
+        "type": "mqtt out",
+        "z": "38ee4b91.5dc3e4",
+        "name": "> MQTT",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "b83f640b.f9b038",
+        "x": 500,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "84195dc4.04743",
+        "type": "mqtt in",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "topic": "esp/+/+/info",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "b83f640b.f9b038",
+        "nl": false,
+        "rap": false,
+        "x": 110,
+        "y": 880,
+        "wires": [
+            [
+                "47c2e780.0506b8"
+            ]
+        ]
+    },
+    {
+        "id": "46f19482.b1992c",
+        "type": "mqtt in",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "topic": "esp/+/+/+/info",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "b83f640b.f9b038",
+        "nl": false,
+        "rap": false,
+        "x": 110,
+        "y": 920,
+        "wires": [
+            [
+                "47c2e780.0506b8"
+            ]
+        ]
+    },
+    {
+        "id": "1ad86df3.dd00f2",
+        "type": "inject",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "345600",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 960,
+        "wires": [
+            [
+                "47c2e780.0506b8"
+            ]
+        ]
+    },
+    {
+        "id": "9e5c319b.eea4c",
+        "type": "inject",
+        "z": "38ee4b91.5dc3e4",
+        "name": "get_Info: Island",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "esp/L3/Shutters/Parents/get_info",
+        "payload": "",
+        "payloadType": "str",
+        "x": 320,
+        "y": 960,
+        "wires": [
+            [
+                "221fce92.e51262"
+            ]
+        ]
+    },
+    {
+        "id": "6f8ddb2.c545b24",
+        "type": "inject",
+        "z": "38ee4b91.5dc3e4",
+        "name": "Parents/Shutters: setstops",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "esp/L3/Shutters/Parents/setstops",
+        "payload": "16500,19900",
+        "payloadType": "str",
+        "x": 350,
+        "y": 1020,
+        "wires": [
+            [
+                "221fce92.e51262"
+            ]
+        ]
+    },
+    {
+        "id": "accdf10c.17886",
+        "type": "castv2-sender",
+        "z": "f8865110.44c59",
+        "name": "Kitchen Speaker",
+        "connection": "bc3d1efa.c1ec2",
+        "x": 1100,
+        "y": 40,
+        "wires": [
             []
+        ]
+    },
+    {
+        "id": "fb3c8c52.f13db",
+        "type": "inject",
+        "z": "f8865110.44c59",
+        "name": "Status",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 110,
+        "y": 1160,
+        "wires": [
+            [
+                "321336cc.92ad6a"
+            ]
+        ]
+    },
+    {
+        "id": "321336cc.92ad6a",
+        "type": "function",
+        "z": "f8865110.44c59",
+        "name": "get cast status",
+        "func": "return {\n    payload: {\n        type: \"GET_CAST_STATUS\"\n    }\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 1160,
+        "wires": [
+            [
+                "530ff836.332c58"
+            ]
+        ]
+    },
+    {
+        "id": "f04992a0.77754",
+        "type": "node-red-contrib-whatsapp-cmb-send-message",
+        "z": "5515e8ec.3a0e28",
+        "name": "",
+        "account": "29168689.717dba",
+        "text": "text",
+        "inputtypemessage": "msg",
+        "rejectssl": false,
+        "x": 500,
+        "y": 720,
+        "wires": [
+            [
+                "af67d49.35e5828"
+            ]
+        ]
+    },
+    {
+        "id": "5e9fd691.979188",
+        "type": "inject",
+        "z": "5515e8ec.3a0e28",
+        "name": "",
+        "props": [
+            {
+                "p": "text",
+                "v": "whwhhat? grrr",
+                "vt": "str"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 330,
+        "y": 720,
+        "wires": [
+            [
+                "f04992a0.77754"
+            ]
+        ]
+    },
+    {
+        "id": "af67d49.35e5828",
+        "type": "debug",
+        "z": "5515e8ec.3a0e28",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 670,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "f7014346.da841",
+        "type": "function",
+        "z": "38ee4b91.5dc3e4",
+        "name": "Extract params",
+        "func": "let text = msg.payload.text;\nlet lang = 'en';\nlet slow = false;\nlet headers = {\n    \"Referer\": \"http://translate.google.com/\",\n    \"User-Agent\":\n        \"Mozilla/5.0 (Windows NT 10.0; WOW64) \" +\n        \"AppleWebKit/537.36 (KHTML, like Gecko) \" +\n        \"Chrome/47.0.2526.106 Safari/537.36\",\n    \"Content-Type\": \"application/x-www-form-urlencoded;charset=utf-8\"\n};\n\nreturn {\n    origMsg: msg,\n    headers: headers,\n    payload: 'f.req=' +\n        encodeURIComponent(\n            JSON.stringify([\n                [['jQ1olc', JSON.stringify([text, lang, slow ? true : null, 'null']), null, 'generic']],\n            ])\n        )\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 1240,
+        "wires": [
+            [
+                "e5fdf630.2f6ff8"
+            ]
+        ]
+    },
+    {
+        "id": "e5fdf630.2f6ff8",
+        "type": "http request",
+        "z": "38ee4b91.5dc3e4",
+        "name": "post TTS request",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://translate.google.com/_/TranslateWebserverUi/data/batchexecute",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 550,
+        "y": 1240,
+        "wires": [
+            [
+                "7dc1bade.fc4c14"
+            ]
+        ]
+    },
+    {
+        "id": "7dc1bade.fc4c14",
+        "type": "function",
+        "z": "38ee4b91.5dc3e4",
+        "name": "Build response",
+        "func": "let origMsg = msg.origMsg;\n\norigMsg.statusCode = 200;\norigMsg.headers = {\n    \"Content-Type\": \"audio/mp3\"\n};\n\nlet result = eval(msg.payload.slice(5))[0][2];\nlet result2 = eval(result)[0];\n\norigMsg.payload = new Buffer(result2, 'base64');\n\nreturn origMsg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 1240,
+        "wires": [
+            [
+                "aa06fc64.cbf21"
+            ]
+        ]
+    },
+    {
+        "id": "aa06fc64.cbf21",
+        "type": "http response",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 930,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "f968d45d.668978",
+        "type": "http in",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "url": "/textToSpeech",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 1240,
+        "wires": [
+            [
+                "f7014346.da841"
+            ]
+        ]
+    },
+    {
+        "id": "530ff836.332c58",
+        "type": "castv2-sender",
+        "z": "f8865110.44c59",
+        "name": "cast-v2: Kitchen Speaker",
+        "connection": "bc3d1efa.c1ec2",
+        "x": 530,
+        "y": 1160,
+        "wires": [
+            [
+                "90d3cdb5.c4b29"
+            ]
+        ]
+    },
+    {
+        "id": "374dffa0.e1c18",
+        "type": "function",
+        "z": "5515e8ec.3a0e28",
+        "name": "check presence",
+        "func": "const lastSeenSeconds = 300;\nlet presenceCutoff = new Date() / 1000 - lastSeenSeconds +\n    new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad: \"04:d6:aa:d5:12:77\",         // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali: \"4c:74:bf:78:f6:9b\",\n    Inbal: \"76:a8:62:bf:3e:da\",         // Galaxy S20\n    Shahar: \"f4:60:e2:a3:f8:ce\",\n    Yarden: \"1c:cc:d6:42:62:d7\",        // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer: \"12:6c:74:b9:42:a0\",          // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Shoham: \"1c:cc:d6:45:39:b9\",    // \"8c:f5:a3:80:2f:cf\",  \"68:3e:34:52:f7:c5\",\n};\n\nlet peopleArr = Object.keys(people);\n\nlet devices = msg.payload[0].filter(dev => \n    (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"presence\") || {};\n\nlet bChanged = false;\nObject.entries(people).forEach(([nm, mac]) => {\n//peopleArr.forEach((nm, i) => {\n    //let dev = devices.find(dev => dev.mac === people[nm]) || {};\n    let dev = devices.find(dev => dev.mac === mac) || {};\n    let cur = curStat[nm];\n    if (!cur) curStat[nm] = cur = {};\n    const isHome = dev.last_seen > presenceCutoff;\n    if (isHome !== cur.isHome) {\n        bChanged = true;\n        if (typeof cur.isHome === \"boolean\")\n            cur.tm = Date.now();\n        cur.isHome = isHome;\n    }\n});\n\nif (bChanged) {\n    context.set(\"presence\", curStat);\n}\n\n//let devices = devices.filter(device => device.name === people[topic] && device.last_seen > presenceCutoff);\n//let devices = devices.filter(device => device.name === people[topic]);\nreturn [peopleArr.map((person,idx) => {\n    let dev = devices.find(dev => dev.mac === people[person]) || {};\n    return {\n        topic: person,\n        more:dev,\n        payload: dev.last_seen > presenceCutoff? idx + 1 : 0\n    };\n})];\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 400,
+        "y": 840,
+        "wires": [
+            [
+                "68050765.2988a8"
+            ]
+        ],
+        "outputLabels": [
+            "joep presence"
+        ]
+    },
+    {
+        "id": "ed005305.bbcaa",
+        "type": "ui_chart",
+        "z": "5515e8ec.3a0e28",
+        "d": true,
+        "name": "",
+        "group": "7e71b679.598338",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "H:mm",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0.1",
+        "ymax": "7",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "86400",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#9467bd",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "outputs": 1,
+        "x": 770,
+        "y": 989,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "68050765.2988a8",
+        "type": "rbe",
+        "z": "5515e8ec.3a0e28",
+        "name": "diff",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "property": "payload",
+        "x": 110,
+        "y": 900,
+        "wires": [
+            [
+                "507fc0f.f81b24"
+            ]
+        ]
+    },
+    {
+        "id": "6a7c6bdf.887dd4",
+        "type": "collector",
+        "z": "5515e8ec.3a0e28",
+        "name": "",
+        "onlyIfChanged": true,
+        "x": 440,
+        "y": 900,
+        "wires": [
+            [
+                "bc234fd3.d1bf3"
+            ]
+        ]
+    },
+    {
+        "id": "507fc0f.f81b24",
+        "type": "function",
+        "z": "5515e8ec.3a0e28",
+        "name": "Set columns",
+        "func": "msg.payload = {\n    Name: msg.topic, \n    Where: msg.payload? \"home\" : `out`,\n    // decrease 10 minutes of timeout when out:\n    When: new Date(new Date().getTime() - (msg.payload? 0 : 5*60*1000)),\n    //lastSeen: new Date((msg.more.last_seen - (msg.payload? msg.more.duration : 0)) * 1000),\n    //lastSeen2: msg.more.last_seen,\n    //now: (new Date() / 1000 - (new Date().getTimezoneOffset() * 60 * 1000)) >>0\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 270,
+        "y": 900,
+        "wires": [
+            [
+                "6a7c6bdf.887dd4"
+            ]
+        ]
+    },
+    {
+        "id": "50e2687f.e2adb8",
+        "type": "ui_table",
+        "z": "5515e8ec.3a0e28",
+        "d": true,
+        "group": "7e71b679.598338",
+        "name": "טבלת נוכחות",
+        "order": 8,
+        "width": "0",
+        "height": "0",
+        "columns": [],
+        "outputs": 0,
+        "cts": false,
+        "x": 790,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "bc234fd3.d1bf3",
+        "type": "function",
+        "z": "5515e8ec.3a0e28",
+        "name": "to array, sort",
+        "func": "msg.payload = Object.values(msg.payload);\n//if (msg.payload.some(a => typeof a.When !== \"object\")) return null;\nmsg.payload.sort((a,b) => b.When.getTime() - a.When.getTime());\nmsg.payload = msg.payload.map(a => ({...a, When: a.When.toTimeString().split(\" \")[0]}));\n//msg.payload.forEach(a => a.When = a.When.toTimeString().split(\" \")[0]);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 610,
+        "y": 900,
+        "wires": [
+            [
+                "50e2687f.e2adb8",
+                "2838398a.ca9896"
+            ]
+        ]
+    },
+    {
+        "id": "2838398a.ca9896",
+        "type": "ui_template",
+        "z": "5515e8ec.3a0e28",
+        "d": true,
+        "group": "7e71b679.598338",
+        "name": "Table",
+        "order": 6,
+        "width": "6",
+        "height": "5",
+        "format": "<table>\n    <thead>\n        <tr style=\"width:100%\">\n            <td ng-repeat=\"(key,val) in msg.payload[0]\"><b>{{key}}</b></td>\n            <!--<td ng-repeat=\"(key,val) in msg.payload[0] track by key\" ng-if=\"key !== 'Where'\"><b>{{key}}</b></td>-->\n        </tr>\n    </thead>\n    <tbody>\n    <tr ng-repeat=\"row in msg.payload track by row.Name\">\n        <td ng-repeat=\"(key,val) in row\">{{val}}</td>\n        <!--<i class=\"fa fa-sign-in\"></i>-->\n        <!--<td ng-repeat=\"(key,val) in row\" ng-if=\"key !== 'Where'\">{{}} {{val}}<i class=\"fa fa-sign-in\"></i></td>-->\n    </tr>\n    </tbody>\n</table>\n",
+        "storeOutMessages": true,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 770,
+        "y": 900,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8b5f53a.54dccb",
+        "type": "msg-resend",
+        "z": "5515e8ec.3a0e28",
+        "interval": "12",
+        "intervalUnit": "hours",
+        "maximum": "0",
+        "bytopic": true,
+        "clone": false,
+        "firstDelayed": false,
+        "addCounters": false,
+        "highRate": true,
+        "outputCountField": "",
+        "outputMaxField": "",
+        "name": "12h echo",
+        "x": 620,
+        "y": 989,
+        "wires": [
+            [
+                "ed005305.bbcaa"
+            ]
+        ]
+    },
+    {
+        "id": "389be47.053ba1c",
+        "type": "function",
+        "z": "5515e8ec.3a0e28",
+        "name": "check presence",
+        "func": "const lastSeenSeconds = 300;\nlet presenceCutoff = new Date() / 1000 - lastSeenSeconds +\n    new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad: \"04:d6:aa:d5:12:77\",         // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali: \"4c:74:bf:78:f6:9b\",\n    Inbal: \"76:a8:62:bf:3e:da\",         // Galaxy S20\n    Shahar: \"f4:60:e2:a3:f8:ce\",\n    Yarden: \"1c:cc:d6:42:62:d7\",        // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer: \"12:6c:74:b9:42:a0\",          // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Shoham: \"1c:cc:d6:45:39:b9\",    // \"8c:f5:a3:80:2f:cf\",  \"68:3e:34:52:f7:c5\",\n};\n\nlet peopleArr = Object.keys(people);\nlet nPpl = Object.keys(people).length;\n\nlet devices = msg.payload[0].filter(dev => \n    (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"curDevices\") || {};\n\nlet bChanged = false;\nconst graphMsgs = [];\n\nObject.entries(people).forEach(([nm, mac], idx) => {\n    let dev = devices.find(dev => dev.mac === mac) || {};\n    let cur = curStat[nm];\n    if (!cur) curStat[nm] = cur = {};\n    const isHome = dev.last_seen > presenceCutoff;\n    if (cur.bChanged = (isHome !== cur.isHome)) {\n        bChanged = true;\n        if (typeof cur.isHome === \"boolean\") {\n            cur.tm = Date.now();\n            graphMsgs.push({topic: nm, payload: isHome ? 0 : idx+1});\n        }\n        cur.isHome = isHome;\n        graphMsgs.push({topic: nm, payload: !isHome ? 0 : idx+1});\n    }\n});\n\nif (!bChanged) return;\n\ncontext.set(\"curDevices\", curStat);\nreturn [graphMsgs];",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 440,
+        "y": 989,
+        "wires": [
+            [
+                "8b5f53a.54dccb"
+            ]
+        ],
+        "outputLabels": [
+            "joep presence",
+            ""
+        ]
+    },
+    {
+        "id": "46f6ea9c.4e5204",
+        "type": "comment",
+        "z": "5515e8ec.3a0e28",
+        "name": "old presence. table report example?",
+        "info": "",
+        "x": 200,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "90d3cdb5.c4b29",
+        "type": "function",
+        "z": "f8865110.44c59",
+        "name": "Keep Kitchen Speaker state",
+        "func": "const st = global.get(\"kitchenSpeaker\") || {};\n\nif (msg.payload) {\n    st.playerState = msg.payload? msg.payload.playerState : \"PROCESSING\";\n    if (msg.payload.media && msg.payload.media.metadata) {\n        if (!msg.payload.media.metadata)\n            node.warn(msg.payload.media);\n        else {\n        st.title = msg.payload.media.metadata.title;\n        st.artist = msg.payload.media.metadata.artist;\n        st.album = msg.payload.media.metadata.albumName;\n        }\n        st.duration = msg.payload.media.duration;\n    }\n    st.currentTime = msg.payload.currentTime;\n    st.time = Date.now();\n}\n\nif (msg.platform){\n    if (msg.platform.applications) { \n        st.app = msg.platform.applications[0].displayName;\n        st.statusText = msg.platform.applications[0].statusText;\n    }\n    if (msg.platform.volume) {\n        st.volume = Math.round(msg.platform.volume.level * 100);\n    }\n    if (st.app === \"Default Media Receiver\")\n        st.title = st.artist = st.album = st.duration = st.currentTime = undefined;\n}\n\n//if (msg.payload) node.warn(msg.payload);\n//if (msg.platform) node.warn(msg.platform);\n//node.warn(st);\n\nglobal.set(\"kitchenSpeaker\", st);\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 1160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2af0e3ca.d29aec",
+        "type": "ui_template",
+        "z": "d4b1bd47.24b07",
+        "group": "2bee767.051258a",
+        "name": "Strip1",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "format": "",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 790,
+        "y": 460,
+        "wires": [
+            [
+                "6a8ee662.4a0298"
+            ]
         ]
     }
 ]
