@@ -21,13 +21,6 @@
         "info": ""
     },
     {
-        "id": "3e6b6884.b00d58",
-        "type": "tab",
-        "label": "Boiler",
-        "disabled": false,
-        "info": ""
-    },
-    {
         "id": "283de01b.130d1",
         "type": "tab",
         "label": "Devices",
@@ -179,16 +172,6 @@
         "collapse": false
     },
     {
-        "id": "26ad0dca.e7b0d2",
-        "type": "ui_group",
-        "name": "דוד",
-        "tab": "aa347550.c05b48",
-        "order": 1,
-        "disp": false,
-        "width": "6",
-        "collapse": false
-    },
-    {
         "id": "556e67a9.8953b8",
         "type": "influxdb",
         "hostname": "127.0.0.1",
@@ -260,7 +243,7 @@
         "type": "ui_group",
         "name": "תאורה",
         "tab": "aa347550.c05b48",
-        "order": 2,
+        "order": 3,
         "disp": true,
         "width": "3",
         "collapse": false
@@ -270,7 +253,7 @@
         "type": "ui_group",
         "name": "למטה",
         "tab": "aa347550.c05b48",
-        "order": 3,
+        "order": 2,
         "disp": true,
         "width": "2",
         "collapse": false
@@ -278,11 +261,11 @@
     {
         "id": "e21dc06f.7833",
         "type": "ui_group",
-        "name": "קומה עליונה",
+        "name": "למעלה",
         "tab": "aa347550.c05b48",
-        "order": 5,
+        "order": 4,
         "disp": true,
-        "width": "3",
+        "width": "2",
         "collapse": false
     },
     {
@@ -314,16 +297,6 @@
         "hidden": true
     },
     {
-        "id": "e31b9e51.9cf5",
-        "type": "ui_group",
-        "name": "תריס",
-        "tab": "aa347550.c05b48",
-        "order": 4,
-        "disp": true,
-        "width": "1",
-        "collapse": false
-    },
-    {
         "id": "4e465e1b.3d43e",
         "type": "ui_group",
         "name": "MQTT Log",
@@ -348,9 +321,9 @@
         "type": "ui_group",
         "name": "כללי",
         "tab": "aa347550.c05b48",
-        "order": 7,
-        "disp": false,
-        "width": "1",
+        "order": 1,
+        "disp": true,
+        "width": "2",
         "collapse": false
     },
     {
@@ -439,7 +412,7 @@
         "type": "ui_group",
         "name": "עבודה",
         "tab": "aa347550.c05b48",
-        "order": 8,
+        "order": 5,
         "disp": true,
         "width": "2",
         "collapse": false
@@ -456,6 +429,65 @@
         "target": "Kitchen Speaker",
         "host": "",
         "port": "8009"
+    },
+    {
+        "id": "4fd130fb.13234",
+        "type": "tesla-config",
+        "vehicleID": "215260336565"
+    },
+    {
+        "id": "88f77589.0122d8",
+        "type": "ui_group",
+        "name": "Test",
+        "tab": "2b906797.81baa8",
+        "disp": true,
+        "width": "24"
+    },
+    {
+        "id": "2b906797.81baa8",
+        "type": "ui_tab",
+        "name": "Test2",
+        "icon": "dashboard"
+    },
+    {
+        "id": "54651cc0.ab9ae4",
+        "type": "websocket-listener",
+        "path": "/ws/location",
+        "wholemsg": "false"
+    },
+    {
+        "id": "c93516ab.4e8608",
+        "type": "ui_tab",
+        "name": "Map",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "1aa2a52e.04f5ab",
+        "type": "ui_group",
+        "name": "MapGroup",
+        "tab": "c93516ab.4e8608",
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "328a538a.f45efc",
+        "type": "ui_tab",
+        "name": "Log",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "149604d6.f53d6b",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "328a538a.f45efc",
+        "disp": false,
+        "width": "6",
+        "collapse": false
     },
     {
         "id": "19b1005b.daf9a",
@@ -496,7 +528,7 @@
         "type": "function",
         "z": "f8865110.44c59",
         "name": "Check googleHomeState, Vol 4-6",
-        "func": "const ks = global.get(\"kitchenSpeaker\") || {};\nif (ks.app !== \"Default Media Receiver\" && \n    [\"PLAYING\", \"BUFFERING\"].includes(ks.playerState) &&\n    ks.time + (ks.duration||0)*1000 > Date.now()) return;\n\nlet d = new Date();\nlet m = d.getHours() * 60 + d.getMinutes();\n\nconst params =  (/[\\u0590-\\u05FF]/).test(msg.payload)? \"&hl=he-il\" : \"&hl=en-au&v=Isla\";\nsetTimeout(() => node.send({\n    payload: {\n        type: \"MEDIA\",\n        media: {\n            //url: \"http://RazHome1.ddns.net:19880/textToSpeech?text=\" + encodeURIComponent(msg.payload),\n            url: `https://api.voicerss.org/?key=870e79d6c2cf42fa94e8412f15e05dda${params}&c=AAC&src=${encodeURIComponent(msg.payload)}`,\n            contentType: \"audio/mp3\"\n        }\n    }\n}), 0);\n\nreturn {\n    payload: {\n        type: \"VOLUME\",\n        volume: m > 23*60 || m < 3*60 || (m > 5*60 && m < 9*60) ? 40 : 50\n    }\n};    \n",
+        "func": "const appl = global.get(\"appliances\");\nconst ks = appl.GHKitchen[0];\n\nif (ks.app !== \"Default Media Receiver\" && \n    [\"PLAYING\", \"BUFFERING\"].includes(ks.playerState) &&\n    ks.time + (ks.duration||0)*1000 > Date.now()) return;\n\nlet d = new Date();\nlet m = d.getHours() * 60 + d.getMinutes();\n\nconst params =  (/[\\u0590-\\u05FF]/).test(msg.payload)? \"&hl=he-il\" : \"&hl=en-au&v=Isla\";\nsetTimeout(() => node.send({\n    payload: {\n        type: \"MEDIA\",\n        media: {\n            //url: \"http://RazHome1.ddns.net:19880/textToSpeech?text=\" + encodeURIComponent(msg.payload),\n            url: `https://api.voicerss.org/?key=870e79d6c2cf42fa94e8412f15e05dda${params}&c=AAC&src=${encodeURIComponent(msg.payload)}`,\n            contentType: \"audio/mp3\"\n        }\n    }\n}), 0);\n\nreturn {\n    payload: {\n        type: \"VOLUME\",\n        volume: m > 23*60 || m < 3*60 || (m > 5*60 && m < 9*60) ? 40 : 50\n    }\n};    \n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -568,8 +600,8 @@
         "qos": "0",
         "retain": "false",
         "broker": "b83f640b.f9b038",
-        "x": 780,
-        "y": 700,
+        "x": 800,
+        "y": 1180,
         "wires": []
     },
     {
@@ -1267,201 +1299,13 @@
         ]
     },
     {
-        "id": "b821a656.834c38",
-        "type": "mqtt in",
-        "z": "3e6b6884.b00d58",
-        "name": "",
-        "topic": "esp/L3/Boiler/temp",
-        "qos": "2",
-        "datatype": "json",
-        "broker": "b83f640b.f9b038",
-        "x": 110,
-        "y": 280,
-        "wires": [
-            [
-                "baef96f9.cafd38"
-            ]
-        ]
-    },
-    {
-        "id": "aabe2a94.417998",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "order": 5,
-        "width": "1",
-        "height": "1",
-        "name": "Top",
-        "label": "<font size=2>TOP</font>",
-        "format": "<span><font color={{msg.color}}>{{msg.payload}}&deg;</font><div class=\"sub-label\">{{msg.topHour}}</div></span>",
-        "layout": "col-center",
-        "x": 470,
-        "y": 260,
-        "wires": []
-    },
-    {
-        "id": "baef96f9.cafd38",
-        "type": "function",
-        "z": "3e6b6884.b00d58",
-        "name": "Temps",
-        "func": "const tc = {20: '#ebe6e6', 30: '#92c9f0', 35: '#f7bec8', 43: '#fc8196', 100: '#ff2e52'};\nreturn [\"Top\", \"Center\", \"Bottom\", \"Output\"].map(key => ({\n    label: key,\n    payload: msg.payload[\"t\"+key],\n    color: tc[Object.keys(tc).find(t => t > msg.payload[\"t\"+key])],\n    topHour: (msg.payload.topHour>0? \"+\" : \"\")+ msg.payload.topHour + \"&deg;\"\n}));",
-        "outputs": 4,
-        "noerr": 0,
-        "x": 330,
-        "y": 280,
-        "wires": [
-            [
-                "aabe2a94.417998"
-            ],
-            [
-                "fb51467a.c4c858"
-            ],
-            [
-                "fb4f9135.c4fe3"
-            ],
-            [
-                "efbbf03e.1a2be"
-            ]
-        ]
-    },
-    {
-        "id": "fb51467a.c4c858",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "order": 6,
-        "width": "1",
-        "height": "1",
-        "name": "Center",
-        "label": "<font size=2>center</font>",
-        "format": "<font color={{msg.color}}>{{msg.payload}}&deg;</font>",
-        "layout": "col-center",
-        "x": 610,
-        "y": 260,
-        "wires": []
-    },
-    {
-        "id": "fb4f9135.c4fe3",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "order": 7,
-        "width": "1",
-        "height": "1",
-        "name": "Bottom",
-        "label": "<font size=2>bottom</font>",
-        "format": "<font color={{msg.color}}>{{msg.payload}}&deg;</font>",
-        "layout": "col-center",
-        "x": 480,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "efbbf03e.1a2be",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "order": 8,
-        "width": "1",
-        "height": "1",
-        "name": "Output",
-        "label": "<font size=2>output</font>",
-        "format": "<font color={{msg.color}}>{{msg.payload}}&deg;</font>",
-        "layout": "col-center",
-        "x": 610,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "4c570a17.b5fe94",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "d": true,
-        "group": "26ad0dca.e7b0d2",
-        "order": 4,
-        "width": "2",
-        "height": "1",
-        "name": "State",
-        "label": "בוילר",
-        "format": "<font size=4>{{msg.payload}}</font>",
-        "layout": "col-center",
-        "x": 490,
-        "y": 140,
-        "wires": []
-    },
-    {
-        "id": "b03dcb86.7f5d78",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "order": 2,
-        "width": "3",
-        "height": "1",
-        "name": "Outlook",
-        "label": "",
-        "format": "{{msg.payload}}",
-        "layout": "row-left",
-        "x": 500,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "ed8df6fc.46f368",
-        "type": "mqtt in",
-        "z": "3e6b6884.b00d58",
-        "name": "",
-        "topic": "esp/L3/Boiler/info",
-        "qos": "2",
-        "datatype": "json",
-        "broker": "b83f640b.f9b038",
-        "x": 100,
-        "y": 40,
-        "wires": [
-            [
-                "d4a31630.e4a248"
-            ]
-        ]
-    },
-    {
-        "id": "d4a31630.e4a248",
-        "type": "ui_text",
-        "z": "3e6b6884.b00d58",
-        "group": "26ad0dca.e7b0d2",
-        "order": 1,
-        "width": "3",
-        "height": "1",
-        "name": "Title Wifi",
-        "label": "<span class=\"nr-dashboard-cardpanel\"><p class=\"nr-dashboard-cardtitle\">דוד</p></span>",
-        "format": "<font class=\"fa fa-wifi fa-xs\" color={{msg.payload.rssiPct? \"#FFF\" : \"#F88\"}}/> {{msg.payload.rssiPct}}%",
-        "layout": "row-spread",
-        "x": 500,
-        "y": 40,
-        "wires": []
-    },
-    {
-        "id": "4172f5d9.0a300c",
-        "type": "mqtt in",
-        "z": "3e6b6884.b00d58",
-        "name": "",
-        "topic": "esp/L3/Boiler/LWT",
-        "qos": "2",
-        "datatype": "utf8",
-        "broker": "b83f640b.f9b038",
-        "x": 310,
-        "y": 60,
-        "wires": [
-            [
-                "d4a31630.e4a248"
-            ]
-        ]
-    },
-    {
         "id": "90b9fe9a.ff448",
         "type": "ui_template",
         "z": "283de01b.130d1",
+        "d": true,
         "group": "e21dc06f.7833",
         "name": "HP Delay",
-        "order": 3,
+        "order": 2,
         "width": "2",
         "height": "1",
         "format": "<div class=\"button-row\">\n<md-button \n    ng-repeat=\"(nm,ctl) in msg.ctls track by nm\"\n    class=\"myctl vibrate touched\"\n    ng-click=\"send(ctl)\">\n    <div style=\"height:40%\">in 30m</div>\n    <font ng-if=\"!ctl.inTm\"\n        class=\"fa fa-clock-o fa-lg\" color=grey />\n    <font ng-if=\"ctl.inTm\" \n        size=2 color={{ctl.state.sOff?\"#F44\":\"#4F4\"}}>{{ctl.inTm}}</font>\n</md-button>\n</div>",
@@ -1565,6 +1409,7 @@
         "id": "2fce189b.34e038",
         "type": "ui_template",
         "z": "283de01b.130d1",
+        "d": true,
         "group": "e21dc06f.7833",
         "name": "HeatPads",
         "order": 1,
@@ -1600,10 +1445,10 @@
         "z": "283de01b.130d1",
         "group": "e21dc06f.7833",
         "name": "Show HeatPads",
-        "order": 2,
+        "order": 5,
         "width": "1",
         "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'Graph_HeatPads'})\">\n    <div>חימום</div>\n    <font class=\"fa fa-area-chart fa-2x\" color=#86F></font>\n</md-button>",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'Graph_HeatPads'})\">\n    <div>סדינים</div>\n    <font class=\"fa fa-area-chart fa-2x\" color=#86F></font>\n</md-button>",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
@@ -1760,7 +1605,7 @@
         "order": 1,
         "width": "0",
         "height": "0",
-        "format": "<script src=\"/js/iro.min.js\"></script>\n\n<style>\n  .md-text {\n    font-size: 13px;\n  }\n  md-option {\n      height: 25px;\n  }\n  .nr-dashboard-slider p.label {\n      margin: 0;\n  }\n  .nr-dashboard-cardpanel > p {\n      margin: 0;\n      text-align: center;\n  }\n\n  .button-row, .button-col {\n    display: flex;\n    width: calc(100% - 2px);\n    height: calc(100% - 2px);\n    border: 1px solid gray;\n    border-radius: 8px;\n  }\n\n  .button-row {\n    flex-direction: row;\n  }\n  .button-col {\n    flex-direction: column;\n  }\n    \n  .button-row > .myctl:not(:last-child) {\n     margin-right: 6px;\n  }\n  .button-col > .myctl:not(:last-child) {\n     margin-bottom: 6px;\n  }\n\n  .mysubctl,\n  .myctl {\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    padding: 0;\n    margin: 0;     \n    font-size: 12px;\n    min-width: 0;\n    min-height: 0;\n    line-height: unset;\n    text-transform: unset; \n    vertical-align: middle;\n    align-items: center;\n    text-align: center;\n    justify-content: center;\n  }\n  .myctl {\n    width: 100%;\n    height: 100%;\n    border-radius: 8px;\n  }\n  .mysubctl {\n    border-radius: 4px;\n    border: 0.5px solid;\n  }\n  .myctl > div > .md-button,\n  .md-button.myctl {\n    background-color: #225;\n  }\n  .myctl > * {\n      z-index: 5;\n  }\n  button.myctl {\n    background-color: #225;\n    color: #FFF;\n    border: 0;\n  }\n  .myctl.dialog-button {\n    background-color: #229;\n  }\n  .flex30 {\n      flex: 0 1 30%;\n  }\n\n  .bigger > div {\n      font-size: 110%;\n  }\n  \n  .sub-label {\n      position: absolute;\n      font-size: 9pt;\n      padding-left: 3px;\n      z-index: 1;\n  }\n  \n    .left-icon {\n        flex: 1;\n        display: flex;\n        width: 100% !important;\n        align-items: center;\n        justify-content: flex-start;\n        align-content: space-between;\n    }\n    .left-icon > *:first-child {\n        //align-items: flex-end;\n        width: 35%;\n        min-width: fit-content;;\n        left: 0;\n    }\n    .left-icon > *:not(:first-child) {\n        //width: 31px;\n        flex: 1;\n    }\n  \n  .myctl ng-md-icon {\n      width: unset;\n      height: unset;\n  }\n  \n  \n  \n.popup .myctl.md-button {\n    width: 42px;\n    height: 42px;\n    margin: 3px;\n}\n\n.myctl.md-button > .flex {\n    display: inline-flex; \n    align-items: center;\n}\n\n.popup md-input-container {\n    flex: 1 0;\n    min-width: 90px;\n    padding: 3px;\n    margin-top: 0;\n}\n\n\n.popup md-select, \n.popup md-select .md-select-icon {\n    color: white !important;\n}\n\n.popup input {\n    background-color: #333;\n    color: white;\n}\n\n.dialog-body > input {\n    width: calc(100% - 16px);\n    margin: 3px;\n    padding: 1px 3px;\n    font-size: 1.2rem;\n}\n\n.myctl.ctl-lwt {\n    opacity: 0.8;\n    color: red;\n}\n\n\n.myctl.slider, .myctl.slider2, .myctl.slider4  {\n    display: grid;\n    grid-template-columns: 85% 25px;\n    margin: 3px;\n    background-color: #225;\n}\n.myctl.slider, .myctl.slider2 {\n    width: 84px;\n    height: 42px;\n}\n.myctl.slider4 {\n    width: 168px;\n    height: 42px;\n}\n\n.slider md-slider {\n    height: 42px;\n    min-width: unset;\n    margin-left: 20px;\n}\n.slider md-slider-wrapper {\n    width: unset;\n    height: unset;\n}\n\n.slider md-slider .md-thumb:after, .slider md-slider .md-track,\n.slider md-slider .md-focus-thumb, .slider md-slider .md-focus-ring{\n    background-color: #FA9900 !important;\n    border-color: #FA9900 !important;\n}\n\n.slider .md-thumb {\n    left: -20px;\n}\n\n.slider > div {\n  color: white; \n}\n\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {opacity:0} \n    to {opacity:1}\n}\n\n@keyframes animatetop {\n    from {opacity:0}\n    to {opacity:1}\n}\n\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    opacity:0.99;\n    z-index: 20; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n    //-webkit-perspective: 1000;\n}\n\n/* dialog Content */\n.dialog-content {\n    position: relative;\n    background-color: #fefefe;\n    margin: auto;\n    padding: 0;\n    top: 100px;\n    border-radius: 10px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    -webkit-animation-duration: 0.4s;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n.dialog-body {\n    padding: 6px;\n}\n\n.popup .dialog-content {\n    background-color: #333333;\n    border: 1px solid #999;\n    border-radius: 3px;\n}\n\n.popup .dialog-body {\n    padding: 0;\n}\n\n/* Dialog Header */\n.dialog-header {\n  padding: 2px 16px;\n  background-color: #03A9F4; /*#5cb85c green;*/\n  border-radius: 10px 10px 0 0;\n  color: white;\n}\n\n/* The Close Button */\n.dialog-close {\n    color: #FFF;\n    text-decoration: none;\n    cursor: pointer;\n    float: right;\n    font-size: 24px;\n    line-height: 0.8;\n    font-weight: bold;\n}\n\n.dialog-close:hover,\n.dialog-close:focus {\n    color: #1565C0;\n}\n\n/* Buttons style */\n.pin {\n    width: 42px;\n    height: 42px;\n    min-width: 0;\n    font-weight: bold;\n    margin: 3px;\n    padding: 0;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n    touch-action: manipulation;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n</style>",
+        "format": "<script src=\"/js/iro.min.js\"></script>\n\n<style>\n  .md-text {\n    font-size: 13px;\n  }\n  md-option {\n      height: 25px;\n  }\n  .nr-dashboard-slider p.label {\n      margin: 0;\n  }\n  .nr-dashboard-cardpanel > p {\n      margin: 0;\n      text-align: center;\n  }\n\n  .button-row, .button-col {\n    display: flex;\n    width: calc(100% - 2px);\n    height: calc(100% - 2px);\n    border: 1px solid gray;\n    border-radius: 8px;\n  }\n\n  .button-row {\n    flex-direction: row;\n  }\n  .button-col {\n    flex-direction: column;\n  }\n    \n  .button-row > .myctl:not(:last-child) {\n     margin-right: 6px;\n  }\n  .button-col > .myctl:not(:last-child) {\n     margin-bottom: 6px;\n  }\n\n  .mysubctl,\n  .myctl {\n    display: flex;\n    flex-direction: column;\n    position: relative;\n    padding: 0;\n    margin: 0;     \n    font-size: 12px;\n    min-width: 0;\n    min-height: 0;\n    line-height: unset;\n    text-transform: unset; \n    vertical-align: middle;\n    align-items: center;\n    text-align: center;\n    justify-content: center;\n  }\n  .myctl {\n    width: 100%;\n    height: 100%;\n    border-radius: 8px;\n    background-color: #453;\n    color: #fff;\n  }\n  .popup .myctl {\n    width: 42px;\n    height: 42px;\n    margin: 3px;\n}\n\n.myctl.w2 {\n    width: calc(2*42px + 6px);\n    height: 42px;\n}\n.myctl.w3 {\n    width: calc(3*42px + 12px);\n    height: 42px;\n}\n.myctl.w3h2 {\n    width: calc(3*42px + 12px);\n    height: calc(2*42px + 6px);\n}\n.myctl.w4 {\n    width: calc(4*42px + 3*6px);\n    height: 42px;\n}\n\n  \n  .mysubctl {\n    border-radius: 4px;\n    border: 0.5px solid;\n  }\n  .myctl > div > .md-button,\n  .md-button.myctl {\n    background-color: #225;\n  }\n  .myctl > * {\n      z-index: 5;\n  }\n  button.myctl {\n    background-color: #225;\n    color: #FFF;\n    border: 0;\n  }\n  .myctl.dialog-button {\n    background-color: #229;\n  }\n  .flex30 {\n      flex: 0 1 30%;\n  }\n\n  .bigger > div {\n      font-size: 110%;\n  }\n  \n  .sub-label {\n      position: absolute;\n      font-size: 9pt;\n      padding-left: 3px;\n      z-index: 1;\n  }\n  \n    .left-icon {\n        flex: 1;\n        display: flex;\n        width: 100% !important;\n        align-items: center;\n        justify-content: flex-start;\n        align-content: space-between;\n    }\n    .left-icon > *:first-child {\n        //align-items: flex-end;\n        width: 35%;\n        min-width: fit-content;;\n        left: 0;\n    }\n    .left-icon > *:not(:first-child) {\n        //width: 31px;\n        flex: 1;\n    }\n  \n  .myctl ng-md-icon {\n      width: unset;\n      height: unset;\n  }\n  \n.myctl.md-button > .flex {\n    display: inline-flex; \n    align-items: center;\n}\n\n.popup md-input-container {\n    flex: 1 0;\n    min-width: 90px;\n    padding: 3px;\n    margin-top: 0;\n}\n\n\n.popup md-select, \n.popup md-select .md-select-icon {\n    color: white !important;\n}\n\n.popup input {\n    background-color: #333;\n    color: white;\n}\n\n.dialog-body > input {\n    width: calc(100% - 16px);\n    margin: 3px;\n    padding: 1px 3px;\n    font-size: 1.2rem;\n}\n\n.myctl.ctl-lwt {\n    opacity: 0.8;\n    color: red;\n}\n\n\n.myctl.slider  {\n    display: grid;\n    grid-template-columns: 85% 25px;\n    margin: 3px;\n    background-color: #225;\n}\n\n.slider md-slider {\n    height: 42px;\n    min-width: unset;\n    margin-left: 20px;\n}\n.slider md-slider-wrapper {\n    width: unset;\n    height: unset;\n}\n\n.slider md-slider .md-thumb:after, .slider md-slider .md-track,\n.slider md-slider .md-focus-thumb, .slider md-slider .md-focus-ring{\n    background-color: #FA9900 !important;\n    border-color: #FA9900 !important;\n}\n\n.slider .md-thumb {\n    left: -20px;\n}\n\n.slider > div {\n  color: white; \n}\n\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {opacity:0} \n    to {opacity:1}\n}\n\n@keyframes animatetop {\n    from {opacity:0}\n    to {opacity:1}\n}\n\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    opacity:0.99;\n    z-index: 20; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    transform: translate3d(0,0,0);\n    //-webkit-perspective: 1000;\n}\n\n/* dialog Content */\n.dialog-content {\n    position: relative;\n    background-color: #fefefe;\n    margin: auto;\n    padding: 0;\n    top: 100px;\n    border-radius: 10px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    -webkit-animation-duration: 0.4s;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n.dialog-body {\n    padding: 6px;\n}\n\n.popup .dialog-content {\n    background-color: #333333;\n    border: 1px solid #999;\n    border-radius: 3px;\n}\n\n.popup .dialog-body {\n    padding: 0;\n}\n\n/* Dialog Header */\n.dialog-header {\n  padding: 2px 16px;\n  background-color: #03A9F4; /*#5cb85c green;*/\n  border-radius: 10px 10px 0 0;\n  color: white;\n}\n\n/* The Close Button */\n.dialog-close {\n    color: #FFF;\n    text-decoration: none;\n    cursor: pointer;\n    float: right;\n    font-size: 24px;\n    line-height: 0.8;\n    font-weight: bold;\n}\n\n.dialog-close:hover,\n.dialog-close:focus {\n    color: #1565C0;\n}\n\n/* Buttons style */\n.pin {\n    width: 42px;\n    height: 42px;\n    min-width: 0;\n    font-weight: bold;\n    margin: 3px;\n    padding: 0;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n    touch-action: manipulation;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n.myctl.text {\n    display: flex; \n    flex-wrap: wrap; \n    flex-direction: row; \n    justify-content: space-evenly;\n    align-content: space-around;\n    white-space: nowrap; \n    overflow: hidden;\n}\n.myctl.text > div {\n    flex: 0 0;\n    line-height: 1;\n    padding-left: 3px;\n    padding-right: 3px;\n}\n\nmd-select.myctl {\n    flex-direction: row; \n}\n\n.md-select-value>span {\n    white-space: pre-wrap !important;\n    line-height: 1;\n}\n\n</style>",
         "storeOutMessages": true,
         "fwdInMessages": true,
         "templateScope": "global",
@@ -1802,8 +1647,8 @@
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 440,
-        "y": 700,
+        "x": 460,
+        "y": 1180,
         "wires": [
             [
                 "6e07aa94.3a4bc4"
@@ -1818,8 +1663,8 @@
         "func": "msg.ctls = global.get(\"LR_Lights\");\n\nif (!msg.ctls) {\n    msg.ctls = {\n        sw1: {title: \"אור 2\"},\n        sw2: {title: \"אור 3\"},\n        sw3: {title: \"אור 4\"},\n    };\n\n    Object.entries(msg.ctls).forEach(([nm, ctl]) => Object.assign(ctl, {\n        name: nm,\n        topic: `/esp_L2_LR/control/cmd`,\n    }));\n}\n\nconst name = msg.topic && msg.topic.split(\"/\").splice(-1)[0];\nconst ctl = msg.ctls[name];\nif (ctl) {\n    ctl.power = +msg.payload;\n}\nglobal.set(\"LR_Lights\", msg.ctls);\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 310,
-        "y": 700,
+        "x": 330,
+        "y": 1180,
         "wires": [
             [
                 "33902e24.5024c2"
@@ -1850,8 +1695,8 @@
         "topic": "",
         "payload": "",
         "payloadType": "date",
-        "x": 110,
-        "y": 660,
+        "x": 130,
+        "y": 1140,
         "wires": [
             [
                 "ef2dec1c.1f8ca"
@@ -1867,8 +1712,8 @@
         "qos": "2",
         "datatype": "utf8",
         "broker": "b83f640b.f9b038",
-        "x": 110,
-        "y": 700,
+        "x": 130,
+        "y": 1180,
         "wires": [
             [
                 "ef2dec1c.1f8ca"
@@ -1889,8 +1734,8 @@
         "raw": false,
         "topic": "",
         "name": "",
-        "x": 130,
-        "y": 800,
+        "x": 150,
+        "y": 1280,
         "wires": []
     },
     {
@@ -1908,7 +1753,7 @@
         "fwdInMessages": true,
         "templateScope": "local",
         "x": 270,
-        "y": 1160,
+        "y": 1420,
         "wires": [
             []
         ]
@@ -1927,7 +1772,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 490,
-        "y": 800,
+        "y": 1060,
         "wires": [
             []
         ]
@@ -1941,7 +1786,7 @@
         "outputs": 1,
         "noerr": 0,
         "x": 290,
-        "y": 800,
+        "y": 1060,
         "wires": [
             [
                 "6955edc3.dedb34"
@@ -1958,7 +1803,7 @@
         "datatype": "utf8",
         "broker": "b83f640b.f9b038",
         "x": 100,
-        "y": 800,
+        "y": 1060,
         "wires": [
             [
                 "1cdbe76d.0965b9"
@@ -1985,7 +1830,7 @@
         "payloadType": "bool",
         "topic": "show",
         "x": 110,
-        "y": 1120,
+        "y": 1380,
         "wires": [
             [
                 "7f80ebb8.21fa64"
@@ -1999,7 +1844,7 @@
         "d": true,
         "group": "7cdedc06.5fd6d4",
         "name": "Pin_Unlock",
-        "order": 3,
+        "order": 7,
         "width": "0",
         "height": "0",
         "format": "<div ng-init=\"init()\" id=\"pin_insert\" class=\"dialog\">\n    \n    <div class=\"dialog_content\">\n        \n        <div class=\"dialog_header\">\n            <span ng-click=\"closeDialog()\" class=\"close\">&times;</span>\n            <h2 style=\"margin:10px\">Insert PIN</h2>\n        </div>\n        \n        <div class=\"dialog_body\">\n\n           <div layout=\"row\" layout-align=\"center\">\n                <div class=\"number_placeholder\">\n                    {{passcode.substring(0, 1)}}\n                </div>\n                <div class=\"number_placeholder\">\n                    {{passcode.substring(1, 2)}}\n                </div>\n                <div class=\"number_placeholder\">\n                    {{passcode.substring(2, 3)}}\n                </div>\n                <div class=\"number_placeholder\">\n                    {{passcode.substring(3, 4)}}\n                </div>\n            </div>\n            \n            <div layout=\"column\" layout-align=\"center\" style=\"margin-top: 10px\">\n                <div layout=\"row\" layout-align=\"center\">\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(1)\">1</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(2)\">2</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(3)\">3</md-button>\n                    </div>\n                </div>\n                 <div layout=\"row\" layout-align=\"center\">\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(4)\">4</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(5)\">5</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(6)\">6</md-button>\n                    </div>\n                </div>\n                 <div layout=\"row\" layout-align=\"center\">\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(7)\">7</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(8)\">8</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(9)\">9</md-button>\n                    </div>\n                </div>\n                 <div layout=\"row\" layout-align=\"center\">\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"confirm()\">\n                            <ng-md-icon icon=\"done\" style=\"color:#fff;\"></ng-md-icon>\n                        </md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"add(0)\">0</md-button>\n                    </div>\n                    <div class=\"number_box\">\n                        <md-button class=\"pin\" ng-click=\"delete()\">\n                            <ng-md-icon icon=\"arrow_back\" style=\"color:#fff;\"></ng-md-icon>\n                        </md-button>\n                    </div>\n                </div>\n            </div> \n          \n        </div> <!--dialog_body-->\n    </div> <!--dialog_content-->\n</div>  <!--dialog-->\n\n\n<style>\n\n/* The Dialog (background) */\n.dialog {\n    display: none; /* Hidden by default */\n    position: fixed; /* Stay in place */\n    z-index: 9999; /* Sit on top */\n    left: 0;\n    top: 0;\n    width: 100%; /* Full width */\n    height: 100%; /* Full height */\n    overflow: auto; /* Enable scroll if needed */\n    background-color: rgb(0,0,0); /* Fallback color */\n    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */\n    -webkit-transform: translateZ(0px);\n    -webkit-transform: translate3d(0,0,0);\n    -webkit-perspective: 1000;\n}\n\n.dialog_content {\n    position: absolute;\n    background-color: #fff;\n    left: calc(50% - 170px);\n    top: 30px;\n    border-radius: 10px;\n    padding: 0;\n    width: 340px;\n    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);\n    -webkit-animation-name: animatetop;\n    animation-name: animatetop;\n    animation-duration: 0.4s;\n}\n\n/* Media query for smartphones (to Fix?) */\n@media only screen and (min-device-width : 375px) and (max-device-width : 667px) { \n    .dialog_content {\n    margin-top: 5%;\n    margin-left: 5%;\n}\n}\n\n/* Add Animation */\n@-webkit-keyframes animatetop {\n    from {top: -300px; opacity: 0} \n    to {top: 0; opacity: 1}\n}\n\n@keyframes animatetop {\n    from {top: -300px; opacity: 0}\n    to {top: 0; opacity: 1}\n}\n\n/* Dialog Header */\n.dialog_header {\n    padding: 2px 16px;\n    background-color: #03A9F4;\n    border-radius: 10px 10px 0 0;\n    color: white;\n}\n\n/* Dialog Body */\n.dialog_body {padding: 5px;}\n\n/* The Close Button */\n.close {\n    color: #fff;\n    float: right;\n    font-size: 28px;\n    font-weight: bold;\n    cursor: pointer;\n}\n\n.close:hover,\n.close:focus {\n    color: #1565C0;\n    text-decoration: none;\n    cursor: pointer;\n}\n\n/* __ */\n.number_placeholder{\n    width: 50px;\n    height: 34px;\n    margin: 10px;\n    font-size: 20pt;\n    text-align: center;\n    border-bottom: 1px solid black;\n}\n\n/* Number container */\n.number_box{\n    margin: 5px;\n}\n\n/* Buttons style */\n.pin {\n    min-height: 50px;\n    min-width: 50px;\n    font-weight: bold;\n    margin: 0px 10px 10px 0px;\n    box-shadow: 4px 4px 6px 0 #dadada;\n    background-color: #29B6F6;\n    color: #fff;\n}\n\n.pin:not([disabled]):hover {\n    background-color: #03A9F4;\n}\n\n.btn1 {\n  color : rgb(49, 46, 46);\n  background-color: rgba(255, 222, 121, 0.96);\n  border-radius: 10px 0 0 10px;\n  font-size: 16px;\n}\n\n.btn1:not([disabled]):hover {\n  background-color: rgba(107, 103, 91, 0.96);\n  color: white;\n}\n\n.btn1[disabled] {\n  color : rgb(187, 187, 187);\n  background-color: rgba(230, 230, 229, 0.96);\n}\n\n</style>\n\n<script>\n\n/**\n * pin_dialog.js\n * Node-Red UI template for Node-Red Dashboard. \n * Custom dialog that asks for a PIN to allow actions\n * Enjoy it :). \n * -- Daniel\n *\n *\n * @license The Unlicense, http://unlicense.org/\n * @version 0.2\n * @author  Daniel Lando, https://github.com/robertsLando\n * @updated 2019-03-18\n * @link    ----\n *\n *\n */\n\nvar dialog;\n\n/* ==== */\n(function(scope) {\n    \n    scope.passcode = \"\";\n    scope.payload = \"\";\n    scope.inited = false;\n    \n    scope.init = function() {\n        scope.passcode = \"\";\n        //Hide the md-panel\n        $('#pin_insert').parent().parent().css(\"display\", \"none\");\n        //This trick make it works on smartphones too :)\n        dialog = $('#pin_insert').detach();\n        //dialog.appendTo(document.body); // This leaves ghost numpads if pinpad is not opened!\n    }\n    \n    scope.showDialog = function() {\n        dialog.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        dialog.css(\"display\", \"block\");\n    }\n    \n    scope.closeDialog = function(){\n        dialog.css(\"display\", \"none\");\n    }\n    \n    scope.add = function(value) {\n        if(scope.passcode.length < 4) {\n            scope.passcode = scope.passcode + value;\n            if(scope.passcode.length == 4) {\n                console.log(\"The four digit code was entered\");\n                   \n            }\n        }\n    }\n \n    scope.delete = function() {\n        if(scope.passcode.length > 0) {\n            scope.passcode = scope.passcode.substring(0, scope.passcode.length - 1);\n        }\n    }\n    \n    scope.confirm = function() {\n        if(scope.passcode.length == 4) {\n            scope.send({passcode: scope.passcode, payload : scope.payload});\n            scope.closeDialog();\n            scope.passcode = \"\";\n            scope.payload = \"\";\n        }\n    }\n\n    scope.$watch('msg', function(data) {\n        if(data && data.topic){\n            switch(data.topic){\n               case \"show\":\n                   if(scope.inited){\n                        scope.payload = data.payload;\n                        scope.showDialog();\n                   }\n                   else\n                        scope.inited = true;\n                break;\n                case \"close\": \n                    scope.closeDialog(); \n                break;\n            }\n        }\n    });\n})(scope);\n\n</script>\n",
@@ -2007,7 +1852,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 295.3750343322754,
-        "y": 1119.9642696380615,
+        "y": 1379.9642696380615,
         "wires": [
             []
         ]
@@ -2168,7 +2013,7 @@
         "type": "function",
         "z": "f8865110.44c59",
         "name": "check presence",
-        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst sTolerance = 5*60;\nlet uNow = new Date() / 1000 |0; //+ new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad:    \"04:d6:aa:d5:12:77\",      // Galaxy S8+    \"f4:09:d8:d6:d5:59\",       // Galaxy Note 4\n    Tali:     \"6e:d7:d6:2f:97:3d\",      // \"44:4a:db:1f:b8:5f\",      // iPhone 11 Pro Max           // iPhone 7+ \"4c:74:bf:78:f6:9b\",\n    Inbal:    \"76:a8:62:bf:3e:da\",      // Galaxy S20\n    Shahar:   \"f4:60:e2:a3:f8:ce\",\n    Yarden:   \"1c:cc:d6:42:62:d7\",      // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer:     \"12:6c:74:b9:42:a0\",      // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Daniel:   \"c6:c1:46:22:78:e9\",\n    Tamar:    \"5e:09:c4:9f:67:7b\",\n    TESLA:    \"4c:fc:aa:14:0a:c5\"\n};\n\nlet peopleArr = Object.keys(people);\nlet nPpl = Object.keys(people).length;\n\nconst devices = {};\nmsg.payload[0].forEach(dev => devices[dev.mac] = dev);\n//filter(dev =>     (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"curDevices\") || {};\n\nlet bChanged = false;\nconst timeline = [];\n\nObject.entries(people).forEach(([name, mac], idx) => {\n    let cur = curStat[name];\n    if (!cur) curStat[name] = cur = {};\n    let dev = devices[mac] || {};\n    //let dev = devices.find(dev => dev.mac === mac) || {};\n    const ls = cur.lastSeen = dev.last_seen - dev.idletime || cur.lastSeen || 0;\n    //if (name === \"Gilad\") node.warn({name, seen: my.get_dur((uNow - ls)*1000)});\n    const isHome = ls > uNow - sTolerance; // || dev.last_seen > uNow - sTolerance;\n    if (isHome !== cur.isHome) {\n        bChanged = true;\n        cur.isHome = isHome;\n        timeline.push({name, isOn: isHome, fix: ls && (uNow - ls) * -1000});\n    }\n});\n\ncontext.set(\"curDevices\", curStat);\n\n//if (bChanged) timeline.forEach(t => node.warn(t));\nif (bChanged)\n    return {payload: timeline};",
+        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst sTolerance = 5*60;\nlet uNow = new Date() / 1000 |0; //+ new Date().getTimezoneOffset() * 60 * 1000;\nconst people = {\n    Gilad:    \"46:65:b0:23:e4:06\",      // \"04:d6:aa:d5:12:77\" (Galaxy S8+), \"f4:09:d8:d6:d5:59\" (Galaxy Note 4)\n    Tali:     \"6e:d7:d6:2f:97:3d\",      // \"44:4a:db:1f:b8:5f\",      // iPhone 11 Pro Max           // iPhone 7+ \"4c:74:bf:78:f6:9b\",\n    Inbal:    \"76:a8:62:bf:3e:da\",      // Galaxy S20\n    Shahar:   \"a2:5a:2b:4d:ea:67\",      // \"f4:60:e2:a3:f8:ce\" (Xiami Note),\n    Yarden:   \"1c:cc:d6:42:62:d7\",      // Redmi Note 8 Pro     \"00:ae:fa:e2:36:02\",      // Galaxy S6     \"f4:60:e2:ad:eb:40\",  \"40:31:3c:ac:6d:cd\",\n    Omer:     \"12:6c:74:b9:42:a0\",      // Galaxy S20+     \"44:91:60:aa:4b:fd\",\n    Daniel:   \"c6:c1:46:22:78:e9\",\n    Tamar:    \"5e:09:c4:9f:67:7b\",\n    TESLA:    \"4c:fc:aa:14:0a:c5\"\n};\n\nlet peopleArr = Object.keys(people);\nlet nPpl = Object.keys(people).length;\n\nconst devices = {};\nmsg.payload[0].forEach(dev => devices[dev.mac] = dev);\n//filter(dev =>     (dev.name || dev.hostname || \"\").includes(\"Phone\"));\n\nconst curStat = context.get(\"curDevices\") || {};\n\nlet bChanged = false;\nconst timeline = [];\n\nObject.entries(people).forEach(([name, mac], idx) => {\n    let cur = curStat[name];\n    if (!cur) curStat[name] = cur = {};\n    let dev = devices[mac] || {};\n    //let dev = devices.find(dev => dev.mac === mac) || {};\n    const ls = cur.lastSeen = dev.last_seen - dev.idletime || cur.lastSeen || 0;\n    //if (name === \"Gilad\") node.warn({name, seen: my.get_dur((uNow - ls)*1000)});\n    const isHome = ls > uNow - sTolerance; // || dev.last_seen > uNow - sTolerance;\n    if (isHome !== cur.isHome) {\n        bChanged = true;\n        cur.isHome = isHome;\n        timeline.push({name, isOn: isHome, fix: ls && (uNow - ls) * -1000});\n    }\n});\n\ncontext.set(\"curDevices\", curStat);\n\n//if (bChanged) timeline.forEach(t => node.warn(t));\nif (bChanged)\n    return {payload: timeline};",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
@@ -2203,7 +2048,7 @@
         "z": "f8865110.44c59",
         "group": "7cdedc06.5fd6d4",
         "name": "Show Presence",
-        "order": 1,
+        "order": 2,
         "width": "1",
         "height": "1",
         "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'Presence'})\">\n    <div>מי בבית</div>\n    <font size=4>&#x1F46A;</font>\n    <!--font class=\"fa fa-users fa-lg\" color=grey></font-->\n</md-button>",
@@ -2283,49 +2128,13 @@
         "func": "",
         "outputs": 1,
         "noerr": 0,
-        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst my = global.get(\"my\", \"memoryOnly\") || {};\n\nconst secUnits = {second: 1, minute: 60, hour: 60*60, day: 60*60*24, year: 60*60*24*365};\nconst units = Object.keys(secUnits), unitVals = Object.values(secUnits);\n\n// flags: long, addDate\nmy.get_durSingle = (ms, flags) => {\n    const {long, addDate} = flags || {};\n    const sec = ms / 1000 >> 0;\n    const unit = units.find((u,i) => i === units.length-1 || sec < unitVals[i+1]*2);\n    const val = sec / secUnits[unit] >> 0;\n    const str = val + (!long? unit[0] : \" \"+ unit + (val === 1? \"\" : \"s\"));\n    return !addDate? str : `${str} ago (${dt.toLocaleString(locale || \"en-US\")})`;\n};\n\nmy.get_dur = (ms) => {\n    const sec = ms / 1000 |0, parts = [];\n    for (let i = 0; !i || sec >= unitVals[i]-1; i++)\n        parts.unshift((sec % (unitVals[i+1] || 1) / unitVals[i] |0) + units[i][0]);\n    return parts.slice(0,2).join(\" \").replace(/ 0\\w/, '');\n    //return parts.slice(0,2).join(\":0\").replace(/:0(\\d\\d)/, \":$1\").replace(/:00\\w/, '');\n};\n\nmy.get_Hmm = (dt) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getHours() +\":\"+('0'+dt.getMinutes()).substr(-2);\n};\n\nmy.get_ddMM = (dt) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getDate() +\"/\"+(dt.getMonth()+1);\n};\n\nmy.get_ddMM_Hmm = (dt, noDate) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return (!noDate? my.get_ddMM(dt)+\", \" : \"\") + my.get_Hmm(dt);\n};\n\n\nglobal.set('my', my, 'memoryOnly');",
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst my = global.get(\"my\", \"memoryOnly\") || {};\n\nconst secUnits = {second: 1, minute: 60, hour: 60*60, day: 60*60*24, year: 60*60*24*365};\nconst units = Object.keys(secUnits), unitVals = Object.values(secUnits);\n\n// flags: long, addDate\nmy.get_durSingle = (ms, flags) => {\n    const {long, addDate} = flags || {};\n    const sec = ms / 1000 >> 0;\n    const unit = units.find((u,i) => i === units.length-1 || sec < unitVals[i+1]*2);\n    const val = sec / secUnits[unit] >> 0;\n    const str = val + (!long? unit[0] : \" \"+ unit + (val === 1? \"\" : \"s\"));\n    return !addDate? str : `${str} ago (${dt.toLocaleString(locale || \"en-US\")})`;\n};\n\nmy.get_dur = (ms) => {\n    const sec = ms / 1000 |0, parts = [];\n    for (let i = 0; !i || sec >= unitVals[i]-1; i++)\n        parts.unshift((sec % (unitVals[i+1] || 1) / unitVals[i] |0) + units[i][0]);\n    return parts.slice(0,2).join(\" \").replace(/ 0\\w/, '');\n    //return parts.slice(0,2).join(\":0\").replace(/:0(\\d\\d)/, \":$1\").replace(/:00\\w/, '');\n};\n\nmy.get_Hmm = (dt) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getHours() +\":\"+('0'+dt.getMinutes()).substr(-2);\n};\n\nmy.get_ddMM = (dt) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return dt.getDate() +\"/\"+(dt.getMonth()+1);\n};\n\nmy.get_ddMM_Hmm = (dt, noDate) => {\n    if (typeof dt === \"number\") dt = new Date(dt);\n    return (!noDate? my.get_ddMM(dt)+\", \" : \"\") + my.get_Hmm(dt);\n};\n\n//my.round = (num, mul) => Math.round((num + Number.EPSILON) * mul) / mul;\nmy.round = (num, mul) => (num * mul + 0.5 |0) / mul;\n\n\nglobal.set('my', my, 'memoryOnly');",
         "finalize": "",
         "libs": [],
         "x": 110,
         "y": 440,
         "wires": [
             []
-        ]
-    },
-    {
-        "id": "a764ec3e.e5eee",
-        "type": "mqtt in",
-        "z": "3e6b6884.b00d58",
-        "name": "",
-        "topic": "esp/L3/Boiler/state",
-        "qos": "2",
-        "datatype": "json",
-        "broker": "b83f640b.f9b038",
-        "x": 110,
-        "y": 140,
-        "wires": [
-            [
-                "dcf44868.4ef908"
-            ]
-        ]
-    },
-    {
-        "id": "dcf44868.4ef908",
-        "type": "function",
-        "z": "3e6b6884.b00d58",
-        "name": "Message",
-        "func": "const st = msg.payload;\nreturn [\n    {payload: st.countDown? st.countDown + \" mins\" : st.numPeople? st.numPeople + \" ->\" + st.target : \"Off\"},\n    {payload: st.outlook > 0? st.outlook + \" showers ready\" : -st.outlook + \" mins for 1\"}\n];\n",
-        "outputs": 2,
-        "noerr": 0,
-        "x": 300,
-        "y": 140,
-        "wires": [
-            [
-                "4c570a17.b5fe94"
-            ],
-            [
-                "b03dcb86.7f5d78"
-            ]
         ]
     },
     {
@@ -2653,9 +2462,9 @@
         "z": "d4b1bd47.24b07",
         "name": "Setup Dispatcher",
         "func": "const appl = global.get(\"appliances\");\nconst aplTypes = context.get(\"aplTypes\");\nconst uiTmpl = global.get(\"uiTmpl\") || {};\n\nfunction fillArr(arr, apl) {\n    const at = aplTypes[apl.t];\n    if (!at)\n        return node.warn(\"Appliance type unknown: \"+ apl.t +\" (\"+apl.topic+\")\");\n    arr[apl.iOut] = {\n        ...apl,\n        template: at.elms? uiTmpl.popbtn : uiTmpl.btn,\n        at\n    }\n    return arr;\n}\n\nif (msg.dev)\n    return msg.dev\n        .reduce((ac,a) => fillArr(ac, a), []);\nelse\n    return Object.values(appl)\n        .reduce((ac,d) => (d.forEach(a => fillArr(ac, a)), ac), []);",
-        "outputs": 9,
+        "outputs": 11,
         "noerr": 0,
-        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\n// Order of devices here must correspond to order of node outputs!!\n// key use by device prep node and for topic path\n// t: type used aplTypes\n// h: title on button\n// path: used to construct topic text (path+'/'+key)\n// dflt: ON value if no prev0 value when turning on\n// off: off timer in ms\nconst appl = {      \n    PcDesk: [\n        {t: \"led1\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 0, dflt: 10, off: 4*60*60*1000},   // chl can be number or array\n        {t: \"fan\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 1, dflt: 10, off: 4*60*60*1000}\n    ],\n    Island: [\n        {t: \"wrgb\", h: \"אי\", path: \"esp/L2\", chl: 0, dflt: \"80000000\"},\n    ],\n    Boiler: [\n        {t: \"boiler\", h: \"בוילר\", path: \"esp/L3\"},\n    ],\n    \"Shutters/Parents\": [\n        {t: \"shutters\", h: \"תריס\", h2: \"הורים\", path: \"esp/L3\"},\n        {t: \"lgtsw\", h: \"מרפסת\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Parents\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Shahar\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"שחר\", path: \"esp/L3\"},\n    ],\n    Strip1: [\n        {t: \"led2\", h: \"ניסוי\", path: \"esp/Dimmer\", chl: [0,1], dflt: [10,10], cct: 0.5, off: 4*60*60*1000},\n    ],\n};\n\nconst klvMin = 2700, klvMax = 11000;\n\nlet iOut = 0, aOld;\nconst oldAppl = global.get(\"appliances\") || {};\n\nObject.entries(appl).forEach(([k,d]) => d.forEach((a, ai) => {\n    if (oldAppl[k] && (aOld = oldAppl[k].find(ao => ao.t === a.t && ao.h === a.h)))\n        Object.assign(a, {...aOld, ...a});\n    a.iOut = iOut++;\n    a.topic = `${a.path}/${k}/`;\n    a.apl = k;\n    a.aplIdx = ai;\n    if (a.chl !== undefined) {\n        a.c = []; \n        a.prev = a.dflt || 0;\n        (typeof a.chl === \"number\"? [a.chl] : a.chl)\n            .forEach((c,i,ar) => {\n                const zc = c - ar[0];\n                a['c'+zc] = 0;\n                a.c[zc] = 0;\n            });\n    }\n\n}));\n\nglobal.set(\"appliances\", appl);\n\n// fa: https://fontawesome.com/v4.7.0/icons/\n// md: https://klarsys.github.io/angular-material-icons/\n\nconst aplTypes = {\n    led1: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p${tgt} t1000 d${msg.off} e0 ; c${msg.chl} p0 t10000 e0` : `c${msg.chl} p0 t1000 e0`)\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",        // a js expression\n        elms: [\n            // {t: \"btn\", h: \"10\", a: \"sendTopicClose('cmd', `c${msg.chl} p10 t1000 d${msg.off} ; c${msg.chl} p0 t10000 e0`)\"},\n            // {t: \"btn\", h: \"Strobe\", a: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0 || 50} e0 t500 ; c${msg.chl} e0 p0 t500 *`)\"},\n            // {t: \"slider\", sz: 4, msgBind: \"c0\", vmin: 0, vmax: 100, a: \"\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.c0\",                // optional: update iro color whenever changed. actual value applied using toClr.\n                toClr: \"({h:0, s:0, v: curVal})\",   // object format of iro.color\n                fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopicClose5('cmd', fromClr > 0? `c${msg.chl} p${fromClr} e1 t0 d${msg.off} ; c${msg.chl} p0 e0 t10000` : `c${msg.chl} p0 e0`)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} e0 t0 d${ms} ; c${msg.chl} p0 t10000 e0`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0} e0`)\"},\n     ]\n    },\n    led2: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !Math.max(...msg.c)? msg.prev || msg.dflt : 0; sendTopicClose('cmd', `c${msg.chl[0]} p${tgt && tgt[0]} e1 t1000,c${msg.chl[1]} p${tgt && tgt[1]} e1 t1000` +(!tgt? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"Math.max(...msg.c)\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"iro-picker\",\n                curVal: \"Math.max(msg.c0, msg.c1)\",                \n                watch: \"msg.c0 + msg.c1\",           // optional - otherwise use curVal: updates iro. actual value applied using toClr.            \n                toClr: \"({h:0, s:0, v: curVal})\",   // eval converter to iro.color format\n                fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopic('cmd', `c${msg.chl[0]} p${fromClr * Math.min(msg.cct*2,1) |0} e1 t1000,c${msg.chl[1]} p${fromClr * Math.min((1-msg.cct)*2,1) |0} e1 t1000` +(!fromClr? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.cct\",\n                toClr: `({kelvin: ${klvMin} + curVal * ${klvMax - klvMin}})`,\n                fromClr: `((color.kelvin - ${klvMin}) / ${klvMax - klvMin} * 100 | 0) / 100`,\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'kelvin', minTemperature: klvMin, maxTemperature: klvMax}}]        // , sliderSize: 40\n                },\n                a: `let v = Math.max(...msg.c); `\n                    + \"updState('dev.cct='+fromClr); \"\n                    + \"sendTopic('cmd', `c${msg.chl[0]} p${v * Math.min(fromClr*2,1) |0} e1 t1000,c${msg.chl[1]} p${v * Math.min((1-fromClr)*2,1) |0} e1 t1000` +(!v? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\"\n            },\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0}`)\"},\n     ]\n    },\n    fan: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p100 t0 d300; c${msg.chl} p${tgt} t0 d${msg.off} ; c${msg.chl} p0` : `c${msg.chl} p0`)\",\n        icnMd: \"toys\",\n        iStyle: \"msg.c0 && 'fill: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"iro-picker\",\n                curVal: \"msg.c0\",\n                toClr: \"({h:0, s:0, v: msg.c0})\",\n                fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 192, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopicClose5('cmd', !fromClr? `c${msg.chl} p0` : (!msg.c0? `c${msg.chl} p100 t0 d300; `:'') +`c${msg.chl} p${fromClr} t0 d${msg.off} ; c${msg.chl} p0`)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0}`)\"},\n        ]\n    },\n    wrgb: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"sendTopicClose('setwrgb', !msg.c0? msg.prev0 || msg.dflt : '00000000')\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"100%\", a: \"sendTopicClose('setwrgb', 'FF'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"50%\", a: \"sendTopicClose('setwrgb', '80'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"10%\", a: \"sendTopicClose('setwrgb', '19'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"OFF\", a: \"sendTopicClose('setwrgb', '00000000')\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.wrgb\",                \n                toClr: \"'#'+(msg.wrgb || '00').substr(0,2).repeat(3)\",\n                fromClr: \"('0'+ (255 * color.value / 100 |0).toString(16)).substr(-2) + (msg.wrgb || '000000').substr(-6)\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 96, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopic('setwrgb', fromClr)\"},\n                //a: \"let hex = ('0'+ (255 * val.value / 100 |0).toString(16)).substr(-2); sendTopicClose5('setwrgb', hex + (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"time\", h: \"off\",\n                aOff: \"sendTopicClose5('setsoff', ''+ms)\",\n                aRmvOff: \"sendTopicClose5('setsoff', '0')\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.wrgb\",                \n                toClr: \"msg.c0? msg.rgb : '#ff0000'\",\n                fromClr: \"(msg.wrgb || '00').substr(0,2) + color.hexString.substr(1)\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 96, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layoutDirection: \"horizontal\",\n                    //layout: [{component: \"Wheel\"}, {component: \"Slider\"}]\n                },\n                a: \"sendTopic('setwrgb', fromClr)\"},\n            {t: \"select\", h: \"אפקט\", msgBind: \"mode\", a: \"sendTopicClose('setmode', msg.mode, 10000)\", \n                opts: {0: \"Static\", 3: \"Color Wipe\", 7: \"Color Wipe Random\", 8: \"Random Color\", 9: \"Single Dynamic\", \n                    10: \"Multi Dynamic\", 11: \"Rainbow\", 12: \"Rainbow Cycle\", 16: \"Theater Chase\", 17: \"Theater Chase Rainbow\", \n                    18: \"Running Lights\", 20: \"Twinkle Random\", 25: \"Hyper Sparkle\", 32: \"Chase Random\", 33: \"Chase Rainbow\", \n                    36: \"Chase Rainbow White\", 38: \"Chase Blackout Rainbow\", 39: \"Color Sweep Random\", 40: \"Running Color\", \n                    41: \"Running Red Blue\", 42: \"Running Random\", 43: \"Larson Scanner\", 44: \"Comet\", 46: \"Fireworks Random\", \n                    47: \"Merry Christmas\", 48: \"Fire Flicker\", 49: \"Fire Flicker Soft\", 50: \"Fire Flicker Intense\", \n                    51: \"Circus Combustus\", 52: \"Halloween\", 53: \"Bicolor Chase\", 54: \"Tricolor Chase\"}},\n        ]\n    },\n    boiler: {\n        t: \"hdr-val\",\n        w: 3,\n        v: \"msg.disp\",\n        elms: [\n            {t: \"btn\", h: \"מקלחות\", icnTx: \"&#x1f478;\", a: \"sendTopicClose5('cmd', 'tapPeople')\"},\n            {t: \"btn\", h: \"טיימר\", icnTx: \"&#x23f1;\", a: \"sendTopicClose5('cmd', 'tapCountdown')\"},\n            {t: \"btn\", h: \"כיבוי\", icnFa: \"fa fa-power-off fa-lg\", a: \"sendTopicClose('cmd', 'tapOff')\"},\n            {t: \"btn\", h: \"גראפ\", icnFa: \"fa fa-area-chart fa-2x\", iStyle: \"'color: #86F'\", \n                a: \"closeDialog(); send({apply:'my.uiControl(`WaterTank`)'})\"},\n        ]\n    },\n    shutters: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"msg.pos\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"פתוח\", a: \"sendTopicClose('cmd', msg.moving==='UP'? 'STOP' : 100, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-270\", iStyle: \"msg.moving==='UP' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"+10%\", a: \"sendTopicClose5('cmd', msg.pos < 90? msg.pos+10 : 100)\"},\n            {t: \"btn\", h: \"סגור\", a: \"sendTopicClose('cmd', msg.moving==='DOWN'? 'STOP' : 0, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-90\", iStyle: \"msg.moving==='DOWN' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"מדורגת\", a: \"sendTopicClose('wakeup', msg.wakeup && msg.wakeup < 100 ? 0 : 1)\",\n                icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose5('cmd', 'DUMMY'+(msg.d ^1))\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"השכמה\", \n                aOff: \"sendTopicClose('wakeup', secs)\", \n                aRmvOff: \"sendTopicClose5('wakeup', 0)\"},\n        ]\n    },\n    heatpad: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"(msg.tBed||'?')+'°'\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"\", icnFa: \"fa fa-power-off fa-lg\", iStyle: \"msg.power && 'color: #FF4'\",\n                a: \"sendTopicClose5('cmd', msg.power? 'OFF' : 'ON')\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose5('cmd', 'DUMMY'+(msg.d ^1))\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"כיבוי\", \n                aOff: \"sendTopicClose5('setsoff', ''+ms)\", \n                aRmvOff: \"sendTopicClose5('setsoff', 0)\"},\n        ]\n    },\n// esp/L3/HeatPad/Parents/state {\"time\": \"12:30:07\", \"power\": 0, \"relay\": 0, \"watt\": 5497, \"sOff\": 0, \"tBed\": 26.8}\n// /esp_L2_LR/info {ip:\"10.20.30.226\", time:\"12:30:48\", mac:\"84:F3:EB:B2:43:8F\", ssid:\"RazUB\", ch:1, rssi: \"%\", uptime:22, temp:27}\n// esp/L3/Boiler/temp {\"time\": \"12:30:56\", \"tTop\": 69.7, \"tCenter\": 47.1, \"tB\n    \n    lgtsw: {\n        t: \"bgicn-hdr-hdr2\",\n        a: \"send({topic: msg.topic+'cmd', payload: 'sw1,'+(msg.sw[0] ^1)})\",\n        icnFa: \"fa fa-lightbulb-o fa-3x\",\n        iStyle: \"msg.sw[0] && 'color: #FF4'\",\n    }\n};\n\ncontext.set(\"aplTypes\", aplTypes);\n\n\n",
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\n// Order of devices here must correspond to order of node outputs!!\n// key use by device prep node and for topic path\n// t: type used aplTypes\n// h: title on button\n// path: used to construct topic text (path+'/'+key)\n// dflt: ON value if no prev0 value when turning on\n// off: off timer in ms\nconst appl = {      \n    PcDesk: [\n        {t: \"led1\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 0, dflt: 10, off: 4*60*60*1000},   // chl can be number or array\n        {t: \"fan\", h: \"שולחן\", path: \"esp/Dimmer\", chl: 1, dflt: 10, off: 2*60*60*1000}\n    ],\n    Island: [\n        {t: \"wrgb\", h: \"אי\", path: \"esp/L2\", chl: 0, dflt: \"80000000\"},\n    ],\n    Boiler: [\n        {t: \"boiler\", h: \"בוילר\", path: \"esp/L3\"},\n    ],\n    \"Shutters/Parents\": [\n        {t: \"shutters\", h: \"תריס\", h2: \"הורים\", path: \"esp/L3\"},\n        {t: \"lgtsw\", h: \"מרפסת\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Parents\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"הורים\", path: \"esp/L3\"},\n    ],\n    \"HeatPad/Shahar\": [\n        {t: \"heatpad\", h: \"סדין\", h2: \"שחר\", path: \"esp/L3\"},\n    ],\n    Strip1: [\n        {t: \"led2\", h: \"CCT\", path: \"esp/Dimmer\", chl: [0,1], dflt: [10,10], cct: 0.5, off: 4*60*60*1000, maxPwr: 5},\n    ],\n    GHKitchen: [\n        {t: \"googleHome\", h: \"Google\"}\n    ],\n    Tesla: [\n        {t: \"tesla\", h: \"Tesla\"}\n    ]\n};\n\nconst klvMin = 2700, klvMax = 11000;\n\nlet iOut = 0, aOld;\nconst oldAppl = global.get(\"appliances\") || {};\n\nObject.entries(appl).forEach(([k,d]) => d.forEach((a, ai) => {\n    if (oldAppl[k] && (aOld = oldAppl[k].find(ao => ao.t === a.t && ao.h === a.h)))\n        Object.assign(a, {...aOld, ...a});\n    a.iOut = iOut++;\n    a.topic = `${a.path}/${k}/`;\n    a.apl = k;\n    a.aplIdx = ai;\n    if (a.chl !== undefined) {\n        a.c = []; \n        a.prev = a.dflt || 0;\n        (typeof a.chl === \"number\"? [a.chl] : a.chl)\n            .forEach((c,i,ar) => {\n                const zc = c - ar[0];\n                a['c'+zc] = 0;\n                a.c[zc] = 0;\n            });\n    }\n\n}));\n\nglobal.set(\"appliances\", appl);\n\n// fa: https://fontawesome.com/v4.7.0/icons/\n// md: https://klarsys.github.io/angular-material-icons/\n\nconst aplTypes = {\n    led1: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p${tgt} t1000 d${msg.off} e0 ; c${msg.chl} p0 t10000 e0` : `c${msg.chl} p0 t1000 e0`)\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"msg.c0 && 'color: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",        // a js expression\n        elms: [\n            // {t: \"btn\", h: \"10\", a: \"sendTopicClose('cmd', `c${msg.chl} p10 t1000 d${msg.off} ; c${msg.chl} p0 t10000 e0`)\"},\n            // {t: \"btn\", h: \"Strobe\", a: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0 || 50} e0 t500 ; c${msg.chl} e0 p0 t500 *`)\"},\n            // {t: \"slider\", cls: \"w4\", msgBind: \"c0\", vmin: 0, vmax: 100, a: \"\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.c0\",                // optional: update iro color whenever changed. actual value applied using toClr.\n                // default: toClr: \"({h:0, s:0, v: curVal})\",   // object format of iro.color\n                // default: fromClr: \"color.value\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 186, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopicClose5('cmd', fromClr > 0? `c${msg.chl} p${fromClr} e1 ${!msg.c0? 'd'+msg.off : msg.msOff? 'd'+(msg.msOff-Date.now()) : ''}`+ (!msg.c0 || msg.msOff? ` ; c${msg.chl} p0 e1 t10000` : '') : `c${msg.chl} p0`)\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} e1 t0 d${ms} ; c${msg.chl} p0 t10000 e0`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0} e1`)\"},\n        ]\n    },\n    led2: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !Math.max(...msg.c)? msg.prev || msg.dflt : 0; sendTopicClose('cmd', `c${msg.chl[0]} p${tgt && tgt[0]} e1 m${msg.maxPwr|| 0} t1000,c${msg.chl[1]} p${tgt && tgt[1]} e1 t1000` +(!tgt? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"Math.max(...msg.c) && 'color: #FF4'\",\n        v: \"Math.max(...msg.c)\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"iro-picker\",\n                curVal: \"Math.max(msg.c0, msg.c1)\",                \n                watch: \"msg.c0 + msg.c1\",           // optional - otherwise use curVal: updates iro. actual value applied using toClr.            \n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 186, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopic('cmd', `c${msg.chl[0]} p${fromClr * Math.min(msg.cct*2,1) |0} e1 m${msg.maxPwr|| 0},c${msg.chl[1]} p${fromClr * Math.min((1-msg.cct)*2,1) |0} e1` +(!fromClr? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.cct\",\n                toClr: `({kelvin: ${klvMin} + curVal * ${klvMax - klvMin}})`,\n                fromClr: `((color.kelvin - ${klvMin}) / ${klvMax - klvMin} * 100 | 0) / 100`,\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 90, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'kelvin', sliderSize: 20, minTemperature: klvMin, maxTemperature: klvMax}}]\n                },\n                a: `let v = Math.max(...msg.c); `\n                    + \"updState('dev.cct='+fromClr); \"\n                    + \"sendTopic('cmd', `c${msg.chl[0]} p${v * Math.min(fromClr*2,1) |0} e1 m${msg.maxPwr|| 0},c${msg.chl[1]} p${v * Math.min((1-fromClr)*2,1) |0} e1` +(!v? '' : ` d${msg.off} ; c${msg.chl[0]} p0 t10000,c${msg.chl[1]} p0 t10000`))\"\n            },\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} e1 m${msg.maxPwr|| 0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",    // can use: elm,msg,ms,secs\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0} e1 m${msg.maxPwr|| 0}`)\"},\n     ]\n    },\n    fan: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"let tgt = !msg.c0? msg.prev0 || msg.dflt : 0; sendTopicClose('cmd', tgt > 0? `c${msg.chl} p100 t0 d300; c${msg.chl} p${tgt} t0 d${msg.off} ; c${msg.chl} p0` : `c${msg.chl} p0`)\",\n        icnMd: \"toys\",\n        iStyle: \"msg.c0 && 'fill: #FF4'\",\n        v: \"msg.c0\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"iro-picker\",\n                curVal: \"msg.c0\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 186, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopicClose5('cmd', !fromClr? `c${msg.chl} p0` : (!msg.c0? `c${msg.chl} p100 t0 d300; `:'') +`c${msg.chl} p${fromClr} t0 ${!msg.c0? 'd'+msg.off : msg.msOff? 'd'+(msg.msOff-Date.now()) : ''}`+(!msg.c0 || msg.msOff? ` ; c${msg.chl} p0` : ''))\"},\n            {t: \"time\", h: \"off\", \n                aOff: \"sendTopicClose('cmd', `c${msg.chl} p${msg.c0} t0 d${ms} ; c${msg.chl} p0 t10000`)\",\n                aRmvOff: \"sendTopicClose5('cmd', `c${msg.chl} p${msg.c0}`)\"},\n        ]\n    },\n    wrgb: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"sendTopicClose('setwrgb', !msg.c0? msg.prev0 || msg.dflt : '00000000')\",\n        icnFa: \"fa fa-lightbulb-o fa-2x\",\n        iStyle: \"(msg.c0 || msg.mode) && 'color: #FF4'\",\n        v: \"msg.c0 || (msg.mode && 'Efct')\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"100%\", a: \"sendTopicClose('setwrgb', 'FF'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"50%\", a: \"sendTopicClose('setwrgb', '80'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"10%\", a: \"sendTopicClose('setwrgb', '19'+ (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"btn\", h: \"OFF\", a: \"sendTopicClose('setwrgb', '00000000')\"},\n            {t: \"iro-picker\",\n                curVal: \"msg.wrgb\",                \n                toClr: \"'#'+(msg.wrgb || '00').substr(0,2).repeat(3)\",\n                fromClr: \"('0'+ (255 * color.value / 100 |0).toString(16)).substr(-2) + (msg.wrgb || '000000').substr(-6)\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 90, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"sendTopic('setwrgb', fromClr)\"},\n                //a: \"let hex = ('0'+ (255 * val.value / 100 |0).toString(16)).substr(-2); sendTopicClose5('setwrgb', hex + (msg.wrgb || '000000').substr(-6))\"},\n            {t: \"select\", cls: \"w2\", h: \"אפקט\", msgBind: \"mode\", a: \"sendTopicClose('setmode', msg.mode, 10000)\", \n                opts: {0: \"Static\", 3: \"Color Wipe\", 7: \"Color Wipe Random\", 8: \"Random Color\", 9: \"Single Dynamic\", \n                    10: \"Multi Dynamic\", 11: \"Rainbow\", 12: \"Rainbow Cycle\", 16: \"Theater Chase\", 17: \"Theater Chase Rainbow\", \n                    18: \"Running Lights\", 20: \"Twinkle Random\", 25: \"Hyper Sparkle\", 32: \"Chase Random\", 33: \"Chase Rainbow\", \n                    36: \"Chase Rainbow White\", 38: \"Chase Blackout Rainbow\", 39: \"Color Sweep Random\", 40: \"Running Color\", \n                    41: \"Running Red Blue\", 42: \"Running Random\", 43: \"Larson Scanner\", 44: \"Comet\", 46: \"Fireworks Random\", \n                    47: \"Merry Christmas\", 48: \"Fire Flicker\", 49: \"Fire Flicker Soft\", 50: \"Fire Flicker Intense\", \n                    51: \"Circus Combustus\", 52: \"Halloween\", 53: \"Bicolor Chase\", 54: \"Tricolor Chase\"}},\n            {t: \"iro-picker\",\n                curVal: \"msg.wrgb\",                \n                toClr: \"msg.c0? msg.rgb : '#ff0000'\",\n                fromClr: \"(msg.wrgb || '00').substr(0,2) + color.hexString.substr(1)\",\n                cls: \"w3h2\",\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 90, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layoutDirection: \"horizontal\",\n                    //layout: [{component: \"Wheel\"}, {component: \"Slider\"}]\n                },\n                a: \"sendTopic('setwrgb', fromClr)\"},\n            {t: \"time\", h: \"off\",\n                aOff: \"sendTopicClose('setsoff', ''+ms)\",\n                aRmvOff: \"sendTopicClose5('setsoff', '0')\"},\n        ]\n    },\n    boiler: {\n        t: \"hdr-val\",\n        h: \"msg.h + ' '+ msg.tTop+ '°'\",\n        w: 2,\n        v: \"msg.disp\",\n        elms: [\n            {t: \"btn\", h: \"מקלחות\", icnTx: \"&#x1f478;\", a: \"sendTopicClose5('cmd', 'tapPeople')\"},\n            {t: \"btn\", h: \"טיימר\", icnTx: \"&#x23f1;\", a: \"sendTopicClose5('cmd', 'tapCountdown')\"},\n            {t: \"btn\", h: \"כיבוי\", icnFa: \"fa fa-power-off fa-lg\", a: \"sendTopicClose('cmd', 'tapOff')\"},\n            {t: \"btn\", h: \"גראפ\", icnFa: \"fa fa-area-chart fa-2x\", iStyle: \"'color: #86F'\", \n                a: \"closeDialog(); send({switchDash: 'WaterTank'})\"},\n            ...[\"Top\", \"Center\", \"Bottom\", \"Output\"].map(key => ({\n                    t: \"text\", cls: \"w1\", styleRoot: \"'flex-direction: column'\", \n                    lines: [\n                        {style: \"'font-size: smaller'\", v: `'${key}'`}, \n                        {style: `'font-weight: bold; font-size: larger; color: '+ Object.entries({20: '#ebe6e6', 30: '#92c9f0', 35: '#f7bec8', 43: '#fc8196', 100: '#ff2e52'}).find(([k,v]) => k > msg.t${key})[1]`,\n                         v: `msg.t${key} + '°'`},\n                         ...key!==\"Top\"? [] : [{style: \"'font-size: smaller'\", v: \"(msg.topHour>0? '+' : '') + msg.topHour + '°'\"}]\n                     ]\n            })),\n            {t: \"text\", cls: \"w2\", //styleRoot: \"'flex-direction: column'\", styleLines: \"'padding-right: 10px'\", \n                lines: [\"msg.dispOutlook\"]},\n            \n        ]\n    },\n    shutters: {\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"msg.pos\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"פתוח\", a: \"sendTopicClose('cmd', msg.moving==='UP'? 'STOP' : 100, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-270\", iStyle: \"msg.moving==='UP' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"+10%\", a: \"sendTopicClose5('cmd', msg.pos < 90? msg.pos+10 : 100)\"},\n            {t: \"btn\", h: \"סגור\", a: \"sendTopicClose('cmd', msg.moving==='DOWN'? 'STOP' : 0, 20000)\",\n                icnFa: \"fa fa-step-forward fa-lg fa-rotate-90\", iStyle: \"msg.moving==='DOWN' && 'color: #FF4'\"},\n            {t: \"btn\", h: \"מדורגת\", a: \"sendTopicClose('wakeup', msg.wakeup && msg.wakeup < 100 ? 0 : 1)\",\n                icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose5('cmd', 'DUMMY'+(msg.d ^1))\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"השכמה\", \n                aOff: \"sendTopicClose('wakeup', secs)\", \n                aRmvOff: \"sendTopicClose5('wakeup', 0)\"},\n        ]\n    },\n    heatpad: {\n// esp/L3/HeatPad/Parents/state {\"time\": \"12:30:07\", \"power\": 0, \"relay\": 0, \"watt\": 5497, \"sOff\": 0, \"tBed\": 26.8}\n        t: \"hdr-hdr2-val\",\n        w: 2,\n        v: \"(msg.tBed||'?')+'°'\",\n        vStyle: \"'color: #9E8'\",\n        elms: [\n            {t: \"btn\", h: \"\", icnFa: \"fa fa-power-off fa-lg\", iStyle: \"msg.power && 'color: #FF4'\",\n                a: \"sendTopicClose5('cmd', msg.power? 'OFF' : 'ON')\"},\n            {t: \"btn\", h: \"חריצים\", a: \"sendTopicClose('cmd', 12)\", icnFa: \"fa fa-list fa-lg\"},\n            {t: \"btn\", h: \"debug\", a: \"sendTopicClose5('cmd', 'DUMMY'+(msg.d ^1))\",\n                icnFa: \"fa fa-ban fa-lg\", iStyle: \"msg.d && 'color: #FF4'\"},\n            {t: \"time\", h: \"כיבוי\", \n                aOff: \"sendTopicClose5('setsoff', ''+ms)\", \n                aRmvOff: \"sendTopicClose5('setsoff', 0)\"},\n        ]\n    },\n    lgtsw: {\n        t: \"bgicn-hdr-hdr2\",\n        a: \"send({topic: msg.topic+'cmd', payload: 'sw1,'+(msg.sw[0] ^1)})\",\n        icnFa: \"fa fa-lightbulb-o fa-3x\",\n        iStyle: \"msg.sw[0] && 'color: #FF4'\",\n    },\n    googleHome: {\n        t: \"hdr-icn-val\",\n        w: 4,\n        a: \"send({cast: `({type: ${['PLAYING', 'BUFFERING'].includes(msg.playerState)? '\\\"PAUSE\\\"' : msg.playerState === 'PAUSED'? '\\\"PLAY\\\"' : '\\\"LOAD\\\", app: \\\"Spotify\\\"'}})`})\",\n        icnFa: \"fa fa-play fa-lg\",\n        iStyle: \"['PLAYING', 'BUFFERING'].includes(msg.playerState) && 'color: #FF4'\",\n        v: \"msg.volume\",\n        vStyle: \"'color: #9E8'\",        // a js expression\n        elms: [\n            {t: \"text\", cls: \"w2\", styleRoot: \"'flex-direction: column'\", styleLines: \"'padding-right: 10px'\", \n                lines: [\"msg.playerState\", \"'Vol: '+ msg.volume\", \n                    \"!['PLAYING', 'PAUSED'].includes(msg.playerState)? '' : (msg.currentTime + (msg.playerState === 'PLAYING'? (Date.now() - msg.time) / 1000 : 0) | 0)+'s/'+ (msg.duration |0)+'s'\",\n                ]},\n            {t: \"iro-picker\",\n                curVal: \"msg.volume\",                // optional: update iro color whenever changed. actual value applied using toClr.\n                opts: {         // Option guide: https://iro.js.org/guide.html#color-picker-options\n                    width: 90, padding: 4, handleRadius: 8, borderWidth: 0.5, borderColor: \"#fff\",\n                    layout: [{component: \"Slider\", options: {sliderType: 'value'}}]\n                },\n                a: \"send({cast: `({type: 'VOLUME', volume: ${fromClr}})`})\"},\n            {t: \"text\", cls: \"w4\", \n                styleRoot: \"'justify-content: flex-start; flex-direction: column; align-content: flex-start; align-items: flex-start;'\", \n                styleLines: \"'padding-right: 10px'\", \n                lines: [\"msg.artist\", \"msg.title\", \"msg.album\"]},\n            {t: \"btn\", h: \"-20s\", a: \"send({cast: `({\"\n                    +\"type: 'SEEK', \"\n                    +\"time: ${(!['PLAYING', 'PAUSED'].includes(msg.playerState)? 0 : msg.currentTime + (msg.playerState === 'PLAYING'? (Date.now() - msg.time) / 1000 : 0) - 20}\"\n                +\"})`})\"},\n        ]\n    },\n    tesla: {\n        t: \"hdr-val\",\n        w: 4,\n        v: \"msg.battery_range +'km'\",\n        vStyle: \"'color: #9E8'\",        // a js expression\n        elms: [\n            {t: \"btn\", h: \"Update\", lines: [\"get_dur(Date.now() - msg.timestamp)\", \"msg.fetching? '...' : ''\"], a: \"send({tesla: 'refresh'})\"},\n            {t: \"text\", cls: \"w1\", styleRoot: \"'flex-direction: column'\", lines: [\"'Odo km'\", \"(msg.odometer*10|0)/10\"]},\n            {t: \"text\", cls: \"w1\", styleRoot: \"'flex-direction: column'\", lines: [\"'inside'\", \"msg.inside_temp +'°'\"]},\n            {t: \"text\", cls: \"w1\", styleRoot: \"'flex-direction: column'\", lines: [\"'outside'\", \"msg.outside_temp +'°'\"]},\n            {t: \"text\", cls: \"w4\", styleRoot: \"'flex-direction: column; align-content: flex-start; flex-wrap: nowrap;'\",\n                styleLines: \"'white-space: pre-wrap; text-align: left'\",\n                lines: [\"'Battery: ' +msg.dCharge\"]},\n            {t: \"text\", cls: \"w4\", styleRoot: \"'flex-direction: column; align-content: flex-start; flex-wrap: nowrap;'\",\n                styleLines: \"'white-space: pre-wrap; text-align: left'\", \n                lines: [\"msg.dState\"]},\n            {t: \"btn\", cls: \"w3\", styleRoot: \"'flex-direction: column; align-content: flex-start; flex-wrap: nowrap;'\",\n                styleLines: \"'white-space: pre-wrap; text-align: left'\",\n                lines: [\"msg.dLoc\"], a: \"send({tesla: 'getLoc'})\"},\n            {t: \"btn\", h: \"maps\", icnFa: \"fa fa-street-view fa-lg\", a: \"window.open('https://maps.google.com/?q='+msg.latitude+','+msg.longitude, '_blank')\"},\n            {t: \"btn\", h: \"waze\", icnFa: \"fa fa-map fa-lg\", a: \"window.open('https://waze.com/ul?ll='+msg.latitude+','+msg.longitude, '_blank')\"},\n            {t: \"btn\", h: \"Govmap\", icnFa: \"fa fa-map fa-lg\", a: \"window.open('https://www.govmap.gov.il/?b=2&q='+msg.latitude+','+msg.longitude, '_blank')\"},\n            {t: \"btn\", h: \"מפה\", icnFa: \"fa fa-globe fa-lg\", a: \"closeDialog(); send({switchDash: 'Map', lat: msg.latitude, lon: msg.longitude})\"},\n            {t: \"text\", cls: \"w4\", styleRoot: \"'flex-direction: column; align-content: flex-start; flex-wrap: nowrap;'\",\n                styleLines: \"'white-space: pre-wrap; text-align: left'\",\n                lines: [\"'Previous: ' + msg.last_drive\"]},\n        ]\n    },\n};\n\ncontext.set(\"aplTypes\", aplTypes);\n\n\n",
         "finalize": "",
         "libs": [],
         "x": 570,
@@ -2687,6 +2496,12 @@
             ],
             [
                 "2af0e3ca.d29aec"
+            ],
+            [
+                "919356e6.1a3708"
+            ],
+            [
+                "43c951f8.f39d2"
             ]
         ]
     },
@@ -2704,7 +2519,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 800,
-        "y": 140,
+        "y": 100,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -2744,7 +2559,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 810,
-        "y": 180,
+        "y": 140,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -2811,7 +2626,7 @@
         "fieldType": "msg",
         "format": "handlebars",
         "syntax": "plain",
-        "template": "<!-- msg: appliance: {t: <type>, h: <title>, chl: <num|array<num>>, c<n>: cur pwm val, topic, state, template} -->\n<!-- Trigger/Open The dialog -->\n\n<md-button ng-click=\"open($id)\" id=\"{{'btn_'+$id}}\" \n        class=\"{{msg.at.cls || 'myctl'}} {{msg.lwt && 'ctl-lwt'}} vibrate touched dialog-button\" aria-label=\"x\">\n    <div ng-if=\"msg.h\" class=\"{{msg.at.t.startsWith('hdr-')? 'flex30' : ''}}\" >{{msg.h}}</div>\n    <div ng-if=\"msg.h2\" class=\"flex30\" >{{msg.h2}}</div>\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"left-icon\">\n        <md-button ng-click=\"$event.stopPropagation(); myEval(msg, msg.at.a);\" class=\"mysubctl vibrate touched\" aria-label=\"x\">\n            <i ng-if=\"msg.at.icnFa\" class={{msg.at.icnFa}} \n                style=\"color: grey; {{$eval(msg.at.iStyle||'')}}\"/>\n            <ng-md-icon ng-if=\"msg.at.icnMd\" icon={{msg.at.icnMd}} \n                style=\"{{$eval(msg.at.iStyle||'') || 'fill:grey'}}\" />\n        </md-button>\n        <div style=\"line-height: 1; font-size: 120%; {{$eval(msg.at.vStyle||'')}}\">{{myEval(msg,msg.at.v)}}</div>\n    </div>\n    <div ng-if=\"msg.at.t.includes('-val') && msg.at.t !== 'hdr-icn-val'\" class=\"flex\" \n        style=\"line-height: 1; font-size: 120%; {{$eval(msg.at.vStyle||'')}}\">{{myEval(msg,msg.at.v)}}</div>\n    <i ng-if=\"msg.at.t.startsWith('bgicn-') && msg.at.icnFa\" class=\"{{msg.at.icnFa}}\" \n        style=\"position: absolute; z-index: 4; opacity: 0.8; color: grey; {{$eval(msg.at.iStyle||'')}}\"/>\n</md-button>\n\n\n<div id=\"{{'mydialog_'+$id}}\" class=\"dialog popup\">\n    <div class=\"dialog-content\" style=\"width: {{(msg.at.w || 3) * 48}}px\">\n        <div class=\"dialog-body\" style=\"display: flex; flex-direction: row; flex-wrap: wrap;\">\n            <div ng-repeat=\"elm in msg.at.elms track by $index\" ng-switch=\"elm.t\">\n                <div ng-switch-when=\"btn\"><md-button aria-label=\"x\"\n                    class=\"myctl vibrate touched\" style=\"line-height:1\"\n                    ng-click=\"myEval(msg, elm.a, elm)\">\n                    <div ng-if=\"elm.h\" class=\"flex30\">{{elm.h}}</div>\n                    <font ng-if=\"elm.icnTx\" size=4 class=\"flex\" ng-bind-html=\"elm.icnTx\"></font>\n                    <i ng-if=\"elm.icnFa\" class=\"flex {{elm.icnFa}}\" style=\"{{$eval(elm.iStyle)}}\"/>\n                </md-button></div>\n\n                <div ng-switch-when=\"slider\" class=\"myctl slider{{elm.sz||''}}\">\n                    <md-slider min={{elm.vmin}} max={{elm.vmax}} step=\"1\" aria-label=\"x\"\n                       ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\">\n                    </md-slider>\n                    <div ng-bind-html=\"msg[elm.msgBind]\" class=\"dimValue\"></div>\n                </div>\n    \n                <div ng-switch-when=\"time\" class=\"nr-dashboard-textinput\">\n                    <md-input-container class=\"flex has-label md-input-has-value layout-row\" md-is-error=\"false\">\n                        <input type=\"time\" placeholder={{elm.h}} aria-label={{elm.h}} \n                            ng-model=\"cur.tmOff\" ng-change=\"sendOff(elm, msg)\" aria-invalid=\"false\"></input>\n                        <button ng-if=\"cur.tmOff\" ng-click=\"rmvOff(elm, msg)\" style=\"background-color: transparent; border: 0; color: red; font-size: 1.5rem;\">&times;</button>\n                    </md-input-container>\n                </div>\n\n                <div ng-switch-when=\"iro-picker\" id=\"iro-picker\" idx=\"{{$index}}\"></div>\n                <!--input ng-switch-when=\"color\" type=\"color\" ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a)\"-->\n                \n                <md-select ng-switch-when=\"select\"\n                    ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\"\n                    placeholder={{elm.h}} class=\"myctl ng-pristine ng-untouched ng-valid flex-100 ng-empty\" >\n                    <md-option ng-repeat=\"(key, val) in elm.opts track by key\" \n                        ng-value=\"key\">{{val}}</md-option>\n                </md-select>\n            </div>\n        </div>\n    </div>\n</div>\n\n<script>\n\n(function(scope) {\n    scope.dlg = null;\n    scope.cur = {tmOff: null};      // ng-model shouldn't change a scope val, only within an object!\n    \n    scope.$watch('msg.msOff', function(tm) {\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.cur.tmOff = tm || null;\n    });\n    \n    scope.open = (id, idx) => {\n        //This trick make it works on smartphones too :)\n        if (!scope.dlg) {\n            scope.dlg = $('#mydialog_'+id).detach();\n            scope.dlg.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        }\n        \n        const {msg} = scope;\n        // create color picker in display range.\n        if (!scope.iros) {\n            scope.iros = [];\n            scope.dlg[0].querySelectorAll(\"#iro-picker\").forEach((eIro,i) => {\n                const elm = msg.at.elms[eIro.getAttribute(\"idx\") |0];\n                const opts = elm.opts || {};\n                const curVal = eval(elm.curVal);\n                opts.color = eval(elm.toClr);\n                (opts.layout|| []).forEach(l => l.component = iro.ui[l.component]);\n                const oIro = new iro.ColorPicker(eIro, opts);\n                scope.iros.push(oIro);\n                oIro.on([\"input:change\"], function(color) {\n                    const {msg} = scope;\n                    const curVal = eval(elm.curVal);\n                    const fromClr = eval(elm.fromClr);\n                    //console.log(\"input:change\", curVal, fromClr);\n                    if (fromClr !== curVal)     // hack - sometimes change called even if not user made the change\n                        scope.myEval(msg, elm.a, elm, \"fromClr, curVal\", {fromClr, curVal});\n                });\n                \n                if (elm.watch || elm.curVal) scope.$watch(elm.watch || elm.curVal, function(val) {\n                    const {msg} = scope;\n                    const curVal = eval(elm.curVal);\n                    //console.log(\"watch\", elm.curVal, val);\n                    oIro.color.set(eval(elm.toClr));\n                });\n            })\n        }\n        \n        const rBtn = $('#btn_'+id)[0].getBoundingClientRect();\n        scope.dlg.css(\"display\", \"block\");\n        const cnt = scope.dlg.find(\".dialog-content\");\n        cnt.css({margin: 0, left: (rBtn.left|0) + \"px\", top: (rBtn.bottom|0) + \"px\"});\n        const rCnt = scope.dlg.find(\".dialog-content\")[0].getBoundingClientRect();\n        const rWin = $('#nr-dashboard')[0].getBoundingClientRect();\n        if (rCnt.right > rWin.right || rCnt.bottom > rWin.bottom)\n            cnt.css({\n                margin: 0, \n                left: (rCnt.right > rWin.right? rWin.right - rCnt.width : rBtn.left) + \"px\", \n                top: (rCnt.bottom > rWin.bottom? rWin.bottom - rCnt.height : rBtn.bottom) + \"px\"\n            });\n    }\n    \n    scope.closeDialog = function(delay) {\n        clearTimeout(scope.closeTmr);\n        scope.closeTmr = setTimeout(() => $('.dialog').css(\"display\", \"none\"), delay || 0);\n    }\n    \n    scope.updState = function(evl) {\n        scope.send({updState: evl, apl: scope.msg.apl, aplIdx: scope.msg.aplIdx});\n    }\n    \n    scope.sendTopic = function(tpc, payload) {\n        scope.send({topic: scope.msg.topic + tpc, payload});\n    }\n\n    scope.sendTopicClose = function(tpc, payload, delay) {\n        scope.sendTopic(tpc, payload);\n        scope.closeDialog(delay);\n    }\n    \n    scope.sendTopicClose5 = function(tpc, payload) {\n        scope.sendTopicClose(tpc, payload, 5000);\n    }\n\n    \n    scope.myEval = function(msg, evl, elm, params, paramsObj) {\n        const {send, sendTopic, sendTopicClose, sendTopicClose5, closeDialog, updState} = scope, {at} = msg; \n        return eval((!params? \"\" : `let {${params}} = paramsObj; `) + evl);\n    }\n    \n\n    scope.sendOff = (elm, msg) => {\n        clearTimeout(scope.closeTmr);\n        if (!scope.cur.tmOff) return;\n        let wu = new Date(scope.cur.tmOff);\n        wu = wu.getTime() - wu.setHours(0,0,0,0);\n        const d = new Date(), now = d.getTime() - d.setHours(0,0,0,0);\n        const ms = (wu > now ? 0 : 24*60*60*1000) + wu - now;\n        const secs = ms / 1000 |0;\n        const {send, sendTopicClose} = scope;\n        scope.closeTmr = setTimeout(() => {\n            eval(elm.aOff);\n        }, 5000);\n    };\n    \n    scope.rmvOff = (elm, msg) => {\n        scope.cur.tmOff = null;\n        scope.myEval(msg, elm.aRmvOff, elm);\n    };\n    \n})(scope);\n\n// Get the element that closes the dialog\n$('.dialog-close').on('click', e => {\n    $('.dialog').css(\"display\", \"none\");\n});\n\n// When the user clicks anywhere outside of the dialog, close it\nwindow.onclick = e => {\n    if ($(e.target).hasClass('dialog'))\n        $('.dialog').css(\"display\", \"none\");\n}\n\n</script>\n",
+        "template": "<!-- msg: appliance: {t: <type>, h: <title>, chl: <num|array<num>>, c<n>: cur pwm val, topic, state, template} -->\n<!-- Trigger/Open The dialog -->\n\n<md-button ng-click=\"open($id)\" id=\"{{'btn_'+$id}}\" \n        class=\"{{msg.at.cls || 'myctl'}} {{msg.lwt && 'ctl-lwt'}} vibrate touched dialog-button\" aria-label=\"x\">\n    <div ng-if=\"msg.h\" class=\"{{msg.at.t.startsWith('hdr-')? 'flex30' : ''}}\" >{{msg.at.h? myEval(msg,msg.at.h) : msg.h}}</div>\n    <div ng-if=\"msg.h2\" class=\"flex30\" >{{msg.h2}}</div>\n    <div ng-if=\"msg.at.t === 'hdr-icn-val'\" class=\"left-icon\">\n        <md-button ng-click=\"$event.stopPropagation(); myEval(msg, msg.at.a);\" class=\"mysubctl vibrate touched\" aria-label=\"x\">\n            <i ng-if=\"msg.at.icnFa\" class={{msg.at.icnFa}} \n                style=\"color: grey; {{myEval(msg,msg.at.iStyle||'')}}\"/>\n            <ng-md-icon ng-if=\"msg.at.icnMd\" icon={{msg.at.icnMd}} \n                style=\"{{myEval(msg,msg.at.iStyle||'') || 'fill:grey'}}\" />\n        </md-button>\n        <div style=\"line-height: 1; font-size: 120%; {{myEval(msg,msg.at.vStyle||'')}}\">{{myEval(msg,msg.at.v)}}</div>\n    </div>\n    <div ng-if=\"msg.at.t.includes('-val') && msg.at.t !== 'hdr-icn-val'\" class=\"flex\" \n        style=\"line-height: 1; font-size: 120%; {{myEval(msg,msg.at.vStyle||'')}}\">{{myEval(msg,msg.at.v)}}</div>\n    <i ng-if=\"msg.at.t.startsWith('bgicn-') && msg.at.icnFa\" class=\"{{msg.at.icnFa}}\" \n        style=\"position: absolute; z-index: 4; opacity: 0.8; color: grey; {{myEval(msg,msg.at.iStyle||'')}}\"/>\n</md-button>\n\n\n<div id=\"{{'mydialog_'+$id}}\" class=\"dialog popup\">\n    <div class=\"dialog-content\" style=\"width: {{(msg.at.w || 3) * 48}}px\">\n        <div class=\"dialog-body\" style=\"display: flex; flex-direction: row; flex-wrap: wrap;\">\n            <div ng-repeat=\"elm in msg.at.elms track by $index\" ng-switch=\"elm.t\">\n                \n                <div ng-switch-when=\"text\" class=\"myctl text {{elm.cls||''}}\" style=\"{{myEval(msg,elm.styleRoot||'',elm)}}\">\n                    <div ng-repeat=\"line in elm.lines track by $index\" style=\"{{myEval(msg,elm.styleLines||'',elm)}}; {{myEval(msg,line.style||'',elm)}}\">{{myEval(msg,line.v||line,elm)}}</div>\n                </div>\n                \n                <div ng-switch-when=\"btn\">\n                    <md-button aria-label=\"x\" class=\"myctl vibrate touched {{elm.cls||''}}\" style=\"line-height:1\" ng-click=\"myEval(msg, elm.a, elm)\">\n                        <div ng-if=\"elm.h\" class=\"flex30\">{{elm.h}}</div>\n                        <div ng-if=\"elm.v\">{{myEval(msg,elm.v,elm)}}</div>\n                        <div ng-if=\"elm.lines\" ng-repeat=\"line in elm.lines track by $index\" style=\"{{myEval(msg,elm.styleLines||'',elm)}}; {{myEval(msg,line.style||'',elm)}}\">{{myEval(msg,line.v||line,elm)}}</div>\n                        <font ng-if=\"elm.icnTx\" size=4 class=\"flex\" ng-bind-html=\"elm.icnTx\"></font>\n                        <i ng-if=\"elm.icnFa\" class=\"flex {{elm.icnFa}}\" style=\"{{$eval(elm.iStyle)}}\"/>\n                    </md-button>\n                </div>\n\n                <div ng-switch-when=\"slider\" class=\"myctl slider {{elm.cls||''}}\">\n                    <md-slider min={{elm.vmin}} max={{elm.vmax}} step=\"1\" aria-label=\"x\"\n                       ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\">\n                    </md-slider>\n                    <div ng-bind-html=\"msg[elm.msgBind]\" class=\"dimValue\"></div>\n                </div>\n    \n                <div ng-switch-when=\"time\" class=\"nr-dashboard-textinput\">\n                    <md-input-container class=\"flex has-label md-input-has-value layout-row\" md-is-error=\"false\">\n                        <input type=\"time\" placeholder={{elm.h}} aria-label={{elm.h}} \n                            ng-model=\"cur.tmOff\" ng-change=\"sendOff(elm, msg)\" aria-invalid=\"false\"></input>\n                        <button ng-if=\"cur.tmOff\" ng-click=\"rmvOff(elm, msg)\" style=\"background-color: transparent; border: 0; color: red; font-size: 1.5rem;\">&times;</button>\n                    </md-input-container>\n                </div>\n\n                <div ng-switch-when=\"iro-picker\" id=\"iro-picker\" idx=\"{{$index}}\" class=\"myctl {{elm.cls || 'w'+(elm.opts.width/42 | number:0)}}\"></div>\n                <!--input ng-switch-when=\"color\" type=\"color\" ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a)\"-->\n                \n                <md-select ng-switch-when=\"select\"\n                    ng-model=\"msg[elm.msgBind]\" ng-change=\"myEval(msg, elm.a, elm)\"\n                    placeholder={{elm.h}} class=\"myctl ng-pristine ng-untouched ng-valid flex-100 ng-empty {{elm.cls||''}}\" >\n                    <md-option ng-repeat=\"(key, val) in elm.opts track by key\" \n                        ng-value=\"key\">{{val}}</md-option>\n                </md-select>\n            </div>\n        </div>\n    </div>\n</div>\n\n<script>\n\n(function(scope) {\n    scope.dlg = null;\n    scope.cur = {tmOff: null};      // ng-model shouldn't change a scope val, only within an object!\n    \n    scope.$watch('msg.msOff', function(tm) {\n        if (tm) {\n            tm = new Date(tm);\n            tm.setSeconds(0, 0);\n        }\n        scope.cur.tmOff = tm || null;\n    });\n    \n    scope.open = (id, idx) => {\n        //This trick make it works on smartphones too :)\n        if (!scope.dlg) {\n            scope.dlg = $('#mydialog_'+id).detach();\n            scope.dlg.appendTo(document.body); // better to add the body only when the numpad is displayed (seams to be removed automatically)\n        }\n        \n        const {msg} = scope;\n        // create color picker in display range.\n        if (!scope.iros) {\n            scope.iros = [];\n            scope.dlg[0].querySelectorAll(\"#iro-picker\").forEach((eIro,i) => {\n                const elm = msg.at.elms[eIro.getAttribute(\"idx\") |0];\n                const opts = elm.opts || {};\n                const curVal = eval(elm.curVal);\n                opts.color = elm.toClr? eval(elm.toClr) : {h:0, s:0, v: curVal};\n                (opts.layout|| []).forEach(l => l.component = iro.ui[l.component]);\n                const oIro = new iro.ColorPicker(eIro, opts);\n                scope.iros.push(oIro);\n                oIro.on([\"input:change\"], function(color) {\n                    const {msg} = scope;\n                    const curVal = eval(elm.curVal);\n                    const fromClr = elm.fromClr? eval(elm.fromClr) : color.value;\n                    //console.log(\"input:change\", curVal, fromClr);\n                    if (fromClr !== curVal)     // hack - sometimes change called even if not user made the change\n                        scope.myEval(msg, elm.a, elm, \"fromClr, curVal\", {fromClr, curVal});\n                });\n                \n                if (elm.watch || elm.curVal) scope.$watch(elm.watch || elm.curVal, function(val) {\n                    const {msg} = scope;\n                    const curVal = eval(elm.curVal);\n                    //console.log(\"watch\", elm.curVal, val);\n                    oIro.color.set(elm.toClr? eval(elm.toClr) : {h:0, s:0, v: curVal});\n                });\n            })\n        }\n        \n        const rBtn = $('#btn_'+id)[0].getBoundingClientRect();\n        scope.dlg.css(\"display\", \"block\");\n        const cnt = scope.dlg.find(\".dialog-content\");\n        cnt.css({margin: 0, left: (rBtn.left|0) + \"px\", top: (rBtn.bottom|0) + \"px\"});\n        const rCnt = scope.dlg.find(\".dialog-content\")[0].getBoundingClientRect();\n        const rWin = $('#nr-dashboard')[0].getBoundingClientRect();\n        if (rCnt.right > rWin.right || rCnt.bottom > rWin.bottom)\n            cnt.css({\n                margin: 0, \n                left: (rCnt.right > rWin.right? rWin.right - rCnt.width : rBtn.left) + \"px\", \n                top: (rCnt.bottom > rWin.bottom? rWin.bottom - rCnt.height : rBtn.bottom) + \"px\"\n            });\n    }\n    \n    scope.closeDialog = function(delay) {\n        clearTimeout(scope.closeTmr);\n        scope.closeTmr = setTimeout(() => $('.dialog').css(\"display\", \"none\"), delay || 0);\n    }\n    \n    scope.updState = function(evl) {\n        scope.send({updState: evl, apl: scope.msg.apl, aplIdx: scope.msg.aplIdx});\n    }\n    \n    scope.sendTopic = function(tpc, payload) {\n        scope.send({topic: scope.msg.topic + tpc, payload});\n    }\n\n    scope.sendTopicClose = function(tpc, payload, delay) {\n        scope.sendTopic(tpc, payload);\n        scope.closeDialog(delay);\n    }\n    \n    scope.sendTopicClose5 = function(tpc, payload) {\n        scope.sendTopicClose(tpc, payload, 5000);\n    }\n\n    \n    scope.myEval = function(msg, evl, elm, params, paramsObj) {\n        const {send, sendTopic, sendTopicClose, sendTopicClose5, closeDialog, updState, get_dur} = scope, {at} = msg; \n        return eval((!params? \"\" : `let {${params}} = paramsObj; `) + evl);\n    }\n    \n\n    scope.sendOff = (elm, msg) => {\n        clearTimeout(scope.closeTmr);\n        if (!scope.cur.tmOff) return;\n        let wu = new Date(scope.cur.tmOff);\n        wu = wu.getTime() - wu.setHours(0,0,0,0);\n        const d = new Date(), now = d.getTime() - d.setHours(0,0,0,0);\n        const ms = (wu > now ? 0 : 24*60*60*1000) + wu - now;\n        const secs = ms / 1000 |0;\n        const {send, sendTopicClose} = scope;\n        scope.closeTmr = setTimeout(() => {\n            scope.myEval(msg, elm.aOff, elm, \"ms, secs\", {ms, secs});\n        }, 5000);\n    };\n    \n    scope.rmvOff = (elm, msg) => {\n        scope.cur.tmOff = null;\n        scope.myEval(msg, elm.aRmvOff, elm);\n    };\n    \n\n    scope.get_dur = (ms) => {\n        const secUnits = {second: 1, minute: 60, hour: 60*60, day: 60*60*24, year: 60*60*24*365};\n        const units = Object.keys(secUnits), unitVals = Object.values(secUnits);\n        const sec = ms / 1000 |0, parts = [];\n        for (let i = 0; !i || sec >= unitVals[i]-1; i++)\n            parts.unshift((sec % (unitVals[i+1] || 1) / unitVals[i] |0) + units[i][0]);\n        return parts.slice(0,2).join(\" \").replace(/ 0\\w/, '');\n        //return parts.slice(0,2).join(\":0\").replace(/:0(\\d\\d)/, \":$1\").replace(/:00\\w/, '');\n    };\n    \n})(scope);\n\n// Get the element that closes the dialog\n$('.dialog-close').on('click', e => {\n    $('.dialog').css(\"display\", \"none\");\n});\n\n// When the user clicks anywhere outside of the dialog, close it\nwindow.onclick = e => {\n    if ($(e.target).hasClass('dialog'))\n        $('.dialog').css(\"display\", \"none\");\n}\n\n</script>\n",
         "output": "str",
         "x": 410,
         "y": 60,
@@ -2908,7 +2723,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 790,
-        "y": 220,
+        "y": 180,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -2919,9 +2734,9 @@
         "id": "c6712985.1b7608",
         "type": "ui_template",
         "z": "d4b1bd47.24b07",
-        "group": "26ad0dca.e7b0d2",
+        "group": "7cdedc06.5fd6d4",
         "name": "Boiler",
-        "order": 3,
+        "order": 1,
         "width": "2",
         "height": "1",
         "format": "",
@@ -2929,7 +2744,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 790,
-        "y": 260,
+        "y": 220,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -2947,7 +2762,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 310,
+        "x": 370,
         "y": 380,
         "wires": [
             [
@@ -3008,8 +2823,8 @@
         "type": "function",
         "z": "d4b1bd47.24b07",
         "name": "Action Dispacher",
-        "func": "if (msg.topic)\n    return msg;\nif (msg.apply) {\n    const my = global.get(\"my\", \"memoryOnly\");\n    eval(msg.apply);\n} else if (msg.updState) {\n    const appl = global.get(\"appliances\") || {};\n    const dev = appl[msg.apl][msg.aplIdx];\n    eval(msg.updState);\n    global.set(\"appliances\", appl);\n}\n\n\n",
-        "outputs": 1,
+        "func": "//const my = global.get(\"my\", \"memoryOnly\");\n\nconst ret = [];\n\nif (msg.topic) {\n    ret[0] = msg;\n} else if (msg.switchDash) {\n    ret[1] = {payload: msg.switchDash};\n} else if (msg.cast) {\n    ret[2] = {payload: eval(msg.cast)};\n} else if (msg.tesla) {\n    ret[3] = {payload: msg.tesla};\n} else if (msg.updState) {\n    const appl = global.get(\"appliances\") || {};\n    const dev = appl[msg.apl][msg.aplIdx];\n    eval(msg.updState);\n    global.set(\"appliances\", appl);\n    return;\n}\n\nreturn ret;",
+        "outputs": 4,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -3019,6 +2834,15 @@
         "wires": [
             [
                 "68dd5b11.091d94"
+            ],
+            [
+                "37bf3f93.0dfe6"
+            ],
+            [
+                "b379308f.727"
+            ],
+            [
+                "7fb7ce91.5bb7d"
             ]
         ]
     },
@@ -3035,11 +2859,11 @@
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 100,
-        "y": 580,
+        "x": 280,
+        "y": 800,
         "wires": [
             [
-                "a794f086.7875d"
+                "65a501f1.d82ea"
             ]
         ]
     },
@@ -3049,18 +2873,18 @@
         "z": "38ee4b91.5dc3e4",
         "group": "7cdedc06.5fd6d4",
         "name": "Show MQTT Log",
-        "order": 2,
+        "order": 5,
         "width": "1",
         "height": "1",
-        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'MQTT Log'})\">\n    <div>Log</div>\n    <font class=\"fa fa-list-alt fa-2x\" color=#777></font>\n</md-button>",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'MQTT Log'})\">\n    <div>MQTT</div>\n    <font class=\"fa fa-list-alt fa-2x\" color=#777></font>\n</md-button>",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 130,
-        "y": 640,
+        "y": 700,
         "wires": [
             [
-                "a794f086.7875d"
+                "f72ec6b5.b50f98"
             ]
         ]
     },
@@ -3077,11 +2901,11 @@
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 120,
-        "y": 700,
+        "x": 300,
+        "y": 740,
         "wires": [
             [
-                "a794f086.7875d"
+                "f72ec6b5.b50f98"
             ]
         ]
     },
@@ -3094,12 +2918,12 @@
         "order": 2,
         "width": 0,
         "height": 0,
-        "format": "<div id='div_iframe'>\n    <iframe id=frame frameborder=\"0\" marginheight=\"0\" marginwidth=\"0\" src=\"http://razhome1.ddns.net:8085/d/k4AZNmEik/razhome?panelId=2&fullscreen&orgId=1&from=now-12h&to=now&refresh=20s\"/>\n</div>\n<style>\n#div_iframe {\n  overflow-x: auto;\n  width: inherit;\n  height: 100%;\n}\n\n#frame {\n  width: 550px;\n  height: 445px;\n  overflow: hidden;\n}\n</style>\n<script>\n$(document).ready(function() {\n    setTimeout(() => {\n        $('#div_iframe').scrollLeft(1000);\n    }, 2000);\n});\n</script>",
+        "format": "<div id='div_iframe'>\n    <iframe id=frame frameborder=\"0\" marginheight=\"0\" marginwidth=\"0\" \n        src=\"http://razhome1.ddns.net:8085/d/k4AZNmEik/razhome?panelId=2&fullscreen&orgId=1&from=now-12h&to=now&refresh=20s\"/>\n</div>\n<style>\n#div_iframe {\n  overflow-x: auto;\n  width: inherit;\n  height: 100%;\n}\n\n#frame {\n  width: 550px;\n  height: 445px;\n  overflow: hidden;\n}\n</style>\n<script>\n$(document).ready(function() {\n    setTimeout(() => {\n        $('#div_iframe').scrollLeft(1000);\n    }, 2000);\n});\n</script>",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 490,
-        "y": 580,
+        "x": 110,
+        "y": 800,
         "wires": [
             []
         ]
@@ -3152,7 +2976,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 140,
-        "y": 440,
+        "y": 460,
         "wires": [
             [
                 "76e93bea.6d8ef4"
@@ -3171,7 +2995,7 @@
         "finalize": "",
         "libs": [],
         "x": 340,
-        "y": 440,
+        "y": 460,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3184,7 +3008,7 @@
         "z": "d4b1bd47.24b07",
         "group": "e21dc06f.7833",
         "name": "Shutters Parents",
-        "order": 3,
+        "order": 6,
         "width": "1",
         "height": "1",
         "format": "",
@@ -3192,7 +3016,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 830,
-        "y": 300,
+        "y": 260,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -3212,8 +3036,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1050,
-        "y": 280,
+        "x": 970,
+        "y": 720,
         "wires": []
     },
     {
@@ -3230,7 +3054,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 810,
-        "y": 340,
+        "y": 300,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -3266,7 +3090,7 @@
         "datatype": "json",
         "broker": "b83f640b.f9b038",
         "x": 140,
-        "y": 500,
+        "y": 520,
         "wires": [
             [
                 "38a72747.3ca468"
@@ -3285,7 +3109,7 @@
         "finalize": "",
         "libs": [],
         "x": 340,
-        "y": 500,
+        "y": 520,
         "wires": [
             [
                 "6a754df3.ecfe44"
@@ -3306,7 +3130,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 800,
-        "y": 380,
+        "y": 340,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -3319,7 +3143,7 @@
         "z": "d4b1bd47.24b07",
         "group": "e21dc06f.7833",
         "name": "סדין שחר",
-        "order": 3,
+        "order": 4,
         "width": "1",
         "height": "1",
         "format": "",
@@ -3327,7 +3151,7 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 800,
-        "y": 420,
+        "y": 380,
         "wires": [
             [
                 "6a8ee662.4a0298"
@@ -3365,7 +3189,7 @@
         "finalize": "",
         "libs": [],
         "x": 320,
-        "y": 880,
+        "y": 1140,
         "wires": [
             [
                 "221fce92.e51262"
@@ -3387,7 +3211,7 @@
         "expiry": "",
         "broker": "b83f640b.f9b038",
         "x": 500,
-        "y": 880,
+        "y": 1140,
         "wires": []
     },
     {
@@ -3402,7 +3226,7 @@
         "nl": false,
         "rap": false,
         "x": 110,
-        "y": 880,
+        "y": 1140,
         "wires": [
             [
                 "47c2e780.0506b8"
@@ -3421,7 +3245,7 @@
         "nl": false,
         "rap": false,
         "x": 110,
-        "y": 920,
+        "y": 1180,
         "wires": [
             [
                 "47c2e780.0506b8"
@@ -3450,7 +3274,7 @@
         "payload": "",
         "payloadType": "date",
         "x": 110,
-        "y": 960,
+        "y": 1220,
         "wires": [
             [
                 "47c2e780.0506b8"
@@ -3483,7 +3307,7 @@
         "payload": "",
         "payloadType": "str",
         "x": 320,
-        "y": 960,
+        "y": 1220,
         "wires": [
             [
                 "221fce92.e51262"
@@ -3512,7 +3336,7 @@
         "payload": "16500,19900",
         "payloadType": "str",
         "x": 350,
-        "y": 1020,
+        "y": 1280,
         "wires": [
             [
                 "221fce92.e51262"
@@ -3529,44 +3353,6 @@
         "y": 40,
         "wires": [
             []
-        ]
-    },
-    {
-        "id": "fb3c8c52.f13db",
-        "type": "inject",
-        "z": "f8865110.44c59",
-        "name": "Status",
-        "props": [],
-        "repeat": "",
-        "crontab": "",
-        "once": true,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 110,
-        "y": 1160,
-        "wires": [
-            [
-                "321336cc.92ad6a"
-            ]
-        ]
-    },
-    {
-        "id": "321336cc.92ad6a",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "get cast status",
-        "func": "return {\n    payload: {\n        type: \"GET_CAST_STATUS\"\n    }\n};",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 280,
-        "y": 1160,
-        "wires": [
-            [
-                "530ff836.332c58"
-            ]
         ]
     },
     {
@@ -3644,7 +3430,7 @@
         "finalize": "",
         "libs": [],
         "x": 340,
-        "y": 1240,
+        "y": 1500,
         "wires": [
             [
                 "e5fdf630.2f6ff8"
@@ -3665,7 +3451,7 @@
         "proxy": "",
         "authType": "",
         "x": 550,
-        "y": 1240,
+        "y": 1500,
         "wires": [
             [
                 "7dc1bade.fc4c14"
@@ -3684,7 +3470,7 @@
         "finalize": "",
         "libs": [],
         "x": 760,
-        "y": 1240,
+        "y": 1500,
         "wires": [
             [
                 "aa06fc64.cbf21"
@@ -3699,7 +3485,7 @@
         "statusCode": "",
         "headers": {},
         "x": 930,
-        "y": 1240,
+        "y": 1500,
         "wires": []
     },
     {
@@ -3712,24 +3498,10 @@
         "upload": false,
         "swaggerDoc": "",
         "x": 130,
-        "y": 1240,
+        "y": 1500,
         "wires": [
             [
                 "f7014346.da841"
-            ]
-        ]
-    },
-    {
-        "id": "530ff836.332c58",
-        "type": "castv2-sender",
-        "z": "f8865110.44c59",
-        "name": "cast-v2: Kitchen Speaker",
-        "connection": "bc3d1efa.c1ec2",
-        "x": 530,
-        "y": 1160,
-        "wires": [
-            [
-                "90d3cdb5.c4b29"
             ]
         ]
     },
@@ -3951,23 +3723,6 @@
         "wires": []
     },
     {
-        "id": "90d3cdb5.c4b29",
-        "type": "function",
-        "z": "f8865110.44c59",
-        "name": "Keep Kitchen Speaker state",
-        "func": "const st = global.get(\"kitchenSpeaker\") || {};\n\nif (msg.payload) {\n    st.playerState = msg.payload? msg.payload.playerState : \"PROCESSING\";\n    if (msg.payload.media && msg.payload.media.metadata) {\n        if (!msg.payload.media.metadata)\n            node.warn(msg.payload.media);\n        else {\n        st.title = msg.payload.media.metadata.title;\n        st.artist = msg.payload.media.metadata.artist;\n        st.album = msg.payload.media.metadata.albumName;\n        }\n        st.duration = msg.payload.media.duration;\n    }\n    st.currentTime = msg.payload.currentTime;\n    st.time = Date.now();\n}\n\nif (msg.platform){\n    if (msg.platform.applications) { \n        st.app = msg.platform.applications[0].displayName;\n        st.statusText = msg.platform.applications[0].statusText;\n    }\n    if (msg.platform.volume) {\n        st.volume = Math.round(msg.platform.volume.level * 100);\n    }\n    if (st.app === \"Default Media Receiver\")\n        st.title = st.artist = st.album = st.duration = st.currentTime = undefined;\n}\n\n//if (msg.payload) node.warn(msg.payload);\n//if (msg.platform) node.warn(msg.platform);\n//node.warn(st);\n\nglobal.set(\"kitchenSpeaker\", st);\n",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 800,
-        "y": 1160,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "2af0e3ca.d29aec",
         "type": "ui_template",
         "z": "d4b1bd47.24b07",
@@ -3981,10 +3736,667 @@
         "fwdInMessages": false,
         "templateScope": "local",
         "x": 790,
+        "y": 420,
+        "wires": [
+            [
+                "6a8ee662.4a0298"
+            ]
+        ]
+    },
+    {
+        "id": "805dd598.e8e4e8",
+        "type": "inject",
+        "z": "d4b1bd47.24b07",
+        "name": "Status",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payloadType": "str",
+        "x": 110,
+        "y": 620,
+        "wires": [
+            [
+                "d87d67cb.f90638"
+            ]
+        ]
+    },
+    {
+        "id": "d87d67cb.f90638",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "get cast status",
+        "func": "return {\n    payload: {\n        type: \"GET_CAST_STATUS\"\n    }\n};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 620,
+        "wires": [
+            [
+                "f9b18f43.2870d"
+            ]
+        ]
+    },
+    {
+        "id": "f9b18f43.2870d",
+        "type": "castv2-sender",
+        "z": "d4b1bd47.24b07",
+        "name": "cast-v2: Kitchen Speaker",
+        "connection": "bc3d1efa.c1ec2",
+        "x": 170,
+        "y": 680,
+        "wires": [
+            [
+                "93ad0d65.303d5"
+            ]
+        ]
+    },
+    {
+        "id": "93ad0d65.303d5",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "Keep Kitchen Speaker state",
+        "func": "const appl = global.get(\"appliances\");\nconst dev = appl.GHKitchen;\n\n//dev.forEach(st => {\n//});\nconst st = dev[0];\n\n    st.lwt = false;\n    if (msg.payload) {\n        st.playerState = msg.payload? msg.payload.playerState : \"PROCESSING\";\n        if (msg.payload.media && msg.payload.media.metadata) {\n            if (!msg.payload.media.metadata)\n                node.warn(msg.payload.media);\n            else {\n            st.title = msg.payload.media.metadata.title;\n            st.artist = msg.payload.media.metadata.artist;\n            st.album = msg.payload.media.metadata.albumName;\n            }\n            st.duration = msg.payload.media.duration;\n        }\n        st.currentTime = msg.payload.currentTime;\n        st.time = Date.now();\n    }\n    \n    if (msg.platform){\n        if (msg.platform.applications) { \n            st.app = msg.platform.applications[0].displayName;\n            st.statusText = msg.platform.applications[0].statusText;\n        }\n        if (msg.platform.volume) {\n            st.volume = Math.round(msg.platform.volume.level * 100);\n        }\n        if (st.app === \"Default Media Receiver\")\n            st.title = st.artist = st.album = st.duration = st.currentTime = undefined;\n    }\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 680,
+        "wires": [
+            [
+                "6a754df3.ecfe44"
+            ]
+        ]
+    },
+    {
+        "id": "919356e6.1a3708",
+        "type": "ui_template",
+        "z": "d4b1bd47.24b07",
+        "group": "7cdedc06.5fd6d4",
+        "name": "GoogleHome",
+        "order": 3,
+        "width": "1",
+        "height": "1",
+        "format": "",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 810,
         "y": 460,
         "wires": [
             [
                 "6a8ee662.4a0298"
+            ]
+        ]
+    },
+    {
+        "id": "37bf3f93.0dfe6",
+        "type": "ui_ui_control",
+        "z": "d4b1bd47.24b07",
+        "name": "",
+        "events": "change",
+        "x": 1100,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b379308f.727",
+        "type": "castv2-sender",
+        "z": "d4b1bd47.24b07",
+        "name": "Kitchen Speaker",
+        "connection": "bc3d1efa.c1ec2",
+        "x": 1120,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "57fbc678.acb098",
+        "type": "mqtt in",
+        "z": "d4b1bd47.24b07",
+        "name": "",
+        "topic": "esp/L3/Boiler/temp",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "b83f640b.f9b038",
+        "x": 170,
+        "y": 400,
+        "wires": [
+            [
+                "d669265b.c54c38"
+            ]
+        ]
+    },
+    {
+        "id": "7b0a4134.0a256",
+        "type": "tesla-api",
+        "z": "d4b1bd47.24b07",
+        "teslaConfig": "4fd130fb.13234",
+        "command": "vehicleData",
+        "name": "",
+        "x": 660,
+        "y": 840,
+        "wires": [
+            [
+                "7fb7ce91.5bb7d"
+            ]
+        ]
+    },
+    {
+        "id": "434d2fca.f485e",
+        "type": "inject",
+        "z": "d4b1bd47.24b07",
+        "name": "every min",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "null",
+        "payloadType": "jsonata",
+        "x": 130,
+        "y": 840,
+        "wires": [
+            [
+                "7fb7ce91.5bb7d"
+            ]
+        ]
+    },
+    {
+        "id": "7fb7ce91.5bb7d",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "Tesla aggregator",
+        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst appl = global.get(\"appliances\");\nconst dev = appl.Tesla;\nconst st = dev[0];\n\nconst msLastData = Date.now() - st.timestamp;\nconst msUserLeft = Date.now() - st.user_left_timestamp;\n\nif (msg.payload === null)                                       // step 1: ask repo if tesla is awake\n    return [null, {command: \"vehicle\"}];\nelse if (msg.payload === \"refresh\") {\n    st.fetching = true;\n    return [{dev}, {command: \"vehicleData\"}];                    // step 3: ask for vehicle data\n} else if (msg.payload === \"getLoc\") {\n    const locHash = `${my.round(st.latitude, 10000)},${my.round(st.longitude, 10000)}`;\n    const locDb = global.get('locDb') || {};\n    if (locDb[locHash]) return;                 // already got loc?\n    return [null, null, {locHash, lat: st.latitude, lon: st.longitude}];\n} \n\n\nif (msg.command === \"vehicle\") {                                // step 2: got response of status\n    if (!msg.payload) \n        return node.warn(msg);\n    if (msg.payload.state === \"online\" && !st.last_asleep && !st.is_user_present) {\n        if (!st.mins_to_sleep || msLastData < st.mins_to_sleep *60*1000) {\n            //node.warn(\"Online but no user was there \"+((msLastData/1000/6|0)/10) +\" mins ago. mins_to_sleep: \"+ st.mins_to_sleep);\n            //node.warn(\"User left \"+(msUserLeft/1000/60|0) +\" mins ago\");\n            return;                                 // no user in car - allow 3 mins to fall asleep. increase by 1 after every query\n        } else if (!st.charger_actual_current)\n            st.mins_to_sleep++;\n    }\n    if (!st.last_asleep && msg.payload.state !== \"online\")\n        node.warn(\"was online, now \"+ msg.payload.state);\n    st.retries = 0;\n    const lastFailMins = st.lastFail && ((Date.now() - st.lastFail) / 1000/60);\n    st.last_asleep = msg.payload.state !== \"online\" && (msLastData < 4*60*60*1000 || (lastFailMins && lastFailMins < 15));\n    global.set(\"appliances\", appl);             \n    \n    if (st.last_asleep)                        // less than 4 hours since last status and asleep? do nothing\n        return;\n    \n    node.warn(msg.payload.state +\" - fetch data...\");\n    st.fetching = true;\n    return [{dev}, {command: \"vehicleData\"}];                    // step 3: ask for vehicle data\n}\n\nst.fetching = false;\n\nif (msg.error) {\n    if (msg.error.message === \"Error response: 408\" && st.retries < 5) {       // retry X times if getting 408 - tesla waking up...\n        st.retries++;\n        global.set(\"appliances\", appl);\n        //node.warn(\"query tesla, retry \"+ st.retries);\n        setTimeout(() => node.send([null, {command: \"vehicleData\"}]), 3000);\n    } else {\n        node.warn(\"Tesla API \"+ msg.error.message +\" (after \"+st.retries+ \" retries)\");\n        st.lastFail = Date.now();\n    }\n    return [{dev}];\n}\n\nif (!msg.payload)\n    return node.warn(\"UNKNOWN MESSAGE\" + JSON.stringify(msg));\n//node.warn(msg.payload);\n\nst.lastFail = 0;\n\nlet pl = msg.payload.vehicle_state;\nst.timestamp = pl.timestamp;                                // ms\nif ((st.is_user_present && !pl.is_user_present) || !st.user_left_timestamp) {\n    st.mins_to_sleep = 3;\n    st.user_left_timestamp = pl.timestamp;\n}\nif (!st.shift_state && msg.payload.drive_state.shift_state) {        // Shifting from Parking (starting drive)?\n    st.start_timestamp = st.timestamp;\n    st.start_odo = st.odometer;             // take previous values\n    st.start_bat = st.battery_range;\n}\nst.is_user_present = pl.is_user_present;                    // false\nst.locked = pl.locked;                                      // false\nst.center_display_state = pl.center_display_state;          // false, 4\nst.odometer = pl.odometer * 1.60934;                        // \nst.car_version = pl.car_version;                            // \"2021.4.18 b9447274f1b4\"\n\npl = msg.payload.charge_state;\nst.battery_range = pl.battery_range * 1.60934 | 0;          // miles to km\nst.est_battery_range = pl.est_battery_range * 1.60934 | 0;  // Range estimated from current driving\nst.minutes_to_full_charge = pl.minutes_to_full_charge;      // 0\nst.battery_level = pl.battery_level;\nst.charge_current_request = pl.charge_current_request;      // 7      (Ah?)\nst.charger_actual_current = pl.charger_actual_current;      // 0\nst.charger_voltage = pl.charger_voltage;                    // 2\nst.charger_phases = pl.charger_phases;                      // 2\nst.charge_energy_added = pl.charge_energy_added             // 22.87        ??\nst.charge_limit_soc = pl.charge_limit_soc;                  // 84\nst.charging_state = pl.charging_state;                      // \"Disconnected\", \"Complete\"...\n\npl = msg.payload.climate_state;\nst.outside_temp = pl.outside_temp;                          // 28.5\nst.inside_temp = pl.inside_temp;                            // 30\nst.is_climate_on = pl.is_climate_on;                        // false\n\npl = msg.payload.drive_state;\nst.gps_as_of = pl.gps_as_of;                                // 1624189844       (seconds since epoch)\nst.latitude = pl.latitude;                                  // 31.805802   (home)\nst.longitude = pl.longitude;                                // 35.167416\nst.speed = pl.speed && pl.speed * 1.60934;                  // null or speed\nst.power = pl.power;                                        // 0, 6, 8 -3 (power consumption)\n\nconst locHash = `${my.round(st.latitude, 10000)},${my.round(st.longitude, 10000)}`;\nconst locDb = global.get('locDb') || {};\nconst sLoc = locDb[locHash];\nst.dLoc = `Loc: ${sLoc || `${st.latitude}+${st.longitude}`}`;\n\nconst summary = st.shift_state && !pl.shift_state &&        // Shifting to Parking (ending drive)?\n    //`${my.get_ddMM_Hmm(st.start_timestamp)}, `\n    +`${my.get_dur(st.timestamp - st.start_timestamp)}: `\n    +`dist: ${((st.odometer - (st.start_odo||0))*10|0)/10} km, `\n    +`bat: ${st.battery_range - (st.start_bat||0)} km, `;\n    \nif (summary && sLoc) {\n    my.logEditOrAddClosed(\"Tesla\", {s: summary + sLoc, lat: st.latitude, lon: st.longitude});\n    st.last_drive = summary;\n}\n\nst.shift_state = pl.shift_state;                            // null, \"D\" (drive)\nif (st.charger_actual_current && !st.charge_started) {\n    st.charge_started = st.timestamp;\n    st.charge_started_km = st.battery_range;\n    st.mins_to_sleep = 3;\n}\nif (st.charge_started && !st.charger_actual_current) {\n    const s = `Charged ${my.get_dur(st.timestamp - st.charge_started)} `\n                +`${st.battery_range - st.charge_started_km} km at ${st.dChargePower}`;\n    my.logEditOrAddClosed(\"Tesla\", {s});\n    st.charge_started = 0;\n}\n\nif (st.charger_actual_current)\n    st.dChargePower = `${st.charger_phases+1}x${st.charger_actual_current}A `\n        +`(${(st.charger_actual_current * (st.charger_phases+1) * st.charger_voltage / 100 | 0) / 10}kW)`;\n\nst.dCharge = \n    `${st.battery_range} km (${st.battery_level}%)`\n    + (st.charging_state === \"Disconnected\"? \"\" : `, ${st.charging_state}`)\n    + (!st.charger_actual_current? \"\" : \n        `: ${my.get_dur(st.timestamp - st.charge_started)}, ${st.dChargePower}, `\n        +`${my.get_dur(st.minutes_to_full_charge*60*1000)} to ${st.charge_limit_soc}%`);\n\nmy.logEditOrAddOpen(\"Tesla\", {s: st.dCharge});\n\n        \nst.dState = !st.shift_state?\n    `off, ${st.is_user_present? \"user\" : \"empty\"}, ${st.locked? \"locked\" : \"unlocked\"}${st.center_display_state? \", display on\" : \"\"}` :\n    `Started ${my.get_Hmm(st.start_timestamp)}, ${my.get_dur(st.timestamp - st.start_timestamp)}: `\n        +`${st.speed + 0.5 | 0} km/h, `\n        +`dist: ${((st.odometer - (st.start_odo||0))*10|0)/10} km, `\n        +`bat: ${st.battery_range - (st.start_bat||0)} km, est ~${st.est_battery_range} km`;\n\n\nglobal.set(\"appliances\", appl);\n\nreturn [\n    {dev}, \n    null, \n    !summary || sLoc? null : {locHash, lat: st.latitude, lon: st.longitude, summary}\n];\n",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 840,
+        "wires": [
+            [
+                "6a754df3.ecfe44",
+                "2e16035.99acdfc"
+            ],
+            [
+                "7b0a4134.0a256"
+            ],
+            [
+                "18d0a109.68043f"
+            ]
+        ]
+    },
+    {
+        "id": "96772138.35045",
+        "type": "catch",
+        "z": "d4b1bd47.24b07",
+        "name": "catch tesla",
+        "scope": [
+            "7b0a4134.0a256"
+        ],
+        "uncaught": false,
+        "x": 140,
+        "y": 900,
+        "wires": [
+            [
+                "7fb7ce91.5bb7d"
+            ]
+        ]
+    },
+    {
+        "id": "43c951f8.f39d2",
+        "type": "ui_template",
+        "z": "d4b1bd47.24b07",
+        "group": "7cdedc06.5fd6d4",
+        "name": "Tesla",
+        "order": 6,
+        "width": "1",
+        "height": "1",
+        "format": "",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 790,
+        "y": 500,
+        "wires": [
+            [
+                "6a8ee662.4a0298"
+            ]
+        ]
+    },
+    {
+        "id": "a1adf4f3.cf7358",
+        "type": "http request",
+        "z": "d4b1bd47.24b07",
+        "name": "geocode",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 780,
+        "y": 920,
+        "wires": [
+            [
+                "dfba8df8.23337"
+            ]
+        ]
+    },
+    {
+        "id": "dfba8df8.23337",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "upd locDb",
+        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst appl = global.get(\"appliances\");\nconst dev = appl.Tesla;\nconst st = dev[0];\n\nconst pl = JSON.parse(msg.payload), addr = pl.address;\nnode.warn(pl);\n\nlet sLoc = \n    `${addr.historic || addr.hamlet? (addr.historic || addr.hamlet) + \", \" : \"\"}`\n    +`${addr.highway || addr.road || addr.suburb}, `\n    +`${ addr.village || addr.town || addr.city}`;\n    \n//const sLoc = msg.payload.results[0].formatted;\nif (msg.locHash === \"31.8058,35.1674\") sLoc = \"בית\";\n\nst.dLoc = `Loc: ${sLoc}`;\n\nconst locDb = global.get('locDb') || {};\nlocDb[msg.locHash] = sLoc;\nlocDb[\"31.8058,35.1674\"] = \"בית\";\nglobal.set('locDb', locDb);\n\nif (msg.summary) {\n    my.logEditOrAddClosed(\"Tesla\", {s: msg.summary +sLoc, lat: msg.lat, lon: msg.lon});\n    st.last_drive = msg.summary +sLoc;\n}\n\nglobal.set(\"appliances\", appl);\n\nreturn {dev};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 920,
+        "wires": [
+            [
+                "6a754df3.ecfe44"
+            ]
+        ]
+    },
+    {
+        "id": "18d0a109.68043f",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "gen req",
+        "func": "if (!msg.locHash) {\n    const my = global.get(\"my\", \"memoryOnly\");\n    const appl = global.get(\"appliances\");\n    const dev = appl.Tesla;\n    const st = dev[0];\n    msg.locHash = `${my.round(st.latitude, 10000)},${my.round(st.longitude, 10000)}`;\n    msg.lat = st.latitude;\n    msg.lon = st.longitude;\n}\n\nmsg.url = `http://nominatim.openstreetmap.org/reverse?format=json&accept-language=he&lat=${msg.lat}&lon=${msg.lon}`;\n//msg.url = `https://eu1.locationiq.com/v1/reverse.php?key=pk.70366cf9f0454f7fece785987bcfa946&format=json&lat=${msg.lat}&lon=${msg.lon}`;\n//msg.url = `https://api.opencagedata.com/geocode/v1/json?q=${msg.lat}+${msg.lon}&key=641c51bed8ab490184632ad8526e29ad&no_annotations=1&language=en`;\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 920,
+        "wires": [
+            [
+                "a1adf4f3.cf7358"
+            ]
+        ]
+    },
+    {
+        "id": "e962b287.39b74",
+        "type": "inject",
+        "z": "d4b1bd47.24b07",
+        "name": "get loc for current loc",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 400,
+        "y": 920,
+        "wires": [
+            [
+                "18d0a109.68043f"
+            ]
+        ]
+    },
+    {
+        "id": "accfa9ec.76b9f8",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "1aa2a52e.04f5ab",
+        "name": "מפה",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "format": "<iframe id=frame frameborder=\"0\" marginheight=\"0\" marginwidth=\"0\" width='100%' height='445px'\n        src=\"http://razhome1.ddns.net:19880/worldmap\">\n</iframe>\n\n<style>\n#xdiv_iframe {\n  overflow-x: auto;\n  width: inherit;\n  height: 100%;\n}\n\n#xframe {\n  width: 550px;\n  height: 445px;\n  overflow: hidden;\n}\n</style>\n<script>\n$(document).ready(function() {\n    setTimeout(() => {\n        $('#xdiv_iframe').scrollLeft(1000);\n    }, 2000);\n});\n</script>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 90,
+        "y": 860,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ba64efed.ec7c3",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "1aa2a52e.04f5ab",
+        "name": "Hide Map",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'מכשירים'})\">\n    <div>back</div>\n    <font class=\"fa fa-arrow-left fa-2x\" color=#EEE/>\n</md-button>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 280,
+        "y": 860,
+        "wires": [
+            [
+                "c85d8e92.9891"
+            ]
+        ]
+    },
+    {
+        "id": "c85d8e92.9891",
+        "type": "ui_ui_control",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "events": "change",
+        "x": 460,
+        "y": 860,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65a501f1.d82ea",
+        "type": "ui_ui_control",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "events": "change",
+        "x": 460,
+        "y": 800,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f72ec6b5.b50f98",
+        "type": "ui_ui_control",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "events": "change",
+        "x": 460,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7f96e931.1fcd28",
+        "type": "worldmap",
+        "z": "d4b1bd47.24b07",
+        "name": "",
+        "lat": "",
+        "lon": "",
+        "zoom": "",
+        "layer": "OSM",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "panlock": "false",
+        "zoomlock": "false",
+        "hiderightclick": "false",
+        "coords": "none",
+        "showgrid": "false",
+        "allowFileDrop": "false",
+        "path": "/worldmap",
+        "x": 900,
+        "y": 780,
+        "wires": []
+    },
+    {
+        "id": "2e16035.99acdfc",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "position Tesla on map",
+        "func": "return {payload: {name: \"Tesla\", icon: \"car\", lat: msg.dev[0].latitude, lon: msg.dev[0].longitude, command: {zoom: 16, panit: true}}};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 780,
+        "wires": [
+            [
+                "7f96e931.1fcd28"
+            ]
+        ]
+    },
+    {
+        "id": "4179092d.1c9f48",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "get current Tesla record",
+        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst appl = global.get(\"appliances\");\nconst dev = appl.Tesla;\nconst st = dev[0];\nreturn {dev};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 780,
+        "wires": [
+            [
+                "2e16035.99acdfc"
+            ]
+        ]
+    },
+    {
+        "id": "b510f6f2.b86f58",
+        "type": "inject",
+        "z": "d4b1bd47.24b07",
+        "name": "inject",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 780,
+        "wires": [
+            [
+                "4179092d.1c9f48"
+            ]
+        ]
+    },
+    {
+        "id": "a0758ef0.b3229",
+        "type": "function",
+        "z": "38ee4b91.5dc3e4",
+        "name": "JS: Log",
+        "func": "",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst my = global.get(\"my\", \"memoryOnly\") || {};\n\n// Enter a new log entry. \n//  app: app codename from dispacher\n//  newEnt: object to store\n//  isOpen: optional boolean if this ent will be replaced\n//  log: internal - if already loaded log.\n//\nmy.logAdd = (app, newEnt, isOpen, log) => {\n    log = log || global.get('log') || [];\n\n    const tm = Date.now();\n    log.unshift({tm, app, ...(isOpen? {isOpen} : {}), ...newEnt});\n    if (log.length > 200)\n        log.pop();\n    \n    global.set('log', log);\n    node.send({payload: log});\n    return tm;\n};\n\n// Replace the latest and open entry of given app if found. Either case, enteres the newEnt as first.\n//\nmy.logEditOrAdd = (app, newEnt, isOpen) => {\n    const log = global.get('log') || [];\n    // support without tm?\n    const iEnt = log.findIndex(e => e.app === app);\n    if (iEnt !== -1 && log[iEnt].isOpen)\n        log.splice(iEnt, 1);\n    \n    return my.logAdd(app, newEnt, isOpen, log);\n};\n\nmy.logEditOrAddOpen = (app, newEnt) => my.logEditOrAdd(app, newEnt, true);\nmy.logEditOrAddClosed = (app, newEnt) => my.logEditOrAdd(app, newEnt, false);\n\nglobal.set('my', my, 'memoryOnly');",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 620,
+        "wires": [
+            [
+                "87b7f6a0.be1688"
+            ]
+        ]
+    },
+    {
+        "id": "cd81b4fb.510448",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "7cdedc06.5fd6d4",
+        "name": "Show Log",
+        "order": 4,
+        "width": "1",
+        "height": "1",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'Log'})\">\n    <div>Log</div>\n    <font class=\"fa fa-list-alt fa-2x\" color=#777></font>\n</md-button>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 100,
+        "y": 620,
+        "wires": [
+            [
+                "a0ef2845.126378"
+            ]
+        ]
+    },
+    {
+        "id": "4f3774a4.f94aec",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "149604d6.f53d6b",
+        "name": "Hide Log",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "format": "<md-button \n    class=\"myctl vibrate touched\"\n    ng-click=\"send({payload: 'מכשירים'})\">\n    <div>back</div>\n    <font class=\"fa fa-arrow-left fa-2x\" color=#EEE/>\n</md-button>",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 280,
+        "y": 660,
+        "wires": [
+            [
+                "a0ef2845.126378"
+            ]
+        ]
+    },
+    {
+        "id": "a0ef2845.126378",
+        "type": "ui_ui_control",
+        "z": "38ee4b91.5dc3e4",
+        "name": "",
+        "events": "change",
+        "x": 460,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "87b7f6a0.be1688",
+        "type": "ui_template",
+        "z": "38ee4b91.5dc3e4",
+        "group": "149604d6.f53d6b",
+        "name": "Log",
+        "order": 2,
+        "width": "",
+        "height": "",
+        "format": "<div  style=\"height:500px;overflow:auto\">\n  <div \n    ng-repeat=\"line in msg.payload track by line.tm\" \n    style=\"font-size: 10pt; white-space: nowrap\">\n      <span style=\"border: 1px solid white;\">{{line.app}}</span>\n      <span>\n          {{line.tm | date:'dd/MM' }}: {{line.s}}\n      </span>\n  </div>\n</div>\n\n\n<script>\n\n(function(scope) {\n    //scope.date = $filter('date')(new Date(),'dd/MM');\n})(scope);\n\n</script>\n",
+        "storeOutMessages": false,
+        "fwdInMessages": false,
+        "templateScope": "local",
+        "x": 830,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "95bf7296.12ec8",
+        "type": "function",
+        "z": "38ee4b91.5dc3e4",
+        "name": "JS: Log",
+        "func": "",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "// Code added here will be run once\n// whenever the node is started.\n\nconst log = global.get('log') || [];\nnode.send({payload: log});\n",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 680,
+        "wires": [
+            [
+                "87b7f6a0.be1688"
+            ]
+        ]
+    },
+    {
+        "id": "51c051ab.b36d6",
+        "type": "function",
+        "z": "d4b1bd47.24b07",
+        "name": "dummy loc",
+        "func": "const my = global.get(\"my\", \"memoryOnly\");\nconst [lat, lon] = [31.806161,35.059892];\nconst locHash = `${my.round(lat, 10000)},${my.round(lon, 10000)}`;\n\nreturn {locHash, lat, lon, summary: \"went there, did that, \"};",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 980,
+        "wires": [
+            [
+                "18d0a109.68043f"
+            ]
+        ]
+    },
+    {
+        "id": "4c55c87f.bb8858",
+        "type": "inject",
+        "z": "d4b1bd47.24b07",
+        "name": "inj",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 270,
+        "y": 980,
+        "wires": [
+            [
+                "51c051ab.b36d6"
             ]
         ]
     }
